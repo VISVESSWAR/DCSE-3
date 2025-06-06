@@ -8,6 +8,7 @@ import ODRequest from "./Features/OD/ODRequest";
 import ODHistory from "./Features/OD/ODHistory";
 import AddPublication from "./Features/Publications/AddPublication";
 import Publications from "./Features/Publications/Publications";
+import AddScholar from "./Features/Scholars/AddScholar";
 function App() {
   return (
     <BrowserRouter>
@@ -15,7 +16,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path="login" element={<FacultyLogin />} />
         <Route path="scholars" element={<FacultyScholars />} />
-        <Route path="scholars/add" element={<FacultyScholars />} />
+        <Route path="scholar/add" element={<AddScholar />} />
         <Route path="OD" element={<ODHistory />} />
         <Route path="OD/new" element={<ODRequest />} />
         <Route path="publications" element={<Publications />} />
