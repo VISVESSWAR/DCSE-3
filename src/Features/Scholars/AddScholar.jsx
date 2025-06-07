@@ -23,17 +23,25 @@ export default function AddScholar() {
   const { register, reset, getValues, formState, handleSubmit } = useForm();
 
   async function onSubmit(data) {
-    console.log(data);
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/pgscholars",
-        data
-      );
-      console.log(res);
-    } catch (err) {
-      console.error(err);
-    }
+  const payload = {
+    name: data.name,
+    registrationNumber: data.registrationNumber,
+    contactInfo: {
+      email: data.email,
+      phone: data.phone,
+    },
+    areaOfResearch: data.areaOfResearch,
+    supervisor: data.supervisor,
+  };
+
+  try {
+    const res = await axios.post("http://localhost:5000/api/pgscholars", payload);
+    console.log(res.data);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
   }
+}
+
   function onError(error) {
     console.log(error);
     reset();
