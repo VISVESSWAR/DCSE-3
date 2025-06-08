@@ -13,14 +13,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route index element={<Home />} />
-        <Route path="login" element={<FacultyLogin />} />
-        <Route path="scholars" element={<FacultyScholars />} />
-        <Route path="scholar/add" element={<AddScholar />} />
-        <Route path="OD" element={<ODHistory />} />
-        <Route path="OD/new" element={<ODRequest />} />
-        <Route path="publications" element={<Publications />} />
-        <Route path="publications/add" element={<AddPublication />} />
+        <Route path="/" element={<Home />}>
+          <Route path="login" element={<FacultyLogin />} />
+          <Route path="scholars" element={<FacultyScholars />} />
+          <Route path="scholar/add" element={<AddScholar />} />
+          <Route path="OD" element={<ODHistory />} />
+          <Route path="OD/new" element={<ODRequest />} />
+          <Route path="publications" element={<Publications />} />
+          <Route path="publications/add" element={<AddPublication />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

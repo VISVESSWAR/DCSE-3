@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
-import FormRow from "./FormRow";
 
 const researchAreas = [
   "Artificial Intelligence",
@@ -21,7 +20,7 @@ const supervisors = [
 
 export default function AddScholar() {
   const { register, reset, getValues, formState, handleSubmit } = useForm();
-  const { errors } = formState;
+
   async function onSubmit(data) {
     console.log(data);
     try {
@@ -39,60 +38,59 @@ export default function AddScholar() {
     reset();
   }
   return (
-    <div className="p-2 text-lg h-screen flex-col bg-[#edf4fb] mx-auto flex justify-center items-start min-h-screen ">
+    <div className="p-2 text-lg h-screen flex-col bg-[#fff5ed] mx-auto flex justify-center items-start min-h-screen ">
       <h1 className="font-bold text-3xl text-center mt-5 mx-auto">
-        Add Scholar
+        AddScholar
       </h1>
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl  shadow-black shadow-[6px_6px_6px_-2px_rgba(0,0,0,0.3)] bg-gray-50"
+        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl "
       >
-        <FormRow label={"name"} error={errors?.name?.message}>
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label id="name">Name</label>
           <input
             name="name"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("name", { required: "This is required field" })}
           ></input>
-        </FormRow>
+        </div>
 
-        <FormRow
-          label={"registrationNumber"}
-          error={errors?.registrationNumber?.message}
-        >
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label id="registrationNumber">Registration Number</label>
           <input
             name="registrationNumber"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("registrationNumber", {
               required: "This is required field",
             })}
           ></input>
-        </FormRow>
+        </div>
 
-        <FormRow label={"email"} error={errors?.email?.message}>
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label id="email">Email</label>
           <input
             name="email"
             type="email"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("email", { required: "This is required field" })}
           ></input>
-        </FormRow>
+        </div>
 
-        <FormRow label={"phone"} error={errors?.phone?.message}>
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label id="phone">phone</label>
           <input
             name="phone"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("phone", { required: "This is required field" })}
           ></input>
-        </FormRow>
+        </div>
 
-        <FormRow
-          label={"areaOfResearch"}
-          error={errors?.areaOfResearch?.message}
-        >
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label htmlFor="areaOfResearch">Area of Research</label>
           <select
             {...register("areaOfResearch", { required: true })}
             id="areaOfResearch"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
           >
             <option value="">Select</option>
             {researchAreas.map((area, idx) => (
@@ -101,13 +99,14 @@ export default function AddScholar() {
               </option>
             ))}
           </select>
-        </FormRow>
+        </div>
 
-        <FormRow label={"supervisor"} error={errors?.supervisor?.message}>
+        <div className="my-2 p-2 font-semibold flex justify-between">
+          <label htmlFor="supervisor">Supervisor</label>
           <select
             {...register("supervisor", { required: true })}
             id="supervisor"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="rounded-full bg-[#F9F6F0] px-3 text-center w-60 mx-4 border-[2px] border-black"
           >
             <option value="">Select</option>
             {supervisors.map((name, idx) => (
@@ -116,11 +115,11 @@ export default function AddScholar() {
               </option>
             ))}
           </select>
-        </FormRow>
+        </div>
 
         <button
           type="submit"
-          className="bg-[#145DA0] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#2E8BC0] hover:cursor-pointer font-semibold focus:ring-blue-700"
+        className="bg-[#956471] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#b4818f] hover:cursor-pointer font-semibold"
         >
           Add Scholar
         </button>
