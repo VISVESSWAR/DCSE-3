@@ -10,24 +10,28 @@ import Publications from "./Features/Publications/Publications";
 import AddScholar from "./Features/Scholars/AddScholar";
 import FacultyScholars from "./Features/Scholars/Scholars";
 import { Toaster } from "react-hot-toast";
-
+import { UserData } from "./context/UserContext";
+import GenerateCR from "./Features/CR/GenerateCR";
+import Dashboard from "./pages/Faculty/Dashboard";
 function App() {
+  const { user } = UserData();
   return (
     <>
-    
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />}>
-          <Route path="login" element={<FacultyLogin />} />
-          <Route path="scholars" element={<FacultyScholars />} />
-          <Route path="scholar/add" element={<AddScholar />} />
-          <Route path="OD" element={<ODHistory />} />
-          <Route path="OD/new" element={<ODRequest />} />
-          <Route path="publications" element={<Publications />} />
-          <Route path="publication/add" element={<AddPublication />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="login" element={<FacultyLogin />} />
+            <Route path="scholars" element={<FacultyScholars />} />
+            <Route path="scholar/add" element={<AddScholar />} />
+            <Route path="OD" element={<ODHistory />} />
+            <Route path="OD/new" element={<ODRequest />} />
+            <Route path="publications" element={<Publications />} />
+            <Route path="publication/add" element={<AddPublication />} />
+            <Route path="CR" element={<GenerateCR />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
       <Toaster
         position="top-right"
         containerStyle={{ margin: "10px" }}
@@ -48,7 +52,7 @@ function App() {
           },
         }}
       />
-      </>
+    </>
   );
 }
 
