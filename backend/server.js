@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const cors = require('cors');
 const PORT = process.env.PORT || 5000;
 const pgScholarRoutes = require('./routes/pgScholarRoutes');
+const publicationRoutes = require('./routes/publicationRoutes');
 
 dotenv.config();
 connectDB();
@@ -18,6 +19,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/pgscholars', pgScholarRoutes);
+app.use('/api/publications', publicationRoutes);
+
 
 
 app.listen(PORT, () => {
