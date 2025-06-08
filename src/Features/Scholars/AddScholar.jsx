@@ -4,6 +4,7 @@ import FormRow from "./FormRow";
 import toast from "react-hot-toast";
 import { useState } from "react";
 import Spinner from "../../ui/Spinner";
+import { UserData } from "../../context/UserContext";
 const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
 const researchAreas = [
   "Artificial Intelligence",
@@ -24,7 +25,7 @@ const supervisors = [
 
 export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   const { _id: editId, contactInfo = {}, ...data } = formData;
-
+  const { user } = UserData();
   const { phone, email } = contactInfo;
 
   const editData = Object.keys(formData).length
@@ -94,7 +95,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         phone: data.phone,
       },
       areaOfResearch: data.areaOfResearch,
-      supervisor: data.supervisor,
+      supervisor: user._id,
     };
 
     if (isEditing) {
@@ -180,7 +181,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
           </select>
         </FormRow>
 
-        <FormRow label={"supervisor"} error={errors?.supervisor?.message}>
+        {/* <FormRow label={"supervisor"} error={errors?.supervisor?.message}>
           <select
             {...register("supervisor", { required: true })}
             id="supervisor"
@@ -193,7 +194,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
               </option>
             ))}
           </select>
-        </FormRow>
+        </FormRow> */}
 
         <button
           type="submit"

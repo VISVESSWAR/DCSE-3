@@ -9,7 +9,7 @@ import { UserData } from "../../context/UserContext";
 function Scholars() {
   const { user } = UserData();
 
-  const isAdmin = user.role === "Admin";
+  const isAdmin = user.position === "Admin";
   const [scholarsList, setScholarsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,7 +68,7 @@ function Scholars() {
               <th className="py-3 px-4 text-center">Email</th>
               <th className="py-3 px-4 text-center">Phone</th>
               <th className="py-3 px-4 text-center">Area of Research</th>
-              <th className="py-3 px-4 text-center">Supervisor</th>
+              {isAdmin && <th className="py-3 px-4 text-center">Supervisor</th>}
               <th className="py-3 px-4 text-center">Actions</th>
             </tr>
           </thead>
@@ -86,11 +86,23 @@ function Scholars() {
                   className="border-t border-gray-200 hover:bg-blue-50 transition"
                 >
                   <td className="py-2 px-4 text-center">{scholar.name}</td>
-                  <td className="py-2 px-4 text-center">{scholar.registrationNumber}</td>
-                  <td className="py-2 px-4 text-center">{scholar.contactInfo?.email}</td>
-                  <td className="py-2 px-4 text-center">{scholar.contactInfo?.phone}</td>
-                  <td className="py-2 px-4 text-center">{scholar.areaOfResearch}</td>
-                  <td className="py-2 px-4 text-center">{scholar.supervisor}</td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.registrationNumber}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.contactInfo?.email}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.contactInfo?.phone}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.areaOfResearch}
+                  </td>
+                  {isAdmin && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.supervisor.name}
+                    </td>
+                  )}
                   <td className="py-2 px-4 flex gap-2 text-center">
                     <Modal>
                       <Modal.Body opens="form">

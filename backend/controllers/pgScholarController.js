@@ -1,9 +1,11 @@
-const PGScholar = require('../models/PGScholar');
-
+const PGScholar = require("../models/PGScholar");
 
 const addPGScholar = async (req, res) => {
   try {
-    const scholar = new PGScholar(req.body);
+    const scholar = new PGScholar({
+      ...req.body,
+      supervisor: req.body.supervisor,
+    });
     const savedScholar = await scholar.save();
     res.status(201).json(savedScholar);
   } catch (err) {
@@ -13,8 +15,15 @@ const addPGScholar = async (req, res) => {
 
 const getAllPGScholars = async (req, res) => {
   try {
-    const scholars = await PGScholar.find();
+    let scholars;
+  
+    if (req.user.role === "faculty") {
+      scholars = await PGScholar.find({ supervisor: req.user._id });
+    } else {
+      scholars = await PGScholar.find().populate("supervisor", "name");
+    }
     res.json(scholars);
+    console.log(scholars)
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -22,10 +31,22 @@ const getAllPGScholars = async (req, res) => {
 
 const updatePGScholar = async (req, res) => {
   try {
+    const scholar = await PGScholar.findById(req.params.id);
+    if (!scholar) return res.status(404).json({ message: "Scholar not found" });
+
+    // update only if user is admin or their own supervisor
+    if (
+      req.user.role !== "admin" &&
+      (!scholar.supervisor || scholar.supervisor.toString() !== req.user._id)
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to update this scholar" });
+    }
+
     const updated = await PGScholar.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!updated) return res.status(404).json({ message: 'Scholar not found' });
     res.json(updated);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -34,9 +55,16 @@ const updatePGScholar = async (req, res) => {
 
 const deletePGScholar = async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "Only admins can delete scholars" });
+    }
+
     const deleted = await PGScholar.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Scholar not found' });
-    res.json({ message: 'Scholar deleted successfully' });
+    if (!deleted) return res.status(404).json({ message: "Scholar not found" });
+
+    res.json({ message: "Scholar deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -46,5 +74,5 @@ module.exports = {
   addPGScholar,
   getAllPGScholars,
   updatePGScholar,
-  deletePGScholar
+  deletePGScholar,
 };
