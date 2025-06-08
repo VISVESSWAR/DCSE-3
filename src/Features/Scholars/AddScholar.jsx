@@ -23,28 +23,25 @@ export default function AddScholar() {
   const { register, reset, getValues, formState, handleSubmit } = useForm();
 
   async function onSubmit(data) {
-    // Prepare scholar data to match backend schema
-    const scholarData = {
-      ...data,
-      contactInfo: {
-        email: data.email,
-        phone: data.phone
-      }
-    };
-    delete scholarData.email;
-    delete scholarData.phone;
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/pgscholars",
-        scholarData
-      );
-      alert("Scholar added successfully!");
-      reset();
-    } catch (err) {
-      alert("Failed to add scholar. Please check your input and try again.");
-      console.error(err);
-    }
+  const payload = {
+    name: data.name,
+    registrationNumber: data.registrationNumber,
+    contactInfo: {
+      email: data.email,
+      phone: data.phone,
+    },
+    areaOfResearch: data.areaOfResearch,
+    supervisor: data.supervisor,
+  };
+
+  try {
+    const res = await axios.post("http://localhost:5000/api/pgscholars", payload);
+    console.log(res.data);
+  } catch (err) {
+    console.error(err.response?.data || err.message);
   }
+}
+
   function onError(error) {
     console.log(error);
     reset();
