@@ -10,6 +10,7 @@ import {
   TbUserPlus,
   TbReport,
   TbLogout2,
+  TbBookUpload,
 } from "react-icons/tb";
 import { NavLink } from "react-router-dom";
 
@@ -18,10 +19,15 @@ export default function Sidebar() {
   const links = [
     { name: "Home", path: "/", icon: <TbHome /> },
     { name: "Scholars", path: "scholars", icon: <TbUser /> },
+    { name: "Add Scholar", path: "scholar/add", icon: <TbUserPlus /> },
     { name: "Publications", path: "publications", icon: <TbBook /> },
+    {
+      name: "Add Publication",
+      path: "publication/add",
+      icon: <TbBookUpload />,
+    },
     { name: "OD Request", path: "OD/new", icon: <TbFilePlus /> },
     { name: "OD History", path: "OD", icon: <TbHistory /> },
-    { name: "Add Scholar", path: "scholar/add", icon: <TbUserPlus /> },
     { name: "Generate CR", path: "cr", icon: <TbReport /> },
     { name: "Logout", path: "/", icon: <TbLogout2 /> },
   ];

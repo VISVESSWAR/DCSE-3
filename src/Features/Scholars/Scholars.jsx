@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
+import Spinner from "../../ui/Spinner";
 
 function Scholars() {
   const [scholarsList, setScholarsList] = useState([]);
@@ -12,24 +14,39 @@ function Scholars() {
     supervisor: "",
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetching scholar details on component mount
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/pgscholars")
-      .then((response) => {
+    const fetchScholars = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get(
+          "http://localhost:5000/api/pgscholars"
+        );
+        console.log(response.data)
         setScholarsList(response.data);
-      })
-      .catch((error) => console.error("Error fetching scholars:", error));
+      } catch (error) {
+        console.error("Error fetching scholars:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchScholars();
   }, []);
 
-  const deleteScholar = (id) => {
-    axios
-      .delete(`http://localhost:5000/api/pgscholars/${id}`)
-      .then(() => {
-        setScholarsList(scholarsList.filter((scholar) => scholar._id !== id));
-      })
-      .catch((error) => console.error("Error deleting scholar:", error));
+  const deleteScholar = async (id) => {
+    try {
+      setIsLoading(true);
+      await axios.delete(`http://localhost:5000/api/pgscholars/${id}`);
+      setScholarsList((prev) => prev.filter((scholar) => scholar._id !== id));
+      toast.success("Scholar details deleted successfully");
+    } catch (error) {
+      console.error("Error deleting scholar:", error);
+      toast.error("Failed to delete the selected Scholar details");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const openEditForm = (scholar) => {
@@ -59,24 +76,34 @@ function Scholars() {
     }
   };
 
-  const submitUpdate = (event) => {
+  const submitUpdate = async (event) => {
     event.preventDefault();
-    axios
-      .put(`http://localhost:5000/api/pgscholars/${currentScholar._id}`, formData)
-      .then((response) => {
-        setScholarsList(
-          scholarsList.map((scholar) =>
-            scholar._id === currentScholar._id ? response.data : scholar
-          )
-        );
-        setIsModalVisible(false);
-        setCurrentScholar(null);
-      })
-      .catch((error) => console.error("Error updating scholar:", error));
+
+    try {
+      setIsLoading(true);
+      const response = await axios.put(
+        `http://localhost:5000/api/pgscholars/${currentScholar._id}`,
+        formData
+      );
+
+      setScholarsList((prev) =>
+        prev.map((scholar) =>
+          scholar._id === currentScholar._id ? response.data : scholar
+        )
+      );
+
+      setIsModalVisible(false);
+      setCurrentScholar(null);
+    } catch (error) {
+      console.error("Error updating scholar:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+  if (isLoading) return <Spinner />;
 
   return (
-    <div className="p-5 text-lg flex w-full min-h-screen flex-col bg-blue-200">
+    <div className="p-5 text-lg flex w-full min-h-screen flex-col bg-[#edf4fb]">
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Scholars List
       </h2>
@@ -96,10 +123,7 @@ function Scholars() {
           <tbody>
             {scholarsList.length === 0 ? (
               <tr>
-                <td
-                  colSpan={7}
-                  className="text-center py-8 text-gray-500"
-                >
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   No scholars available.
                 </td>
               </tr>
