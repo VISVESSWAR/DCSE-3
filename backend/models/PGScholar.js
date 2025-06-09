@@ -1,41 +1,45 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const pgScholarSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   registrationNumber: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   contactInfo: {
     email: {
       type: String,
       required: false,
-      trim: true
+      trim: true,
     },
     phone: {
       type: String,
       required: false,
-      trim: true
-    }
+      trim: true,
+    },
   },
   areaOfResearch: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
+
+  // supervisor is now a reference to faculty
   supervisor: {
-    type: String,
-    default: '' // optional now, link to faculty ID later
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Faculty",
+    required: false,
   },
+
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('PGScholar', pgScholarSchema);
+module.exports = mongoose.model("PGScholar", pgScholarSchema);

@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
@@ -8,22 +8,51 @@ import ODHistory from "./Features/OD/ODHistory";
 import AddPublication from "./Features/Publications/AddPublication";
 import Publications from "./Features/Publications/Publications";
 import AddScholar from "./Features/Scholars/AddScholar";
-import Scholars from "./Features/Scholars/Scholars";
-
+import FacultyScholars from "./Features/Scholars/Scholars";
+import { Toaster } from "react-hot-toast";
+import { UserData } from "./context/UserContext";
+import GenerateCR from "./Features/CR/GenerateCR";
+import Dashboard from "./pages/Faculty/Dashboard";
 function App() {
+  const { user } = UserData();
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route index element={<Home />} />
-        <Route path="login" element={<FacultyLogin />} />
-        <Route path="scholars" element={<Scholars />} />
-        <Route path="scholar/add" element={<AddScholar />} />
-        <Route path="OD" element={<ODHistory />} />
-        <Route path="OD/new" element={<ODRequest />} />
-        <Route path="publications" element={<Publications />} />
-        <Route path="publications/add" element={<AddPublication />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="login" element={<FacultyLogin />} />
+            <Route path="scholars" element={<FacultyScholars />} />
+            <Route path="scholar/add" element={<AddScholar />} />
+            <Route path="OD" element={<ODHistory />} />
+            <Route path="OD/new" element={<ODRequest />} />
+            <Route path="publications" element={<Publications />} />
+            <Route path="publication/add" element={<AddPublication />} />
+            <Route path="CR" element={<GenerateCR />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <Toaster
+        position="top-right"
+        containerStyle={{ margin: "10px" }}
+        gutter={12}
+        toastOptions={{
+          success: {
+            duration: 3000,
+          },
+          error: {
+            duration: 5000,
+          },
+          style: {
+            fontSize: "16px",
+            maxWidth: "500px",
+            padding: "16px 24px",
+            backgroundColor: "var(--color-grey-0)",
+            color: "var(--color-grey-700)",
+          },
+        }}
+      />
+    </>
   );
 }
 

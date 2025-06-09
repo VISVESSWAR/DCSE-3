@@ -1,7 +1,11 @@
 import axios from "axios";
-import React from "react";
 import { useForm } from "react-hook-form";
-
+import FormRow from "./FormRow";
+import toast from "react-hot-toast";
+import { useState } from "react";
+import Spinner from "../../ui/Spinner";
+import { UserData } from "../../context/UserContext";
+const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
 const researchAreas = [
   "Artificial Intelligence",
   "Data Science",
@@ -19,85 +23,154 @@ const supervisors = [
   "Dr. E. Kumar",
 ];
 
-export default function AddScholar() {
-  const { register, reset, getValues, formState, handleSubmit } = useForm();
+export default function AddScholar({ formData = {}, onClose, onUpdate }) {
+  const { _id: editId, contactInfo = {}, ...data } = formData;
+  const { user } = UserData();
+  const { phone, email } = contactInfo;
 
-  async function onSubmit(data) {
-  const payload = {
-    name: data.name,
-    registrationNumber: data.registrationNumber,
-    contactInfo: {
-      email: data.email,
-      phone: data.phone,
-    },
-    areaOfResearch: data.areaOfResearch,
-    supervisor: data.supervisor,
+  const editData = Object.keys(formData).length
+    ? {
+        ...data,
+        phone,
+        email,
+      }
+    : null;
+  const isEditing = Boolean(editId);
+  const { register, reset, formState, handleSubmit } = useForm({
+    defaultValues: isEditing ? editData : {},
+  });
+  const { errors } = formState;
+
+  const [isLoading, setIsLoading] = useState(false);
+  const validatePhone = (no) => {
+    // console.log(no);
+    return phoneNoPattern.test(no);
   };
-
-  try {
-    const res = await axios.post("http://localhost:5000/api/pgscholars", payload);
-    console.log(res.data);
-  } catch (err) {
-    console.error(err.response?.data || err.message);
+  // console.log(editData);
+  async function handleAddScholar(payload) {
+    try {
+      setIsLoading(true);
+      const res = await axios.post(
+        "http://localhost:5000/api/pgscholars",
+        payload
+      );
+      console.log(res.data);
+      toast.success("Scholar details added successfully");
+      reset();
+      onClose?.();
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      toast.error(
+        err.response?.data || err.message || "Failed to add new Scholar details"
+      );
+    } finally {
+      setIsLoading(false);
+    }
   }
-}
+
+  async function handleUpdate(payload) {
+    try {
+      setIsLoading(true);
+      const response = await axios.put(
+        `http://localhost:5000/api/pgscholars/${editId}`,
+        payload
+      );
+      toast.success("Updated Scholar Details Successfully");
+      reset();
+      onUpdate(editId, payload);
+      onClose?.();
+    } catch (error) {
+      console.error("Error updating scholar:", error);
+      toast.error("Failed to update Scholar Details");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+  async function onSubmit(data) {
+    const payload = {
+      name: data.name,
+      registrationNumber: data.registrationNumber,
+      contactInfo: {
+        email: data.email,
+        phone: data.phone,
+      },
+      areaOfResearch: data.areaOfResearch,
+      supervisor: user._id,
+    };
+
+    if (isEditing) {
+      handleUpdate(payload);
+    } else {
+      handleAddScholar(payload);
+    }
+  }
 
   function onError(error) {
     console.log(error);
-    reset();
   }
+
+  if (isLoading) return <Spinner />;
   return (
-    <div className="p-5 text-lg flex w-full h-screen flex-col bg-blue-200">
-      <h1 className="font-bold text-3xl text-center mt-20">AddScholar</h1>
+    <div className="p-2 text-lg h-screen flex-col  mx-auto flex justify-center items-start min-h-screen ">
+      <h1 className="font-bold text-3xl text-center mt-5 mx-auto">
+        Add Scholar
+      </h1>
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="flex flex-col self-center lg:w-[40%] mt-10 border-2 border-black p-8 rounded-xl"
+        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl  shadow-black shadow-[6px_6px_6px_-2px_rgba(0,0,0,0.3)] bg-gray-50"
       >
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label id="name">Name</label>
+        <FormRow label={"name"} error={errors?.name?.message}>
           <input
             name="name"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("name", { required: "This is required field" })}
           ></input>
-        </div>
+        </FormRow>
 
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label id="registrationNumber">registrationNumber</label>
+        <FormRow
+          label={"registrationNumber"}
+          error={errors?.registrationNumber?.message}
+        >
           <input
             name="registrationNumber"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("registrationNumber", {
               required: "This is required field",
             })}
           ></input>
-        </div>
+        </FormRow>
 
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label id="email">email</label>
+        <FormRow label={"email"} error={errors?.email?.message}>
           <input
             name="email"
             type="email"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("email", { required: "This is required field" })}
           ></input>
-        </div>
+        </FormRow>
 
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label id="phone">phone</label>
+        <FormRow label={"phone"} error={errors?.phone?.message}>
           <input
             name="phone"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
-            {...register("phone", { required: "This is required field" })}
+            type="tel"
+            placeholder="Enter 10 digit mobile number"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            {...register("phone", {
+              required: "This is required field",
+              validate: (value) =>
+                validatePhone(value) || "Enter a valid phone number",
+            })}
           ></input>
-        </div>
+        </FormRow>
 
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label htmlFor="areaOfResearch">Area of Research</label>
+        <FormRow
+          label={"areaOfResearch"}
+          error={errors?.areaOfResearch?.message}
+        >
           <select
             {...register("areaOfResearch", { required: true })}
             id="areaOfResearch"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
           >
             <option value="">Select</option>
             {researchAreas.map((area, idx) => (
@@ -106,14 +179,13 @@ export default function AddScholar() {
               </option>
             ))}
           </select>
-        </div>
+        </FormRow>
 
-        <div className="my-2 p-2 font-semibold flex justify-between">
-          <label htmlFor="supervisor">Supervisor</label>
+        {/* <FormRow label={"supervisor"} error={errors?.supervisor?.message}>
           <select
             {...register("supervisor", { required: true })}
             id="supervisor"
-            className="rounded-full bg-stone-200 px-3 text-center w-60"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
           >
             <option value="">Select</option>
             {supervisors.map((name, idx) => (
@@ -122,13 +194,13 @@ export default function AddScholar() {
               </option>
             ))}
           </select>
-        </div>
+        </FormRow> */}
 
         <button
           type="submit"
-          className="bg-blue-400 rounded-full p-2 px-4 mt-5 w-fit self-center"
+          className="bg-[#145DA0] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#2E8BC0] hover:cursor-pointer font-semibold focus:ring-blue-700"
         >
-          Add Scholar
+          {isEditing ? "Update" : "Add Scholar"}
         </button>
       </form>
     </div>
