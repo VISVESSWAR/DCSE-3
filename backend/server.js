@@ -3,14 +3,10 @@ const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
-<<<<<<< HEAD
-const pgScholarRoutes = require('./routes/pgScholarRoutes');
-const publicationRoutes = require('./routes/publicationRoutes');
-
-=======
-const pgScholarRoutes = require("./routes/pgScholarRoutes");
 const facultyRoutes = require("./routes/faculty");
->>>>>>> 60c38a58e9194827d87974be43650caefa092127
+const pgScholarRoutes = require("./routes/pgScholarRoutes");
+const publicationRoutes = require("./routes/publicationRoutes");
+
 dotenv.config();
 connectDB();
 const app = express();
@@ -34,15 +30,10 @@ app.use((req, res, next) => {
   next();
 });
 
-<<<<<<< HEAD
+app.use("/api/faculty", facultyRoutes);
 app.use('/api/pgscholars', pgScholarRoutes);
 app.use('/api/publications', publicationRoutes);
 
-
-=======
-app.use("/api/pgscholars", pgScholarRoutes);
-app.use("/api/faculty", facultyRoutes);
->>>>>>> 60c38a58e9194827d87974be43650caefa092127
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
