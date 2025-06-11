@@ -6,11 +6,13 @@ const {
   updatePGScholar,
   deletePGScholar
 } = require('../controllers/pgScholarController');
+const { restrictTo } = require('../middleware/roleAccess'); 
+
 
 // Route: /api/pgscholars
-router.post('/', addPGScholar);
-router.get('/', getAllPGScholars);
-router.put('/:id', updatePGScholar);
-router.delete('/:id', deletePGScholar);
+router.post('/', restrictTo('faculty'), addPGScholar);
+router.get('/', restrictTo('hod', 'admin'), getAllPGScholars);
+router.put('/:id', restrictTo('faculty'), updatePGScholar);
+router.delete('/:id', restrictTo('faculty'), deletePGScholar);
 
 module.exports = router;

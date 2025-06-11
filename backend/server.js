@@ -6,6 +6,7 @@ const PORT = process.env.PORT || 5000;
 const facultyRoutes = require("./routes/faculty");
 const pgScholarRoutes = require("./routes/pgScholarRoutes");
 const publicationRoutes = require("./routes/publicationRoutes");
+const authRoutes = require('./routes/authRoutes');
 
 dotenv.config();
 connectDB();
@@ -18,21 +19,22 @@ app.get("/", (req, res) => {
   res.send("Faculty Portal Backend Running");
 });
 // Temporary middleware to simulate login
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6845c010f4d7457e793dfd3d', // faculty
-    role: 'faculty',
-    // _id: "6845bcc003d9421f7b3a4cd0", // admin
-    // role: "admin",
-    // _id: "6845c02cf4d7457e793dfd41", // hod
-    // role: "hod",
-  };
-  next();
-});
+// app.use((req, res, next) => {
+//   req.user = {
+//     _id: '6845c010f4d7457e793dfd3d', // faculty
+//     role: 'faculty',
+//     // _id: "6845bcc003d9421f7b3a4cd0", // admin
+//     // role: "admin",
+//     // _id: "6845c02cf4d7457e793dfd41", // hod
+//     // role: "hod",
+//   };
+//   next();
+// });
 
 app.use("/api/faculty", facultyRoutes);
 app.use('/api/pgscholars', pgScholarRoutes);
 app.use('/api/publications', publicationRoutes);
+app.use('/api/auth', authRoutes);
 
 
 app.listen(PORT, () => {
