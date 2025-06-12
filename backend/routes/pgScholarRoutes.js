@@ -11,7 +11,7 @@ const { restrictTo } = require('../middleware/roleAccess');
 
 // Route: /api/pgscholars
 router.post('/', restrictTo('faculty'), addPGScholar);
-router.get('/', restrictTo('hod', 'admin'), getAllPGScholars);
+router.get('/', restrictTo('faculty','hod', 'admin'), getAllPGScholars);
 router.put('/:id', restrictTo('faculty'), updatePGScholar);
 router.delete('/:id', restrictTo('faculty'), deletePGScholar);
 

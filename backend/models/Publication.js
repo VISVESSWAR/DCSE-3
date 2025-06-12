@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const publicationSchema = new mongoose.Schema({
+  citation_id: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   title: {
     type: String,
     required: true,
@@ -16,7 +21,6 @@ const publicationSchema = new mongoose.Schema({
   },
   journal: {
     type: String,
-    required: true,
     trim: true
   },
   doi: {
