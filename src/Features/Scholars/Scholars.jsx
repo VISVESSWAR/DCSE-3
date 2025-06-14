@@ -55,7 +55,7 @@ function Scholars() {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="p-5 text-lg flex w-full min-h-screen flex-col bg-[#edf4fb]">
+    <div className="p-5 text-lg flex w-full min-h-screen flex-col ">
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Scholars List
       </h2>

@@ -6,22 +6,6 @@ import { useState } from "react";
 import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
 const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
-const researchAreas = [
-  "Artificial Intelligence",
-  "Data Science",
-  "Cybersecurity",
-  "Wireless Networks",
-  "Computer Vision",
-  "Quantum Computing",
-];
-
-const supervisors = [
-  "Dr. A. Sharma",
-  "Dr. B. Rao",
-  "Dr. C. Mehta",
-  "Dr. D. Roy",
-  "Dr. E. Kumar",
-];
 
 export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   const { _id: editId, contactInfo = {}, ...data } = formData;
@@ -111,96 +95,82 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
 
   if (isLoading) return <Spinner />;
   return (
-    <div className="p-2 text-lg h-screen flex-col  mx-auto flex justify-center items-start min-h-screen ">
-      <h1 className="font-bold text-3xl text-center mt-5 mx-auto">
-        Add Scholar
-      </h1>
+    <div className="p-4 text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl  shadow-black shadow-[6px_6px_6px_-2px_rgba(0,0,0,0.3)] bg-gray-50"
+        className="w-full max-w-2xl border border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
       >
-        <FormRow label={"name"} error={errors?.name?.message}>
+        <h1 className="text-3xl font-bold text-center text-[#145DA0]">
+          {isEditing ? "Update Scholar" : "Add Scholar"}
+        </h1>
+
+        <div className="space-y-1">
+          <label className="block">Name</label>
           <input
             name="name"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("name", { required: "This is required field" })}
-          ></input>
-        </FormRow>
+          />
+          {errors?.name && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow
-          label={"registrationNumber"}
-          error={errors?.registrationNumber?.message}
-        >
+        <div className="space-y-1">
+          <label className="block">Registration Number</label>
           <input
             name="registrationNumber"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("registrationNumber", {
               required: "This is required field",
             })}
-          ></input>
-        </FormRow>
+          />
+          {errors?.registrationNumber && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label={"email"} error={errors?.email?.message}>
+        <div className="space-y-1">
+          <label className="block">Email</label>
           <input
             name="email"
             type="email"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("email", { required: "This is required field" })}
-          ></input>
-        </FormRow>
+          />
+          {errors?.email && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label={"phone"} error={errors?.phone?.message}>
+        <div className="space-y-1">
+          <label className="block">Phone Number</label>
           <input
             name="phone"
             type="tel"
             placeholder="Enter 10 digit mobile number"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
             {...register("phone", {
               required: "This is required field",
               validate: (value) =>
                 validatePhone(value) || "Enter a valid phone number",
             })}
-          ></input>
-        </FormRow>
+          />
+          {errors?.phone && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow
-          label={"areaOfResearch"}
-          error={errors?.areaOfResearch?.message}
-        >
-          <select
-            {...register("areaOfResearch", { required: true })}
-            id="areaOfResearch"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
-          >
-            <option value="">Select</option>
-            {researchAreas.map((area, idx) => (
-              <option key={idx} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </FormRow>
-
-        {/* <FormRow label={"supervisor"} error={errors?.supervisor?.message}>
-          <select
-            {...register("supervisor", { required: true })}
-            id="supervisor"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
-          >
-            <option value="">Select</option>
-            {supervisors.map((name, idx) => (
-              <option key={idx} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </FormRow> */}
+        <div className="space-y-1">
+          <label className="block">Area of Research</label>
+          <input
+            type="text"
+            placeholder="e.g., Artificial Intelligence"
+            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
+            {...register("areaOfResearch", {
+              required: "This is required field",
+            })}
+          />
+          {errors?.areaOfResearch && <div className="h-0.5 bg-red-500" />}
+        </div>
 
         <button
           type="submit"
-          className="bg-[#145DA0] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#2E8BC0] hover:cursor-pointer font-semibold focus:ring-blue-700"
+          className="w-fit mx-auto block bg-[#145DA0] text-white px-6 py-2 rounded hover:bg-[#2E8BC0] transition duration-200"
         >
-          {isEditing ? "Update" : "Add Scholar"}
+          {isEditing ? "Update Scholar" : "Add Scholar"}
         </button>
       </form>
     </div>

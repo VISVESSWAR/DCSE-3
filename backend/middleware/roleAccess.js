@@ -6,6 +6,7 @@ const User = require('../models/User');
 // So, during testing do the same.
 
 const isAuthenticated = (req, res, next) => {
+  console.log(req.user)
   if (!req.user) {
     return res.status(401).json({ message: 'Not logged in' });
   }
@@ -29,7 +30,6 @@ const restrictTo = (...allowedRoles) => {
     if (!allowedRoles.includes(user.role)) {
       return res.status(403).json({ message: 'Access denied' });
     }
-
     req.user = user;
     next();
   };

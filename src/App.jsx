@@ -1,6 +1,6 @@
 // import { useState } from "react";
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import FacultyLogin from "./pages/Faculty/Login";
 import ODRequest from "./Features/OD/ODRequest";
@@ -13,25 +13,38 @@ import { Toaster } from "react-hot-toast";
 import { UserData } from "./context/UserContext";
 import GenerateCR from "./Features/CR/GenerateCR";
 import Dashboard from "./pages/Faculty/Dashboard";
+import Signup from "./pages/Faculty/Signup";
+import ProtectedRoutes from "./ui/ProtectedRoutes";
 function App() {
   const { user } = UserData();
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename="/">
         <Routes>
           <Route path="/" element={<Home />}>
-            <Route path="/" element={<Dashboard />} />
             <Route path="login" element={<FacultyLogin />} />
-            <Route path="scholars" element={<FacultyScholars />} />
-            <Route path="scholar/add" element={<AddScholar />} />
-            <Route path="OD" element={<ODHistory />} />
-            <Route path="OD/new" element={<ODRequest />} />
-            <Route path="publications" element={<Publications />} />
-            <Route path="publication/add" element={<AddPublication />} />
-            <Route path="CR" element={<GenerateCR />} />
+            <Route path="signup" element={<Signup />} />
+
+            <Route
+              element={
+                <ProtectedRoutes>
+                  <Outlet />
+                </ProtectedRoutes>
+              }
+            >
+              <Route path="/" element={<Dashboard />} />
+              <Route path="scholars" element={<FacultyScholars />} />
+              <Route path="scholar/add" element={<AddScholar />} />
+              <Route path="OD" element={<ODHistory />} />
+              <Route path="OD/new" element={<ODRequest />} />
+              <Route path="publications" element={<Publications />} />
+              <Route path="publication/add" element={<AddPublication />} />
+              <Route path="CR" element={<GenerateCR />} />
+            </Route>
           </Route>
         </Routes>
       </BrowserRouter>
+
       <Toaster
         position="top-right"
         containerStyle={{ margin: "10px" }}
@@ -47,7 +60,7 @@ function App() {
             fontSize: "16px",
             maxWidth: "500px",
             padding: "16px 24px",
-            backgroundColor: "var(--color-grey-0)",
+            backgroundColor: "#ffffff",
             color: "var(--color-grey-700)",
           },
         }}
