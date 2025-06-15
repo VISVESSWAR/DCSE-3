@@ -22,6 +22,7 @@ export default function Sidebar() {
     { name: "OD Request", path: "OD/new", icon: <TbFilePlus /> },
     { name: "OD History", path: "OD", icon: <TbHistory /> },
     { name: "Add Scholar", path: "scholar/add", icon: <TbUserPlus /> },
+    { name: "Add Publication", path: "publication/add", icon: <TbFilePlus /> },
     { name: "Generate CR", path: "cr", icon: <TbReport /> },
     { name: "Logout", path: "/", icon: <TbLogout2 /> },
   ];
