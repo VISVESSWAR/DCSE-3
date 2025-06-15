@@ -34,7 +34,6 @@ export default function RequestList() {
       userId: "fac456",
     },
   ]);
-  
 
   const { user } = UserData();
   // const [requests, setRequests] = useState([]);
@@ -98,8 +97,10 @@ export default function RequestList() {
 
     setRequests(filtered);
   }, [user]);
-  if(requests && requests.length===0)
-    return <p className="mx-auto text-center text-2xl font-bold ">No record found</p>
+  if (requests && requests.length === 0)
+    return (
+      <p className="mx-auto text-center text-2xl font-bold ">No record found</p>
+    );
   return (
     <div className="p-10 max-w-4xl mx-auto space-y-4">
       <h1 className="text-3xl font-bold">OD Requests</h1>
@@ -118,7 +119,7 @@ export default function RequestList() {
               <td className="p-2 text-center">{r.status}</td>
               <td className="p-2 text-center">
                 <Modal>
-                  <Modal.Body close={() => setSelected(null)} opens={"form"}>
+                  <Modal.Body close={() => setSelected(null)} opens={"view"}>
                     <button
                       onClick={() => setSelected(r)}
                       className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0]"
@@ -126,7 +127,7 @@ export default function RequestList() {
                       View
                     </button>
                   </Modal.Body>
-                  <Modal.Window name="form">
+                  <Modal.Window name="view">
                     <RequestDetails
                       data={r}
                       // isHod={true}
@@ -139,35 +140,43 @@ export default function RequestList() {
                         );
                         setSelected(updatedReq);
                       }}
+                      edit={false}
                       close={() => setSelected(null)}
                     />
                   </Modal.Window>
-                </Modal>
-                <Modal>
-                  <Modal.Body close={() => setSelected(null)} opens={"form"}>
-                    <button
-                      onClick={() => setSelected(r)}
-                      className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0]"
-                    >
-                      Edit
-                    </button>
-                  </Modal.Body>
-                  <Modal.Window name="form">
-                    <RequestDetails
-                      data={r}
-                      // isHod={true}
-                      isHod={user.role === "hod"}
-                      onSuccess={(updatedReq) => {
-                        setRequests((reqs) =>
-                          reqs.map((r) =>
-                            r._id === updatedReq._id ? updatedReq : r
-                          )
-                        );
-                        setSelected(updatedReq);
-                      }}
-                      close={() => setSelected(null)}
-                    />
-                  </Modal.Window>
+
+                  {user.role === "faculty" && r.status === "Pending" && (
+                    <>
+                      <Modal.Body
+                        close={() => setSelected(null)}
+                        opens={"edit"}
+                      >
+                        <button
+                          onClick={() => setSelected(r)}
+                          className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-2"
+                        >
+                          Edit
+                        </button>
+                      </Modal.Body>
+                      <Modal.Window name="edit">
+                        <RequestDetails
+                          data={r}
+                          // isHod={true}
+                          isHod={user.role === "hod"}
+                          onSuccess={(updatedReq) => {
+                            setRequests((reqs) =>
+                              reqs.map((r) =>
+                                r._id === updatedReq._id ? updatedReq : r
+                              )
+                            );
+                            setSelected(updatedReq);
+                          }}
+                          close={() => setSelected(null)}
+                          edit={true}
+                        />
+                      </Modal.Window>
+                    </>
+                  )}
                 </Modal>
               </td>
             </tr>

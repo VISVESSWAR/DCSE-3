@@ -76,10 +76,34 @@ const getUserRequests = async (req, res) => {
     res.status(500).json({ error: "Unable to fetch user requests" });
   }
 };
+
+const updateODDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateFields = req.body; 
+
+    const updated = await ODRequest.findByIdAndUpdate(
+      id,
+      updateFields,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ error: "OD Request not found" });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update OD details" });
+  }
+};
+
 module.exports = {
   getAllRequests,
   getUserRequests,
   createRequest,
   addDocs,
   updateStatus,
+  updateODDetails
 };

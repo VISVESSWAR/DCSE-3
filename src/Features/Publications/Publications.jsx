@@ -20,7 +20,7 @@ function Publications() {
           "http://localhost:5000/api/publications",
           {
             headers: {
-              'x-user-email': user.email,
+              "x-user-email": user.email,
             },
           }
         );
@@ -38,7 +38,9 @@ function Publications() {
 
   const updatePublicationInList = (id, updatedPublication) => {
     setPublicationsList((prev) =>
-      prev.map((publication) => (publication._id === id ? updatedPublication : publication))
+      prev.map((publication) =>
+        publication._id === id ? updatedPublication : publication
+      )
     );
   };
 
@@ -47,10 +49,12 @@ function Publications() {
       setIsLoading(true);
       await axios.delete(`http://localhost:5000/api/publications/${id}`, {
         headers: {
-          'x-user-email': user.email,
+          "x-user-email": user.email,
         },
       });
-      setPublicationsList((prev) => prev.filter((publication) => publication._id !== id));
+      setPublicationsList((prev) =>
+        prev.filter((publication) => publication._id !== id)
+      );
       toast.success("Publication deleted successfully");
     } catch (error) {
       console.error("Error deleting publication:", error);
@@ -63,7 +67,7 @@ function Publications() {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="p-5 text-lg flex w-full min-h-screen flex-col bg-[#edf4fb]">
+    <div className="p-5 text-lg flex w-full min-h-screen flex-col">
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Publications List
       </h2>
@@ -93,12 +97,18 @@ function Publications() {
                   className="border-t border-gray-200 hover:bg-blue-50 transition"
                 >
                   <td className="py-2 px-4 text-center">{publication.title}</td>
-                  <td className="py-2 px-4 text-center">{publication.authors?.join(', ') || '-'}</td>
+                  <td className="py-2 px-4 text-center">
+                    {publication.authors?.join(", ") || "-"}
+                  </td>
                   <td className="py-2 px-4 text-center">
                     {new Date(publication.publicationDate).toLocaleDateString()}
                   </td>
-                  <td className="py-2 px-4 text-center">{publication.journal || '-'}</td>
-                  <td className="py-2 px-4 text-center">{publication.doi || '-'}</td>
+                  <td className="py-2 px-4 text-center">
+                    {publication.journal || "-"}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {publication.doi || "-"}
+                  </td>
                   {isAdmin && (
                     <td className="py-2 px-4 flex gap-2 justify-center">
                       <Modal>

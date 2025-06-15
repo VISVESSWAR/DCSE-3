@@ -35,19 +35,16 @@ export default function ODRequestForm() {
   }
 
   const onSubmit = async (data) => {
-    // Handle custom event type
     if (data.eventType === "Others" && data.otherEventType) {
       data.eventType = data.otherEventType;
     }
     delete data.otherEventType;
 
-    // Validate dates
     if (new Date(data.endDate) < new Date(data.startDate)) {
       toast.error("End date cannot be earlier than start date");
       return;
     }
 
-    // Prepare FormData
     const formData = new FormData();
     formData.append("requestType", data.requestType);
     formData.append("name", user.name);
@@ -65,27 +62,17 @@ export default function ODRequestForm() {
       formData.append("procurements", data.procurements);
     }
 
-    // Number of days (calculated separately and stored in state)
     formData.append("days", numDays.toString());
 
-    // Append files
     if (data.documents && data.documents.length > 0) {
       for (const file of data.documents) {
         formData.append("documents", file);
       }
     }
-// ,
-//         {
-//           headers: {
-//             "x-user-email": user.email,
-//           },
-//         }
-    // Debug: log entries manually
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
 
-    // Make the request
     try {
       const res = await axios.post(
         "http://localhost:5000/api/odrequests",

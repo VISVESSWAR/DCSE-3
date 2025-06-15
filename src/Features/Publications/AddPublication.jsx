@@ -28,7 +28,7 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
         payload,
         {
           headers: {
-            'x-user-email': user.email,
+            "x-user-email": user.email,
           },
         }
       );
@@ -42,10 +42,14 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
     } catch (err) {
       console.error(err.response?.data || err.message);
       if (err.response?.data?.message?.includes("Duplicate citation_id")) {
-        toast.error("A publication with this DOI already exists. Please use a different DOI or leave it empty.");
+        toast.error(
+          "A publication with this DOI already exists. Please use a different DOI or leave it empty."
+        );
       } else {
         toast.error(
-          err.response?.data?.message || err.message || "Failed to add new publication"
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to add new publication"
         );
       }
     } finally {
@@ -61,7 +65,7 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
         payload,
         {
           headers: {
-            'x-user-email': user.email,
+            "x-user-email": user.email,
           },
         }
       );
@@ -78,9 +82,13 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
     } catch (error) {
       console.error("Error updating publication:", error);
       if (error.response?.data?.message?.includes("Duplicate citation_id")) {
-        toast.error("A publication with this DOI already exists. Please use a different DOI or leave it empty.");
+        toast.error(
+          "A publication with this DOI already exists. Please use a different DOI or leave it empty."
+        );
       } else {
-        toast.error(error.response?.data?.message || "Failed to update Publication");
+        toast.error(
+          error.response?.data?.message || "Failed to update Publication"
+        );
       }
     } finally {
       setIsLoading(false);
@@ -99,7 +107,7 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
         { authorId },
         {
           headers: {
-            'x-user-email': user.email,
+            "x-user-email": user.email,
           },
         }
       );
@@ -112,7 +120,10 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
       }
     } catch (error) {
       console.error("Error fetching publications:", error);
-      toast.error(error.response?.data?.message || "Failed to fetch publications from Google Scholar");
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to fetch publications from Google Scholar"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -141,69 +152,84 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="p-2 text-lg h-screen flex-col mx-auto flex justify-center items-start min-h-screen">
-      <h1 className="font-bold text-3xl text-center mt-5 mx-auto">
-        {isEditing ? "Edit Publication" : "Add Publication"}
-      </h1>
+    <div className="text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center py-10">
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl shadow-black shadow-[6px_6px_6px_-2px_rgba(0,0,0,0.3)] bg-gray-50"
+        className="w-full max-w-2xl border border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
       >
-        <FormRow label="title" error={errors?.title?.message}>
+        <h1 className="text-3xl font-bold text-center text-[#145DA0]">
+          {isEditing ? "Edit Publication" : "Add Publication"}
+        </h1>
+
+        <div className="space-y-1">
+          <label className="block font-medium">Title</label>
           <input
             name="title"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("title", { required: "This is required field" })}
           />
-        </FormRow>
+          {errors?.title && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label="author" error={errors?.author?.message}>
+        <div className="space-y-1">
+          <label className="block font-medium">Author</label>
           <input
             name="author"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("author", { required: "This is required field" })}
           />
-        </FormRow>
+          {errors?.author && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label="publicationDate" error={errors?.publicationDate?.message}>
+        <div className="space-y-1">
+          <label className="block font-medium">Publication Date</label>
           <input
             name="publicationDate"
             type="date"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
-            {...register("publicationDate", { required: "This is required field" })}
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("publicationDate", {
+              required: "This is required field",
+            })}
           />
-        </FormRow>
+          {errors?.publicationDate && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label="journalOrPublisher" error={errors?.journalOrPublisher?.message}>
+        <div className="space-y-1">
+          <label className="block font-medium">Journal or Publisher</label>
           <input
             name="journalOrPublisher"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
-            {...register("journalOrPublisher", { required: "This is required field" })}
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("journalOrPublisher", {
+              required: "This is required field",
+            })}
           />
-        </FormRow>
+          {errors?.journalOrPublisher && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <FormRow label="doi" error={errors?.doi?.message}>
+        <div className="space-y-1">
+          <label className="block font-medium">DOI</label>
           <input
             name="doi"
             placeholder="Optional"
-            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("doi")}
           />
-        </FormRow>
+          {errors?.doi && <div className="h-0.5 bg-red-500" />}
+        </div>
 
-        <div className="my-4 p-2 font-semibold flex justify-between items-center">
-          <label className="capitalize text-xl">Google Scholar Author ID</label>
+        <div className="space-y-1">
+          <label className="block font-medium">Google Scholar Author ID</label>
           <div className="flex gap-2">
             <input
               value={authorId}
               onChange={(e) => setAuthorId(e.target.value)}
               placeholder="Enter author ID"
-              className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 border-[2px] border-black"
+              className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             />
             <button
               type="button"
               onClick={handleFetchFromGoogleScholar}
-              className="bg-green-400 hover:bg-green-500 text-white rounded-full px-3 py-1 text-sm font-semibold"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
             >
               Fetch
             </button>
@@ -212,9 +238,9 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
 
         <button
           type="submit"
-          className="bg-[#145DA0] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#2E8BC0] hover:cursor-pointer font-semibold focus:ring-blue-700"
+          className="w-fit mx-auto block bg-[#145DA0] text-white px-6 py-2 rounded hover:bg-[#2E8BC0] transition duration-200"
         >
-          {isEditing ? "Update" : "Add Publication"}
+          {isEditing ? "Update Publication" : "Add Publication"}
         </button>
       </form>
     </div>

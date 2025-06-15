@@ -7,6 +7,7 @@ const {
   updateStatus,
   getAllRequests,
   getUserRequests,
+  updateODDetails
 } = require("../controllers/ODController");
 const { restrictTo } = require("../middleware/roleAccess");
 const router = express.Router();
@@ -40,6 +41,7 @@ router.put(
   restrictTo("faculty"),
   addDocs
 );
+router.put("/update-details/:id", updateODDetails);
 
 router.put("/:id/:status", restrictTo("hod", "admin"), updateStatus);
 router.get("/", restrictTo("hod", "admin"), getAllRequests);
