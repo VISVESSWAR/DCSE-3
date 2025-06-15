@@ -5,9 +5,12 @@ import toast from "react-hot-toast";
 import { useState } from "react";
 import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
+
 const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
 
 export default function AddScholar({ formData = {}, onClose, onUpdate }) {
+  const navigate = useNavigate();
   const { _id: editId, contactInfo = {}, ...data } = formData;
   const { user } = UserData();
   console.log("User data in AddScholar:", user);
@@ -28,10 +31,9 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
 
   const [isLoading, setIsLoading] = useState(false);
   const validatePhone = (no) => {
-    // console.log(no);
     return phoneNoPattern.test(no);
   };
-  // console.log(editData);
+
   async function handleAddScholar(payload) {
     console.log(user.email)
     try {
@@ -49,11 +51,15 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       toast.success("Scholar details added successfully");
       reset();
       setIsLoading(false);
-      onClose?.();
+      if (onClose) {
+        onClose();
+      } else {
+        navigate("/scholars");
+      }
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error(
-        err.response?.data || err.message || "Failed to add new Scholar details"
+        err.response?.data?.message || err.message || "Failed to add new Scholar details"
       );
     } finally {
       setIsLoading(false);
@@ -69,15 +75,22 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       );
       toast.success("Updated Scholar Details Successfully");
       reset();
-      onUpdate(editId, payload);
-      onClose?.();
+      if (onUpdate) {
+        onUpdate(editId, payload);
+      }
+      if (onClose) {
+        onClose();
+      } else {
+        navigate("/scholars");
+      }
     } catch (error) {
       console.error("Error updating scholar:", error);
-      toast.error("Failed to update Scholar Details");
+      toast.error(error.response?.data?.message || "Failed to update Scholar Details");
     } finally {
       setIsLoading(false);
     }
   }
+
   async function onSubmit(data) {
     const payload = {
       name: data.name,
@@ -102,7 +115,8 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     console.log(error);
   }
 
- // if (isLoading) return <Spinner />;
+  if (isLoading) return <Spinner />;
+
   return (
     <div className="p-4 text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
       <form
@@ -113,18 +127,15 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </h1>
 
-        <div className="space-y-1">
-          <label className="block">Name</label>
+        <FormRow label="name" error={errors?.name?.message}>
           <input
             name="name"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("name", { required: "This is required field" })}
           />
-          {errors?.name && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Registration Number</label>
+        <FormRow label="registrationNumber" error={errors?.registrationNumber?.message}>
           <input
             name="registrationNumber"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
@@ -132,22 +143,18 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
               required: "This is required field",
             })}
           />
-          {errors?.registrationNumber && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Email</label>
+        <FormRow label="email" error={errors?.email?.message}>
           <input
             name="email"
             type="email"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("email", { required: "This is required field" })}
           />
-          {errors?.email && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Phone Number</label>
+        <FormRow label="phone" error={errors?.phone?.message}>
           <input
             name="phone"
             type="tel"
@@ -159,11 +166,9 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
                 validatePhone(value) || "Enter a valid phone number",
             })}
           />
-          {errors?.phone && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Area of Research</label>
+        <FormRow label="areaOfResearch" error={errors?.areaOfResearch?.message}>
           <input
             type="text"
             placeholder="e.g., Artificial Intelligence"
@@ -172,8 +177,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
               required: "This is required field",
             })}
           />
-          {errors?.areaOfResearch && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
         <button
           type="submit"
