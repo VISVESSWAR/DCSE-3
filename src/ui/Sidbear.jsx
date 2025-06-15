@@ -11,11 +11,14 @@ import {
   TbReport,
   TbLogout2,
   TbBookUpload,
+  TbLogin2,
 } from "react-icons/tb";
 import { NavLink } from "react-router-dom";
+import { UserData } from "../context/UserContext";
 
 export default function Sidebar() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
+  const { user, logout } = UserData();
   const links = [
     { name: "Home", path: "/", icon: <TbHome /> },
     { name: "Scholars", path: "scholars", icon: <TbUser /> },
@@ -29,15 +32,21 @@ export default function Sidebar() {
     { name: "OD Request", path: "OD/new", icon: <TbFilePlus /> },
     { name: "OD History", path: "OD", icon: <TbHistory /> },
     { name: "Generate CR", path: "cr", icon: <TbReport /> },
-    { name: "Logout", path: "/", icon: <TbLogout2 /> },
+    ...(user
+      ? [{ name: "Logout", path: "/", icon: <TbLogout2 /> }]
+      : [
+          { name: "Login", path: "/login", icon: <TbLogin2 /> },
+          { name: "Signup", path: "/signup", icon: <TbUserPlus /> },
+        ]),
   ];
+
   function handleClose() {
     setOpen((open) => !open);
   }
   return (
     <div
-      className={`relative left-0 top-0 h-screen ${
-        open ? "lg:w-96" : "lg:w-10"
+      className={`relative left-0 top-0 h-full ${
+        open ? "lg:w-96 w-screen" : "lg:w-10 "
       } transition-all duration-300`}
     >
       <div
@@ -60,6 +69,12 @@ export default function Sidebar() {
               <span className="p-2 self-center">{item.icon}</span>
               <NavLink
                 to={item.path}
+                onClick={() => {
+                  if (item.name === "Logout") {
+                    logout();
+                  }
+                  setOpen(false);
+                }}
                 className="self-center mx-1 relative group text-[#F9F6F0]"
               >
                 {item.name}
@@ -72,7 +87,7 @@ export default function Sidebar() {
       {!open && (
         <button
           onClick={handleClose}
-          className="absolute right-0 text-3xl bg-[#145DA0] text-[#F9F6F0]  hover:text-[#fee199] hover:cursor-pointer text-center w-full h-full"
+          className="absolute right-0 text-3xl lg:bg-[#145DA0]  text-[#145DA0] lg:text-[#F9F6F0]  hover:text-[#fee199] hover:cursor-pointer text-center w-full h-full"
         >
           <TbLayoutSidebarRightCollapseFilled />
         </button>

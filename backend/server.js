@@ -6,7 +6,9 @@ const PORT = process.env.PORT || 5000;
 const facultyRoutes = require("./routes/facultyRoutes");
 const pgScholarRoutes = require("./routes/pgScholarRoutes");
 const publicationRoutes = require("./routes/publicationRoutes");
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require("./routes/authRoutes");
+const path = require("path");
+const odRoutes = require("./routes/ODRoutes");
 
 dotenv.config();
 connectDB();
@@ -32,10 +34,21 @@ app.get("/", (req, res) => {
 // });
 
 app.use("/api/faculty", facultyRoutes);
-app.use('/api/pgscholars', pgScholarRoutes);
-app.use('/api/publications', publicationRoutes);
-app.use('/api/auth', authRoutes);
+app.use("/api/pgscholars", pgScholarRoutes);
+app.use("/api/publications", publicationRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/uploads", express.static("uploads", {
+  setHeaders: (res, path) => {
+    if (path.endsWith(".pdf")) {
+      res.setHeader("Content-Type", "application/pdf");
+    }
+    if (path.endsWith(".docx")) {
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    }
+  },
+}));
 
+app.use("/api/odrequests", odRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
