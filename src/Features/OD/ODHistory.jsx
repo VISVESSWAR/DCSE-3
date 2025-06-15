@@ -34,19 +34,7 @@ export default function RequestList() {
       userId: "fac456",
     },
   ]);
-  const sampleRequest = {
-    _id: "req1",
-    name: "Dr. Aisha Rao",
-    status: "Pending",
-    requestType: "Conference",
-    startDate: "2025-07-01",
-    endDate: "2025-07-05",
-    eventType: "National",
-    areaOfResearch: "Artificial Intelligence",
-    reason: "Attending national AI conference",
-    supportingDocuments: [],
-    userId: "fac123",
-  };
+  
 
   const { user } = UserData();
   // const [requests, setRequests] = useState([]);
@@ -136,6 +124,32 @@ export default function RequestList() {
                       className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0]"
                     >
                       View
+                    </button>
+                  </Modal.Body>
+                  <Modal.Window name="form">
+                    <RequestDetails
+                      data={r}
+                      // isHod={true}
+                      isHod={user.role === "hod"}
+                      onSuccess={(updatedReq) => {
+                        setRequests((reqs) =>
+                          reqs.map((r) =>
+                            r._id === updatedReq._id ? updatedReq : r
+                          )
+                        );
+                        setSelected(updatedReq);
+                      }}
+                      close={() => setSelected(null)}
+                    />
+                  </Modal.Window>
+                </Modal>
+                <Modal>
+                  <Modal.Body close={() => setSelected(null)} opens={"form"}>
+                    <button
+                      onClick={() => setSelected(r)}
+                      className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0]"
+                    >
+                      Edit
                     </button>
                   </Modal.Body>
                   <Modal.Window name="form">

@@ -33,7 +33,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   };
   // console.log(editData);
   async function handleAddScholar(payload) {
-    console.log(user.email)
+    console.log(user.email);
     try {
       setIsLoading(true);
       const res = await axios.post(
@@ -41,7 +41,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         payload,
         {
           headers: {
-            'x-user-email': user.email,
+            "x-user-email": user.email,
           },
         }
       );
@@ -102,85 +102,86 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     console.log(error);
   }
 
- // if (isLoading) return <Spinner />;
+  // if (isLoading) return <Spinner />;
   return (
-    <div className="p-4 text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
+    <div className=" text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="w-full max-w-2xl border border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
+        className="w-full max-w-2xl border  border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
       >
         <h1 className="text-3xl font-bold text-center text-[#145DA0]">
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </h1>
+        <div className="h-[80vh] overflow-y-auto p-10 space-y-6">
+          <div className="space-y-1">
+            <label className="block">Name</label>
+            <input
+              name="name"
+              className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+              {...register("name", { required: "This is required field" })}
+            />
+            {errors?.name && <div className="h-0.5 bg-red-500" />}
+          </div>
 
-        <div className="space-y-1">
-          <label className="block">Name</label>
-          <input
-            name="name"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
-            {...register("name", { required: "This is required field" })}
-          />
-          {errors?.name && <div className="h-0.5 bg-red-500" />}
-        </div>
+          <div className="space-y-1">
+            <label className="block">Registration Number</label>
+            <input
+              name="registrationNumber"
+              className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+              {...register("registrationNumber", {
+                required: "This is required field",
+              })}
+            />
+            {errors?.registrationNumber && <div className="h-0.5 bg-red-500" />}
+          </div>
 
-        <div className="space-y-1">
-          <label className="block">Registration Number</label>
-          <input
-            name="registrationNumber"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
-            {...register("registrationNumber", {
-              required: "This is required field",
-            })}
-          />
-          {errors?.registrationNumber && <div className="h-0.5 bg-red-500" />}
-        </div>
+          <div className="space-y-1">
+            <label className="block">Email</label>
+            <input
+              name="email"
+              type="email"
+              className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+              {...register("email", { required: "This is required field" })}
+            />
+            {errors?.email && <div className="h-0.5 bg-red-500" />}
+          </div>
 
-        <div className="space-y-1">
-          <label className="block">Email</label>
-          <input
-            name="email"
-            type="email"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
-            {...register("email", { required: "This is required field" })}
-          />
-          {errors?.email && <div className="h-0.5 bg-red-500" />}
-        </div>
+          <div className="space-y-1">
+            <label className="block">Phone Number</label>
+            <input
+              name="phone"
+              type="tel"
+              placeholder="Enter 10 digit mobile number"
+              className="w-full p-3 rounded bg-gray-100 border border-gray-300"
+              {...register("phone", {
+                required: "This is required field",
+                validate: (value) =>
+                  validatePhone(value) || "Enter a valid phone number",
+              })}
+            />
+            {errors?.phone && <div className="h-0.5 bg-red-500" />}
+          </div>
 
-        <div className="space-y-1">
-          <label className="block">Phone Number</label>
-          <input
-            name="phone"
-            type="tel"
-            placeholder="Enter 10 digit mobile number"
-            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
-            {...register("phone", {
-              required: "This is required field",
-              validate: (value) =>
-                validatePhone(value) || "Enter a valid phone number",
-            })}
-          />
-          {errors?.phone && <div className="h-0.5 bg-red-500" />}
-        </div>
-
-        <div className="space-y-1">
-          <label className="block">Area of Research</label>
-          <input
-            type="text"
-            placeholder="e.g., Artificial Intelligence"
-            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
-            {...register("areaOfResearch", {
-              required: "This is required field",
-            })}
-          />
-          {errors?.areaOfResearch && <div className="h-0.5 bg-red-500" />}
-        </div>
+          <div className="space-y-1">
+            <label className="block">Area of Research</label>
+            <input
+              type="text"
+              placeholder="e.g., Artificial Intelligence"
+              className="w-full p-3 rounded bg-gray-100 border border-gray-300"
+              {...register("areaOfResearch", {
+                required: "This is required field",
+              })}
+            />
+            {errors?.areaOfResearch && <div className="h-0.5 bg-red-500" />}
+          </div>
 
         <button
           type="submit"
           className="w-fit mx-auto block bg-[#145DA0] text-white px-6 py-2 rounded hover:bg-[#2E8BC0] transition duration-200"
-        >
+          >
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </button>
+          </div>
       </form>
     </div>
   );
