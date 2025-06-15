@@ -10,6 +10,7 @@ const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
 export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   const { _id: editId, contactInfo = {}, ...data } = formData;
   const { user } = UserData();
+  console.log("User data in AddScholar:", user);
   const { phone, email } = contactInfo;
 
   const editData = Object.keys(formData).length
@@ -32,15 +33,22 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   };
   // console.log(editData);
   async function handleAddScholar(payload) {
+    console.log(user.email)
     try {
       setIsLoading(true);
       const res = await axios.post(
         "http://localhost:5000/api/pgscholars",
-        payload
+        payload,
+        {
+          headers: {
+            'x-user-email': user.email,
+          },
+        }
       );
       console.log(res.data);
       toast.success("Scholar details added successfully");
       reset();
+      setIsLoading(false);
       onClose?.();
     } catch (err) {
       console.error(err.response?.data || err.message);
@@ -79,12 +87,13 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         phone: data.phone,
       },
       areaOfResearch: data.areaOfResearch,
-      supervisor: user._id,
+      supervisor: user.userId,
     };
 
     if (isEditing) {
       handleUpdate(payload);
     } else {
+      console.log("Payload sent to backend:", payload);
       handleAddScholar(payload);
     }
   }
@@ -93,7 +102,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     console.log(error);
   }
 
-  if (isLoading) return <Spinner />;
+ // if (isLoading) return <Spinner />;
   return (
     <div className="p-4 text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
       <form

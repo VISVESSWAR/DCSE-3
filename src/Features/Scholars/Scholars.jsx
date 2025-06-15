@@ -18,7 +18,12 @@ function Scholars() {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          "http://localhost:5000/api/pgscholars"
+          "http://localhost:5000/api/pgscholars",
+          {
+          headers: {
+            'x-user-email': user.email,
+          },
+        }
         );
         console.log(response.data);
         setScholarsList(response.data);
