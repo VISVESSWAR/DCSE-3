@@ -19,26 +19,32 @@ import { UserData } from "../context/UserContext";
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const { user, logout } = UserData();
-  const links = [
-    { name: "Home", path: "/", icon: <TbHome /> },
-    { name: "Scholars", path: "scholars", icon: <TbUser /> },
-    { name: "Add Scholar", path: "scholar/add", icon: <TbUserPlus /> },
-    { name: "Publications", path: "publications", icon: <TbBook /> },
-    {
-      name: "Add Publication",
-      path: "publication/add",
-      icon: <TbBookUpload />,
-    },
-    { name: "OD Request", path: "OD/new", icon: <TbFilePlus /> },
-    { name: "OD History", path: "OD", icon: <TbHistory /> },
-    { name: "Generate CR", path: "cr", icon: <TbReport /> },
+  const isFaculty = user?.role === "faculty";
+
+  const fullLinks = [
+    { name: "Home", path: "/", icon: <TbHome />, roles: ["all"] },
+    { name: "Scholars", path: "scholars", icon: <TbUser />, roles: ["all"] },
+    { name: "Add Scholar", path: "scholar/add", icon: <TbUserPlus />, roles: ["faculty"] },
+    { name: "Publications", path: "publications", icon: <TbBook />, roles: ["all"] },
+    { name: "Add Publication", path: "publication/add", icon: <TbBookUpload />, roles: ["faculty"] },
+    { name: "OD Request", path: "OD/new", icon: <TbFilePlus />, roles: ["faculty"] },
+    { name: "OD History", path: "OD", icon: <TbHistory />, roles: ["all"] },
+    { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     ...(user
-      ? [{ name: "Logout", path: "/", icon: <TbLogout2 /> }]
+      ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [
-          { name: "Login", path: "/login", icon: <TbLogin2 /> },
-          { name: "Signup", path: "/signup", icon: <TbUserPlus /> },
+          { name: "Login", path: "/login", icon: <TbLogin2 />, roles: ["all"] },
+          { name: "Signup", path: "/signup", icon: <TbUserPlus />, roles: ["all"] },
         ]),
   ];
+
+
+  const links = fullLinks.filter((link) => {
+    if (link.roles.includes("all")) return true;
+    if (link.roles.includes("faculty") && isFaculty) return true;
+    return false;
+  });
+
 
   function handleClose() {
     setOpen((open) => !open);
