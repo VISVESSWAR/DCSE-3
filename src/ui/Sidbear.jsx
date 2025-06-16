@@ -46,7 +46,7 @@ export default function Sidebar() {
   return (
     <div
       className={`relative left-0 top-0 h-full ${
-        open ? "lg:w-96 w-screen" : "lg:w-10 "
+        open ? "lg:w-72 w-screen" : "lg:w-10 "
       } transition-all duration-300`}
     >
       <div

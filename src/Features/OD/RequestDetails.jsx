@@ -62,7 +62,7 @@ export default function RequestDetails({
       const res = await axios.put(
         `http://localhost:5000/api/odrequests/${data._id}/docs`,
         fd,
-         {
+        {
           headers: {
             "Content-Type": "multipart/form-data",
             "x-user-email": user.email,
@@ -167,17 +167,20 @@ export default function RequestDetails({
                 className="border p-1 rounded w-full"
               />
             </div>
-
-            <input
-              type="date"
-              {...register("endDate", {
-                validate: (value) =>
-                  !watch("startDate") ||
-                  new Date(value) >= new Date(watch("startDate")) ||
-                  "End Date must be after Start Date",
-              })}
-              className="border p-1 rounded w-full"
-            />
+            <div className="w-full bg-[#fbfbfb] px-4 py-2 rounded flex gap-2 items-center">
+              <TbCalendarTime />
+              <strong>End Date:</strong>
+              <input
+                type="date"
+                {...register("endDate", {
+                  validate: (value) =>
+                    !watch("startDate") ||
+                    new Date(value) >= new Date(watch("startDate")) ||
+                    "End Date must be after Start Date",
+                })}
+                className="border p-1 rounded w-full"
+              />
+            </div>
 
             <div className="w-full bg-[#fbfbfb] px-4 py-2 rounded flex gap-2 items-center">
               <TbCalendarTime />

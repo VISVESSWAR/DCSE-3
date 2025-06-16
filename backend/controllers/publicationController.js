@@ -104,12 +104,19 @@ const fetchAndStorePublications = async (req, res) => {
   const apiKey = process.env.SERP_API_KEY;
 
   if (!authorId) return res.status(400).json({ message: 'Author ID is required' });
+  if (!apiKey) {
+    console.error('SERP_API_KEY is not set in environment variables');
+    return res.status(500).json({ message: 'SERP API key is not configured' });
+  }
+  console.log('Using SERP_API_KEY (first 5 chars):', apiKey.substring(0, 5));
+  console.log('Fetching publications for authorId:', authorId);
 
   let totalFetched = [];
   let start = 0;
 
   try {
     while (true) {
+      console.log('Making SerpAPI request with start:', start);
       const resp = await axios.get('https://serpapi.com/search.json', {
         params: {
           engine: 'google_scholar_author',
@@ -120,34 +127,58 @@ const fetchAndStorePublications = async (req, res) => {
         },
       });
 
+      console.log('Full SerpAPI response data:', resp.data);
+
+      if (!resp.data) {
+        console.error('No data received from SerpAPI');
+        return res.status(500).json({ message: 'No data received from SerpAPI' });
+      }
+
       const articles = resp.data.articles || [];
+      console.log(`Fetched ${articles.length} articles`);
       totalFetched = totalFetched.concat(articles);
+      
       if (!resp.data.serpapi_pagination?.next || articles.length === 0) break;
       start += articles.length;
     }
 
+    console.log(`Total articles fetched: ${totalFetched.length}`);
+
     let newCount = 0;
     for (const article of totalFetched) {
-      const existing = await Publication.findOne({ citation_id: article.citation_id });
-      if (existing) continue;
+      console.log('Processing article:', article);
+      try {
+        const existing = await Publication.findOne({ citation_id: article.citation_id });
+        if (existing) continue;
 
-      const newPub = new Publication({
-        citation_id: article.citation_id,
-        title: article.title,
-        authors: article.authors.split(',').map(a => a.trim()),
-        publicationDate: article.year ? new Date(`${article.year}-01-01`) : new Date(),
-        journal: article.publication,
-        doi: '' // Optional: extract if present in article (SerpAPI might not give it)
-      });
+        const newPub = new Publication({
+          citation_id: article.citation_id,
+          title: article.title,
+          authors: article.authors.split(',').map(a => a.trim()),
+          publicationDate: article.year ? new Date(`${article.year}-01-01`) : new Date(),
+          journal: article.publication,
+          doi: article.doi || undefined // Set to undefined if DOI is not present
+        });
 
-      await newPub.save();
-      newCount++;
+        await newPub.save();
+        newCount++;
+      } catch (saveError) {
+        console.error('Error saving publication:', saveError);
+        // Continue with next article even if one fails
+      }
     }
 
     res.status(201).json({ message: `${newCount} new publications added.` });
   } catch (err) {
-    console.error('Error fetching/storing publications:', err.message);
-    res.status(500).json({ message: 'Server error while fetching publications.' });
+    console.error('Error details:', {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status
+    });
+    res.status(500).json({ 
+      message: 'Server error while fetching publications.',
+      details: err.response?.data || err.message
+    });
   }
 };
 

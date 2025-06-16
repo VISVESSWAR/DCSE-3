@@ -81,7 +81,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         }
       );
       toast.success("Updated Scholar Details Successfully");
-      reset();
+      // reset();
       if (onUpdate) {
         onUpdate(editId, payload);
       }
@@ -130,24 +130,21 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     <div className=" text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center py-10">
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="w-full max-w-2xl border overflow-y-auto h-[90vh] border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
+        className="w-full max-w-2xl border overflow-y-auto h-[90vh] border-gray-300 rounded-xl bg-white shadow-md p-10 "
       >
         <h1 className="text-3xl font-bold text-center text-[#145DA0]">
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </h1>
 
-        <div className="space-y-1">
-          <label className="block">Name</label>
+        <FormRow label="Name" error={errors?.name}>
           <input
             name="name"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("name", { required: "This is required field" })}
           />
-          {errors?.name && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Registration Number</label>
+        <FormRow label="Registration Number" error={errors?.registrationNumber}>
           <input
             name="registrationNumber"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
@@ -155,22 +152,18 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
               required: "This is required field",
             })}
           />
-          {errors?.registrationNumber && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Email</label>
+        <FormRow label="Email" error={errors?.email}>
           <input
             name="email"
             type="email"
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("email", { required: "This is required field" })}
           />
-          {errors?.email && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Phone Number</label>
+        <FormRow label="Phone Number" error={errors?.phone}>
           <input
             name="phone"
             type="tel"
@@ -182,11 +175,9 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
                 validatePhone(value) || "Enter a valid phone number",
             })}
           />
-          {errors?.phone && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
-        <div className="space-y-1">
-          <label className="block">Area of Research</label>
+        <FormRow label="Area of Research" error={errors?.areaOfResearch}>
           <input
             type="text"
             placeholder="e.g., Artificial Intelligence"
@@ -195,8 +186,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
               required: "This is required field",
             })}
           />
-          {errors?.areaOfResearch && <div className="h-0.5 bg-red-500" />}
-        </div>
+        </FormRow>
 
         <button
           type="submit"

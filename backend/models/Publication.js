@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const publicationSchema = new mongoose.Schema({
   citation_id: {
@@ -9,28 +9,30 @@ const publicationSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   authors: {
     type: [String],
-    required: true
+    required: true,
   },
   publicationDate: {
     type: Date,
-    required: true
+    required: true,
   },
   journal: {
     type: String,
-    trim: true
+    trim: true,
   },
   doi: {
     type: String,
-    trim: true
+    trim: true,
+    unique: true,
+    sparse: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('Publication', publicationSchema);
+module.exports = mongoose.model("Publication", publicationSchema);
