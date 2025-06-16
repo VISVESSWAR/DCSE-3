@@ -48,7 +48,11 @@ function Scholars() {
   const deleteScholar = async (id) => {
     try {
       setIsLoading(true);
-      await axios.delete(`http://localhost:5000/api/pgscholars/${id}`);
+      await axios.delete(`http://localhost:5000/api/pgscholars/${id}`, {
+        headers: {
+          "x-user-email": user.email,
+        },
+      });
       setScholarsList((prev) => prev.filter((scholar) => scholar._id !== id));
       toast.success("Scholar details deleted successfully");
     } catch (error) {
@@ -152,7 +156,7 @@ function Scholars() {
                   </td>
                   {!isFaculty && (
                     <td className="py-2 px-4 text-center">
-                      {scholar.supervisor.name}
+                      {scholar?.supervisor?.name}
                     </td>
                   )}
                   <td className="py-2 px-4 flex gap-2 text-center">

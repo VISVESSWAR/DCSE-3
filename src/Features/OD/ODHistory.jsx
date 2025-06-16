@@ -46,15 +46,40 @@ export default function RequestList() {
     }
   });
 
+  const handleDownload = async (id) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/odrequests/${id}/generate-letter`,
+        {
+          responseType: "blob",
+          headers: {
+            "Content-Type": "multipart/form-data",
+            "x-user-email": user.email,
+          },
+        },
+      );
+      const blob = new Blob([res.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `OD_Letter_${id}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success("Letter downloaded successfully");
+    } catch (error) {
+      toast.error("Failed to download letter");
+    }
+  };
+
   if (requests && requests.length === 0)
     return (
       <p className="mx-auto text-center text-2xl font-bold ">No record found</p>
     );
   return (
     <div className="p-10 max-w-4xl mx-auto space-y-4">
-      <h1 className="text-3xl font-bold">OD Requests</h1>
+      <h1 className="text-3xl font-bold text-center">OD Requests</h1>
 
-      {/* Filter Section */}
       <div className="flex justify-center gap-4 mb-6">
         <select
           value={filterType}
@@ -66,7 +91,9 @@ export default function RequestList() {
         </select>
         <input
           type="text"
-          placeholder={`Search by ${filterType === "name" ? "name" : "status"}...`}
+          placeholder={`Search by ${
+            filterType === "name" ? "name" : "status"
+          }...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -91,14 +118,14 @@ export default function RequestList() {
           ) : (
             filteredRequests.map((r) => (
               <tr key={r._id} className="border-t">
-                <td className="p-2 text-center">{r.name}</td>
-                <td className="p-2 text-center">{r.status}</td>
-                <td className="p-2 text-center">
+                <td className="p-2 text-center w-[30%]">{r.name}</td>
+                <td className="p-2 text-center w-[30%]">{r.status}</td>
+                <td className="p-2 text-center flex lg:flex-row flex-col justify-center">
                   <Modal>
                     <Modal.Body close={() => setSelected(null)} opens={"view"}>
                       <button
                         onClick={() => setSelected(r)}
-                        className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0]"
+                        className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-1 my-1"
                       >
                         View
                       </button>
@@ -115,43 +142,49 @@ export default function RequestList() {
                           );
                           setSelected(updatedReq);
                         }}
-                      edit={false}
+                        edit={false}
                         close={() => setSelected(null)}
                       />
                     </Modal.Window>
 
-                  {user.role === "faculty" && r.status === "Pending" && (
-                    <>
-                      <Modal.Body
-                        close={() => setSelected(null)}
-                        opens={"edit"}
-                      >
-                        <button
-                          onClick={() => setSelected(r)}
-                          className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-2"
-                        >
-                          Edit
-                        </button>
-                      </Modal.Body>
-                      <Modal.Window name="edit">
-                        <RequestDetails
-                          data={r}
-                          // isHod={true}
-                          isHod={user.role === "hod"}
-                          onSuccess={(updatedReq) => {
-                            setRequests((reqs) =>
-                              reqs.map((r) =>
-                                r._id === updatedReq._id ? updatedReq : r
-                              )
-                            );
-                            setSelected(updatedReq);
-                          }}
+                    {user.role === "faculty" && r.status === "Pending" && (
+                      <>
+                        <Modal.Body
                           close={() => setSelected(null)}
-                          edit={true}
-                        />
-                      </Modal.Window>
-                    </>
-                  )}
+                          opens={"edit"}
+                        >
+                          <button
+                            onClick={() => setSelected(r)}
+                            className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-1 my-1"
+                          >
+                            Edit
+                          </button>
+                        </Modal.Body>
+                        <Modal.Window name="edit">
+                          <RequestDetails
+                            data={r}
+                            // isHod={true}
+                            isHod={user.role === "hod"}
+                            onSuccess={(updatedReq) => {
+                              setRequests((reqs) =>
+                                reqs.map((r) =>
+                                  r._id === updatedReq._id ? updatedReq : r
+                                )
+                              );
+                              setSelected(updatedReq);
+                            }}
+                            close={() => setSelected(null)}
+                            edit={true}
+                          />
+                        </Modal.Window>
+                      </>
+                    )}
+                  <button
+                    onClick={() => handleDownload(r._id)}
+                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mt-2 mx-1 my-1"
+                  >
+                    Download Letter
+                  </button>
                   </Modal>
                 </td>
               </tr>

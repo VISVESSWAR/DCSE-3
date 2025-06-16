@@ -47,7 +47,7 @@ app.use("/uploads", express.static("uploads", {
     }
   },
 }));
-
+app.use('/static', express.static(path.join(__dirname, 'assets')))
 app.use("/api/odrequests", odRoutes);
 
 app.listen(PORT, () => {

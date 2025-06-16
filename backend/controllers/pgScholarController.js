@@ -57,12 +57,6 @@ const updatePGScholar = async (req, res) => {
 
 const deletePGScholar = async (req, res) => {
   try {
-    if (req.user.role !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "Only admins can delete scholars" });
-    }
-
     const deleted = await PGScholar.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Scholar not found" });
 

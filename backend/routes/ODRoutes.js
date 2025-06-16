@@ -7,15 +7,15 @@ const {
   updateStatus,
   getAllRequests,
   getUserRequests,
-  updateODDetails
+  updateODDetails,
+  generateODLetter
 } = require("../controllers/ODController");
 const { restrictTo } = require("../middleware/roleAccess");
 const router = express.Router();
 
-// Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Make sure this folder exists
+    cb(null, "uploads/"); 
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -23,7 +23,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// Init multer
 const upload = multer({ storage });
 
 // POST /api/odrequests (with files)
@@ -46,5 +45,7 @@ router.put("/update-details/:id", updateODDetails);
 router.put("/:id/:status", restrictTo("hod", "admin"), updateStatus);
 router.get("/", restrictTo("hod", "admin"), getAllRequests);
 router.get("/user/:userId", restrictTo("faculty"), getUserRequests);
+
+router.get("/:id/generate-letter", restrictTo("faculty", "hod", "admin"), generateODLetter);
 
 module.exports = router;
