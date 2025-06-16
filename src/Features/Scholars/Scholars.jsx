@@ -12,6 +12,8 @@ function Scholars() {
   const isAdmin = user.position === "Admin";
   const [scholarsList, setScholarsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterType, setFilterType] = useState("name");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchScholars = async () => {
@@ -57,6 +59,20 @@ function Scholars() {
     }
   };
 
+  const filteredScholars = scholarsList.filter((scholar) => {
+    const searchValue = searchTerm.toLowerCase();
+    switch (filterType) {
+      case "name":
+        return scholar.name.toLowerCase().includes(searchValue);
+      case "registrationNumber":
+        return scholar.registrationNumber.toLowerCase().includes(searchValue);
+      case "areaOfResearch":
+        return scholar.areaOfResearch.toLowerCase().includes(searchValue);
+      default:
+        return true;
+    }
+  });
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -64,6 +80,27 @@ function Scholars() {
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Scholars List
       </h2>
+      
+      {/* Filter Section */}
+      <div className="flex justify-center gap-4 mb-6">
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="name">Filter by Name</option>
+          <option value="registrationNumber">Filter by Registration Number</option>
+          <option value="areaOfResearch">Filter by Area of Research</option>
+        </select>
+        <input
+          type="text"
+          placeholder={`Search by ${filterType === "name" ? "name" : filterType === "registrationNumber" ? "registration number" : "area of research"}...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       <div className="overflow-x-auto flex justify-center">
         <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
           <thead>
@@ -78,14 +115,14 @@ function Scholars() {
             </tr>
           </thead>
           <tbody>
-            {scholarsList.length === 0 ? (
+            {filteredScholars.length === 0 ? (
               <tr>
                 <td colSpan={7} className="text-center py-8 text-gray-500">
-                  No scholars available.
+                  No scholars found matching your search criteria.
                 </td>
               </tr>
             ) : (
-              scholarsList.map((scholar) => (
+              filteredScholars.map((scholar) => (
                 <tr
                   key={scholar._id}
                   className="border-t border-gray-200 hover:bg-blue-50 transition"

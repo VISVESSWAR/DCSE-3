@@ -11,6 +11,8 @@ function Publications() {
   const isAdmin = user.position === "Admin";
   const [publicationsList, setPublicationsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [filterType, setFilterType] = useState("title");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchPublications = async () => {
@@ -64,6 +66,22 @@ function Publications() {
     }
   };
 
+  const filteredPublications = publicationsList.filter((publication) => {
+    const searchValue = searchTerm.toLowerCase();
+    switch (filterType) {
+      case "title":
+        return publication.title.toLowerCase().includes(searchValue);
+      case "author":
+        return publication.authors?.some(author => 
+          author.toLowerCase().includes(searchValue)
+        ) || false;
+      case "journal":
+        return (publication.journal || '').toLowerCase().includes(searchValue);
+      default:
+        return true;
+    }
+  });
+
   if (isLoading) return <Spinner />;
 
   return (
@@ -71,6 +89,27 @@ function Publications() {
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Publications List
       </h2>
+
+      {/* Filter Section */}
+      <div className="flex justify-center gap-4 mb-6">
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="title">Filter by Title</option>
+          <option value="author">Filter by Author</option>
+          <option value="journal">Filter by Journal/Publisher</option>
+        </select>
+        <input
+          type="text"
+          placeholder={`Search by ${filterType === "title" ? "title" : filterType === "author" ? "author" : "journal/publisher"}...`}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
       <div className="overflow-x-auto flex justify-center">
         <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
           <thead>
@@ -84,14 +123,14 @@ function Publications() {
             </tr>
           </thead>
           <tbody>
-            {publicationsList.length === 0 ? (
+            {filteredPublications.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-gray-500">
-                  No publications available.
+                  No publications found matching your search criteria.
                 </td>
               </tr>
             ) : (
-              publicationsList.map((publication) => (
+              filteredPublications.map((publication) => (
                 <tr
                   key={publication._id}
                   className="border-t border-gray-200 hover:bg-blue-50 transition"
