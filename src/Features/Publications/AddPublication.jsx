@@ -7,7 +7,7 @@ import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
-export default function AddPublication({ formData = {}, onClose, onUpdate }) {
+export default function AddPublication({ formData = {}, onClose, onUpdate, onFetchPublications }) {
   const navigate = useNavigate();
   const { _id: editId, ...data } = formData;
   const { user } = UserData();
@@ -94,9 +94,8 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
     }
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        "http://localhost:5000/api/publications/fetch-from-scholar",
-        { authorId },
+      const response = await axios.get(
+        `http://localhost:5000/api/publications/fetch-and-store?authorId=${authorId}`,
         {
           headers: {
             'x-user-email': user.email,
@@ -107,6 +106,8 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
       reset();
       if (onClose) {
         onClose();
+      } else if (onFetchPublications) {
+        onFetchPublications();
       } else {
         navigate("/publications");
       }
@@ -190,6 +191,10 @@ export default function AddPublication({ formData = {}, onClose, onUpdate }) {
             {...register("doi")}
           />
         </FormRow>
+
+        <div className="text-center my-4">
+          <span className="text-xl font-semibold">or</span>
+        </div>
 
         <div className="my-4 p-2 font-semibold flex justify-between items-center">
           <label className="capitalize text-xl">Google Scholar Author ID</label>

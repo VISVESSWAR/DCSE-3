@@ -118,19 +118,18 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   if (isLoading) return <Spinner />;
 
   return (
-    <div className="p-4 text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center">
+    <div className="p-2 text-lg h-screen flex-col mx-auto flex justify-center items-start min-h-screen">
+      <h1 className="font-bold text-3xl text-center mt-5 mx-auto">
+        {isEditing ? "Update Scholar" : "Add Scholar"}
+      </h1>
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="w-full max-w-2xl border border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
+        className="flex flex-col min-w-[60%] max-w-lg mx-auto mt-10 border-2 border-black p-10 rounded-xl shadow-black shadow-[6px_6px_6px_-2px_rgba(0,0,0,0.3)] bg-gray-50"
       >
-        <h1 className="text-3xl font-bold text-center text-[#145DA0]">
-          {isEditing ? "Update Scholar" : "Add Scholar"}
-        </h1>
-
         <FormRow label="name" error={errors?.name?.message}>
           <input
             name="name"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("name", { required: "This is required field" })}
           />
         </FormRow>
@@ -138,7 +137,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         <FormRow label="registrationNumber" error={errors?.registrationNumber?.message}>
           <input
             name="registrationNumber"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("registrationNumber", {
               required: "This is required field",
             })}
@@ -149,7 +148,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
           <input
             name="email"
             type="email"
-            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("email", { required: "This is required field" })}
           />
         </FormRow>
@@ -159,7 +158,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
             name="phone"
             type="tel"
             placeholder="Enter 10 digit mobile number"
-            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
             {...register("phone", {
               required: "This is required field",
               validate: (value) =>
@@ -169,19 +168,24 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         </FormRow>
 
         <FormRow label="areaOfResearch" error={errors?.areaOfResearch?.message}>
-          <input
-            type="text"
-            placeholder="e.g., Artificial Intelligence"
-            className="w-full p-3 rounded bg-gray-100 border border-gray-300"
-            {...register("areaOfResearch", {
-              required: "This is required field",
-            })}
-          />
+          <select
+            name="areaOfResearch"
+            className="rounded-full bg-[#fbfbfb] px-3 text-center w-60 mx-4 border-[2px] border-black"
+            {...register("areaOfResearch", { required: "This is required field" })}
+          >
+            <option value="">Select Area of Research</option>
+            <option value="Artificial Intelligence">Artificial Intelligence</option>
+            <option value="Data Science">Data Science</option>
+            <option value="CyberSecurity">CyberSecurity</option>
+            <option value="Wireless Networks">Wireless Networks</option>
+            <option value="Computer Vision">Computer Vision</option>
+            <option value="Quantum Computing">Quantum Computing</option>
+          </select>
         </FormRow>
 
         <button
           type="submit"
-          className="w-fit mx-auto block bg-[#145DA0] text-white px-6 py-2 rounded hover:bg-[#2E8BC0] transition duration-200"
+          className="bg-[#145DA0] rounded-full p-2 px-4 mt-5 w-fit self-center text-white hover:bg-[#2E8BC0] hover:cursor-pointer font-semibold focus:ring-blue-700"
         >
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </button>

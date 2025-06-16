@@ -111,6 +111,7 @@ function Publications() {
                           <AddPublication
                             formData={publication}
                             onUpdate={updatePublicationInList}
+                            onFetchPublications={fetchPublications}
                           />
                         </Modal.Window>
                       </Modal>
