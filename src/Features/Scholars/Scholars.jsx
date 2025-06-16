@@ -9,7 +9,7 @@ import { UserData } from "../../context/UserContext";
 function Scholars() {
   const { user } = UserData();
 
-  const isAdmin = user.role === "admin";
+  const isFaculty = user.role === "faculty";
   const [scholarsList, setScholarsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("name");
@@ -22,10 +22,10 @@ function Scholars() {
         const response = await axios.get(
           "http://localhost:5000/api/pgscholars",
           {
-          headers: {
-            'x-user-email': user.email,
-          },
-        }
+            headers: {
+              "x-user-email": user.email,
+            },
+          }
         );
         console.log(response.data);
         setScholarsList(response.data);
@@ -80,7 +80,7 @@ function Scholars() {
       <h2 className="font-bold text-3xl text-center mt-10 mb-8">
         Scholars List
       </h2>
-      
+
       {/* Filter Section */}
       <div className="flex justify-center gap-4 mb-6">
         <select
@@ -89,12 +89,20 @@ function Scholars() {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="name">Filter by Name</option>
-          <option value="registrationNumber">Filter by Registration Number</option>
+          <option value="registrationNumber">
+            Filter by Registration Number
+          </option>
           <option value="areaOfResearch">Filter by Area of Research</option>
         </select>
         <input
           type="text"
-          placeholder={`Search by ${filterType === "name" ? "name" : filterType === "registrationNumber" ? "registration number" : "area of research"}...`}
+          placeholder={`Search by ${
+            filterType === "name"
+              ? "name"
+              : filterType === "registrationNumber"
+              ? "registration number"
+              : "area of research"
+          }...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -110,8 +118,10 @@ function Scholars() {
               <th className="py-3 px-4 text-center">Email</th>
               <th className="py-3 px-4 text-center">Phone</th>
               <th className="py-3 px-4 text-center">Area of Research</th>
-              {isAdmin && <th className="py-3 px-4 text-center">Supervisor</th>}
-              <th className="py-3 px-4 text-center">Actions</th>
+              {!isFaculty && (
+                <th className="py-3 px-4 text-center">Supervisor</th>
+              )}
+              {isFaculty && <th className="py-3 px-4 text-center">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -140,32 +150,35 @@ function Scholars() {
                   <td className="py-2 px-4 text-center">
                     {scholar.areaOfResearch}
                   </td>
-                  {isAdmin && (
+                  {!isFaculty && (
                     <td className="py-2 px-4 text-center">
                       {scholar.supervisor.name}
                     </td>
                   )}
                   <td className="py-2 px-4 flex gap-2 text-center">
-                    <Modal>
-                      <Modal.Body opens="form">
-                        <button className="bg-yellow-300 hover:bg-yellow-400 text-black rounded-full px-3 py-1 text-sm font-semibold">
-                          Update
+                    {isFaculty && (
+                      <>
+                        <Modal>
+                          <Modal.Body opens="form">
+                            <button className="bg-yellow-300 hover:bg-yellow-400 text-black rounded-full px-3 py-1 text-sm font-semibold">
+                              Update
+                            </button>
+                          </Modal.Body>
+                          <Modal.Window name="form">
+                            <AddScholar
+                              formData={scholar}
+                              onUpdate={updateScholarInList}
+                            />
+                          </Modal.Window>
+                        </Modal>
+
+                        <button
+                          onClick={() => deleteScholar(scholar._id)}
+                          className="bg-red-400 hover:bg-red-500 text-white rounded-full px-3 py-1 text-sm font-semibold"
+                        >
+                          Delete
                         </button>
-                      </Modal.Body>
-                      <Modal.Window name="form">
-                        <AddScholar
-                          formData={scholar}
-                          onUpdate={updateScholarInList}
-                        />
-                      </Modal.Window>
-                    </Modal>
-                    {isAdmin && (
-                      <button
-                        onClick={() => deleteScholar(scholar._id)}
-                        className="bg-red-400 hover:bg-red-500 text-white rounded-full px-3 py-1 text-sm font-semibold"
-                      >
-                        Delete
-                      </button>
+                      </>
                     )}
                   </td>
                 </tr>
