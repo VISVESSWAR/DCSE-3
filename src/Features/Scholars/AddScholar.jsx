@@ -59,7 +59,9 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error(
-        err.response?.data?.message || err.message || "Failed to add new Scholar details"
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to add new Scholar details"
       );
     } finally {
       setIsLoading(false);
@@ -71,7 +73,12 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       setIsLoading(true);
       const response = await axios.put(
         `http://localhost:5000/api/pgscholars/${editId}`,
-        payload
+        payload,
+        {
+          headers: {
+            "x-user-email": user.email,
+          },
+        }
       );
       toast.success("Updated Scholar Details Successfully");
       reset();
@@ -85,7 +92,9 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       }
     } catch (error) {
       console.error("Error updating scholar:", error);
-      toast.error(error.response?.data?.message || "Failed to update Scholar Details");
+      toast.error(
+        error.response?.data?.message || "Failed to update Scholar Details"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +130,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     <div className=" text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center py-10">
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
-        className="w-full max-w-2xl border  border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
+        className="w-full max-w-2xl border overflow-y-auto h-[90vh] border-gray-300 rounded-xl bg-white shadow-md p-10 space-y-6"
       >
         <h1 className="text-3xl font-bold text-center text-[#145DA0]">
           {isEditing ? "Update Scholar" : "Add Scholar"}
@@ -192,7 +201,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
         <button
           type="submit"
           className="w-fit mx-auto block bg-[#145DA0] text-white px-6 py-2 rounded hover:bg-[#2E8BC0] transition duration-200"
-          >
+        >
           {isEditing ? "Update Scholar" : "Add Scholar"}
         </button>
       </form>
