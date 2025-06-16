@@ -32,7 +32,7 @@ const pgScholarSchema = new mongoose.Schema({
   // supervisor is now a reference to faculty
   supervisor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Faculty",
+    ref: "User",
     required: false,
   },
 

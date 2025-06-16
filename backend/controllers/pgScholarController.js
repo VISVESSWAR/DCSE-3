@@ -23,7 +23,7 @@ const getAllPGScholars = async (req, res) => {
       scholars = await PGScholar.find().populate("supervisor", "name");
     }
     res.json(scholars);
-    console.log(scholars);
+    console.log("Sample scholar:", scholars[0]);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -9,7 +9,7 @@ import { UserData } from "../../context/UserContext";
 function Scholars() {
   const { user } = UserData();
 
-  const isAdmin = user.position === "Admin";
+  const isAdmin = user.role === "admin";
   const [scholarsList, setScholarsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("name");
