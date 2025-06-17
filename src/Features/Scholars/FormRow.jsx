@@ -10,7 +10,7 @@ export default function FormRow({ label, children, error }) {
         </label>
         {children}
       </div>
-      {error && <Error>{error}</Error>}
+      {error && <Error>{error.message}</Error>}
     </div>
   );
 }

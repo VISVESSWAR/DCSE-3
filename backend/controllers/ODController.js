@@ -148,10 +148,10 @@ const generateODLetter = async (req, res) => {
     } a <span class="bold">${eventType.toLowerCase()}</span> titled "<span class="bold">${topic}</span>". The event is scheduled to take place from <span class="bold">${formattedFrom}</span> to <span class="bold">${formattedTo}</span>, between <span class="bold">${startTime}</span> and <span class="bold">${endTime}</span>, spanning <span class="bold">${numberOfDays}</span> day(s). The venue for the event is <span class="bold">${location}</span>.`;
 
     const leftLogoBase64 = getImageBase64(
-      path.resolve(__dirname, "../assets/Anna_University_Logo.png")
+      path.join(__dirname, "..", "assets", "Anna_University_Logo.png")
     );
     const rightLogoBase64 = getImageBase64(
-      path.resolve(__dirname, "../assets/CSE_logo.png")
+      path.join(__dirname, "..", "assets", "CSE_logo.png")
     );
 
     templateHtml = templateHtml
@@ -172,19 +172,40 @@ const generateODLetter = async (req, res) => {
       .replace(/{{NAME}}/g, name)
       .replace(/{{DEAN_SIGNATURE}}/g, deanSignature);
 
-    const browser = await puppeteer.launch();
+    console.log("Attempting to launch browser...");
+    const browser = await puppeteer.launch({
+      headless: true, // Use newHeadless: 'new' for newer versions
+      args: ['--no-sandbox', '--disable-setuid-sandbox'] // Needed for some environments
+    });
+    console.log("Browser launched.");
     const page = await browser.newPage();
+    console.log("New page created.");
     await page.setContent(templateHtml, { waitUntil: "networkidle0" });
+    console.log("HTML content set.");
 
     const pdfPath = path.join(
       __dirname,
       `../outputs/OD_Letter_${requestId}.pdf`
     );
+    console.log(`Generating PDF to: ${pdfPath}`);
     await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
+    console.log("PDF generated.");
     await browser.close();
+    console.log("Browser closed.");
 
-    res.download(pdfPath, `OD_Letter_${requestId}.pdf`, () => {
-      fs.unlinkSync(pdfPath);
+    res.download(pdfPath, `OD_Letter_${requestId}.pdf`, (err) => {
+      if (err) {
+        console.error("Error during file download:", err);
+      } else {
+        console.log("File sent, attempting to unlink...");
+        fs.unlink(pdfPath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error("Error unlinking PDF file:", unlinkErr);
+          } else {
+            console.log("PDF file unlinked successfully.");
+          }
+        });
+      }
     });
   } catch (err) {
     console.error("Error generating OD letter:", err);

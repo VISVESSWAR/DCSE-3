@@ -280,7 +280,7 @@ export default function RequestDetails({
         )}
 
         {(!isHod || edit || data.status !== "Pending") &&
-          data.status !== "Approved" && (
+          data.status !== "Approved" && edit && (
             <div className="flex flex-col w-full gap-2 mt-3">
               <input
                 type="file"

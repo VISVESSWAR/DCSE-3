@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import FormRow from "./FormRow";
-import toast from "react-hot-toast";
+import { toast, Toaster } from "react-hot-toast";
 import { useState } from "react";
 import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
@@ -120,14 +120,20 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     }
   }
 
-  function onError(error) {
-    console.log(error);
+  function onError(errors) {
+    console.log(errors);
+    for (const key in errors) {
+      if (errors[key].message) {
+        toast.error(errors[key].message);
+      }
+    }
   }
 
   if (isLoading) return <Spinner />;
 
   return (
     <div className=" text-lg min-h-screen bg-[#f5f7fa] flex items-center justify-center py-10">
+      <Toaster position="top-center" />
       <form
         onSubmit={handleSubmit(onSubmit, onError)}
         className="w-full max-w-2xl border overflow-y-auto h-[90vh] border-gray-300 rounded-xl bg-white shadow-md p-10 "

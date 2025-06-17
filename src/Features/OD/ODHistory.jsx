@@ -41,6 +41,8 @@ export default function RequestList() {
         return request.name.toLowerCase().includes(searchValue);
       case "status":
         return request.status.toLowerCase().includes(searchValue);
+      case "eventName":
+        return request.topic.toLowerCase().includes(searchValue);
       default:
         return true;
     }
@@ -83,16 +85,23 @@ export default function RequestList() {
       <div className="flex justify-center gap-4 mb-6">
         <select
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          onChange={(e) => {
+            const newFilterType = e.target.value;
+            setFilterType(newFilterType);
+            if (user.role === "faculty" && newFilterType === "name") {
+              setFilterType("status");
+            }
+          }}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="name">Filter by Name</option>
+          {user.role !== "faculty" && <option value="name">Filter by Name</option>}
+          <option value="eventName">Filter by Event Name</option>
           <option value="status">Filter by Status</option>
         </select>
         <input
           type="text"
           placeholder={`Search by ${
-            filterType === "name" ? "name" : "status"
+            filterType === "name" && user.role !== "faculty" ? "name" : filterType === "eventName" ? "event name" : "status"
           }...`}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -103,7 +112,8 @@ export default function RequestList() {
       <table className="w-full table-auto bg-white shadow rounded">
         <thead>
           <tr>
-            <th>Name</th>
+            {user.role !== "faculty" && <th>Name</th>}
+            <th>Event Name</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
@@ -111,15 +121,16 @@ export default function RequestList() {
         <tbody>
           {filteredRequests.length === 0 ? (
             <tr>
-              <td colSpan={3} className="text-center py-8 text-gray-500">
+              <td colSpan={user.role !== "faculty" ? 4 : 3} className="text-center py-8 text-gray-500">
                 No requests found matching your search criteria.
               </td>
             </tr>
           ) : (
             filteredRequests.map((r) => (
               <tr key={r._id} className="border-t">
-                <td className="p-2 text-center w-[30%]">{r.name}</td>
-                <td className="p-2 text-center w-[30%]">{r.status}</td>
+                {user.role !== "faculty" && <td className="p-2 text-center w-[20%]">{r.name}</td>}
+                <td className="p-2 text-center w-[30%]">{r.topic}</td>
+                <td className="p-2 text-center w-[20%]">{r.status}</td>
                 <td className="p-2 text-center flex lg:flex-row flex-col justify-center">
                   <Modal>
                     <Modal.Body close={() => setSelected(null)} opens={"view"}>
@@ -179,12 +190,14 @@ export default function RequestList() {
                         </Modal.Window>
                       </>
                     )}
-                  <button
-                    onClick={() => handleDownload(r._id)}
-                    className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mt-2 mx-1 my-1"
-                  >
-                    Download Letter
-                  </button>
+                    {user.role !== "admin" && (
+                      <button
+                        onClick={() => handleDownload(r._id)}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mt-2 mx-1 my-1"
+                      >
+                        Download Letter
+                      </button>
+                    )}
                   </Modal>
                 </td>
               </tr>
