@@ -29,10 +29,27 @@ const addPublication = async (req, res) => {
 
 const getAllPublications = async (req, res) => {
   try {
-    const publications = await Publication.find();
+    const { role, name } = req.user;
+    console.log("User role:", role, "User name:", name);
+
+    if (!role || !name) {
+      return res.status(400).json({ message: "Missing user role or name" });
+    }
+
+    let publications;
+
+    if (role === "faculty") {
+      publications = await Publication.find({ authors: name });
+    } else if (role === "admin" || role === "hod") {
+      publications = await Publication.find();
+    } else {
+      return res.status(403).json({ message: "Unauthorized access" });
+    }
+
     res.json(publications);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error("Error fetching publications:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
 

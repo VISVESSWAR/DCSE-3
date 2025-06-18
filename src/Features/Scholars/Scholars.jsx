@@ -130,33 +130,47 @@ function Scholars() {
   };
 
   const exportToCSV = () => {
-    const headers = ["Name", "Registration Number", "Email", "Phone", "Area of Research"];
-    if (!isFaculty) {
-      headers.push("Supervisor");
-    }
+    const columnMap = {
+      name: "Name",
+      registrationNumber: "Registration Number",
+      email: "Email",
+      phone: "Phone",
+      areaOfResearch: "Area of Research",
+      supervisor: "Supervisor",
+    };
 
-    const rows = filteredScholars.map(scholar => {
-      const row = [
-        scholar.name,
-        scholar.registrationNumber,
-        scholar.contactInfo?.email,
-        scholar.contactInfo?.phone,
-        scholar.areaOfResearch
-      ];
-      if (!isFaculty) {
-        row.push(scholar.supervisor?.name || '');
-      }
-      return row.map(field => `"${field}"`).join(',');
+    // Get the list of visible columns
+    const visibleColumns = Object.keys(columnVisibility).filter(
+      (key) => columnVisibility[key]
+    );
+
+    // Build headers from visible columns
+    const headers = visibleColumns.map((key) => columnMap[key]);
+
+    // Build rows
+    const rows = filteredScholars.map((scholar) => {
+      return visibleColumns.map((key) => {
+        switch (key) {
+          case "email":
+            return `"${scholar.contactInfo?.email || ""}"`;
+          case "phone":
+            return `"${scholar.contactInfo?.phone || ""}"`;
+          case "supervisor":
+            return `"${scholar.supervisor?.name || ""}"`;
+          default:
+            return `"${scholar[key] || ""}"`;
+        }
+      }).join(",");
     });
 
-    const csvContent = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = 'scholars.csv';
+    link.download = "scholars.csv";
     link.click();
     toast.success("Scholars data exported successfully!");
-  };
+};
 
   if (isLoading) return <Spinner />;
 
