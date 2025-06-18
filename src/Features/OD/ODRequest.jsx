@@ -95,7 +95,7 @@ export default function ODRequestForm() {
 
   const [isOther, setIsOther] = useState(false);
 
-  const requestType = watch("requestType", "Conduct");
+  const requestType = watch("requestType", "OD"); 
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-black p-4 flex items-center justify-center">
@@ -110,10 +110,10 @@ export default function ODRequestForm() {
           <select
             {...register("requestType", { required: true })}
             className="w-full p-2 rounded bg-gray-100"
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => setType(e.target.value)} 
           >
-            <option value="Conduct">Conduct</option>
-            <option value="Participate">Participate</option>
+            <option value="OD">OD</option>
+            <option value="SCL">SCL</option>
           </select>
           {errors.requestType && <div className="h-0.5 bg-red-500"></div>}
         </div>
@@ -228,20 +228,6 @@ export default function ODRequestForm() {
           />
           {errors.location && <div className="h-0.5 bg-red-500"></div>}
         </div>
-
-        {type === "Conduct" && (
-          <div className="space-y-1">
-            <label className="block">Need Department Procurements?</label>
-            <select
-              {...register("procurements", { required: true })}
-              className="w-full p-2 rounded bg-gray-100"
-            >
-              <option value="Yes">Yes</option>
-              <option value="No">No</option>
-            </select>
-            {errors.procurements && <div className="h-0.5 bg-red-500"></div>}
-          </div>
-        )}
 
         <div className="space-y-1">
           <label className="block">Forward Request to Dean?</label>

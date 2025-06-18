@@ -126,11 +126,16 @@ const generateODLetter = async (req, res) => {
       endTime,
       numberOfDays,
       forwardToDean,
+      status
     } = request;
     const year = new Date().getFullYear();
     const formattedFrom = new Date(startDate).toLocaleDateString("en-IN");
     const formattedTo = new Date(endDate).toLocaleDateString("en-IN");
     const currentDate = new Date().toLocaleDateString("en-IN");
+    const leaveType = requestType;
+    const forwardTo = requestType.toUpperCase() === "SCL" ? "The Head of Department" : "The Registrar";
+
+
 
     const templatePath = path.join(
       __dirname,
@@ -139,13 +144,27 @@ const generateODLetter = async (req, res) => {
 
     let templateHtml = fs.readFileSync(templatePath, "utf8");
 
-    const deanSignature = forwardToDean
-      ? `<div class="signature"><span class="bold">Dean</span><br><br>___________________</div>`
-      : "";
+    const hodSignature = `
+      <div class="signature">
+        <span class="bold">Head of Department</span><br>
+        ${status === "Approved" ? '<span style="font-size: 12px;">Virtually Signed</span><br> ' : '</br/>'}
+       
+        ___________________
+      </div>`;
 
-    const fullDetailsParagraph = `I am requesting On Duty leave as I am going to <span class="bold">${requestType.toLowerCase()}</span>${
-      requestType.toLowerCase() === "participate" ? " in" : ""
-    } a <span class="bold">${eventType.toLowerCase()}</span> titled "<span class="bold">${topic}</span>". The event is scheduled to take place from <span class="bold">${formattedFrom}</span> to <span class="bold">${formattedTo}</span>, between <span class="bold">${startTime}</span> and <span class="bold">${endTime}</span>, spanning <span class="bold">${numberOfDays}</span> day(s). The venue for the event is <span class="bold">${location}</span>.`;
+    const deanSignature = forwardToDean
+      ? `
+      <div class="signature">
+        <span class="bold">Dean</span><br>
+        ${status === "Approved" ? '<span style="font-size: 12px;">Virtually Signed</span><br>' : '</br/>'}
+        
+        ___________________
+      </div>`
+      : '';
+
+
+
+    const fullDetailsParagraph = `I am requesting <span class="bold">${leaveType}</span> leave as I am going to participate in a <span class="bold">${eventType.toLowerCase()}</span> titled "<span class="bold">${topic}</span>". The event is scheduled to take place from <span class="bold">${formattedFrom}</span> to <span class="bold">${formattedTo}</span>, spanning <span class="bold">${numberOfDays}</span> day(s). The venue for the event is <span class="bold">${location}</span>.`;
 
     const leftLogoBase64 = getImageBase64(
       path.join(__dirname, "..", "assets", "Anna_University_Logo.png")
@@ -160,17 +179,15 @@ const generateODLetter = async (req, res) => {
 
       .replace(/{{YEAR}}/g, year)
       .replace(/{{CURRENT_DATE}}/g, currentDate)
-      .replace(
-        /{{FORWARD_TO}}/g,
-        forwardToDean ? "The Dean" : "The Head of Department"
-      )
+      .replace(/{{FORWARD_TO}}/g, forwardTo)
       .replace(
         /{{FROM_SECTION}}/g,
         `<p><span class="bold">From,</span><br>${name}<br>${department}<br>${collegeName}<br>${district}</p>`
       )
       .replace(/{{PURPOSE_PARAGRAPH}}/g, fullDetailsParagraph)
       .replace(/{{NAME}}/g, name)
-      .replace(/{{DEAN_SIGNATURE}}/g, deanSignature);
+      .replace(/{{DEAN_SIGNATURE}}/g, deanSignature)
+      .replace(/{{HOD_SIGNATURE}}/g, hodSignature);
 
     console.log("Attempting to launch browser...");
     const browser = await puppeteer.launch({
