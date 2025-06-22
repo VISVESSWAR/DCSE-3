@@ -67,8 +67,10 @@ export default function Signup({ onSuccess }) {
       <h2 className="text-xl font-bold text-center">Signup</h2>
       {step === 1 && (
         <>
+          <label htmlFor="name">Name</label>
           <input
             type="text"
+            id="name"
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -76,8 +78,10 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="email">Email</label>
           <input
             type="email"
+            id="email"
             name="email"
             value={form.email}
             onChange={handleChange}
@@ -85,8 +89,10 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="password">Password</label>
           <input
             type="password"
+            id="password"
             name="password"
             value={form.password}
             onChange={handleChange}
@@ -94,7 +100,9 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="role">Role</label>
           <select
+            id="role"
             name="role"
             value={form.role}
             onChange={handleChange}
@@ -114,17 +122,27 @@ export default function Signup({ onSuccess }) {
       )}
       {step === 2 && (
         <>
-          <input
-            type="text"
+          <label htmlFor="position">Position</label>
+          <select
+            id="position"
             name="position"
             value={form.position}
             onChange={handleChange}
-            placeholder="Position (e.g., Assistant Professor)"
             className="w-full px-3 py-2 border rounded"
             required
-          />
+          >
+            <option value="Assistant Professor">Assistant Professor</option>
+            <option value="Associate Professor">Associate Professor</option>
+            <option value="Professor">Professor</option>
+            <option value="HOD">HOD</option>
+            <option value="Guest Faculty">Guest Faculty</option>
+            <option value="Emeritus Professor">Emeritus Professor</option>
+            <option value="Other">Other</option>
+          </select>
+          <label htmlFor="department">Department</label>
           <input
             type="text"
+            id="department"
             name="department"
             value={form.department}
             onChange={handleChange}
@@ -132,8 +150,10 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="dob">Date of Birth</label>
           <input
             type="date"
+            id="dob"
             name="dob"
             value={form.dob}
             onChange={handleChange}
@@ -141,8 +161,10 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="dateOfJoining">Date of Joining</label>
           <input
             type="date"
+            id="dateOfJoining"
             name="dateOfJoining"
             value={form.dateOfJoining}
             onChange={handleChange}
@@ -150,8 +172,10 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
+          <label htmlFor="phone">Phone Number</label>
           <input
             type="text"
+            id="phone"
             name="phone"
             value={form.phone}
             onChange={handleChange}
@@ -159,17 +183,25 @@ export default function Signup({ onSuccess }) {
             className="w-full px-3 py-2 border rounded"
             required
           />
-          <input
-            type="text"
+          <label htmlFor="gender">Gender</label>
+          <select
+            id="gender"
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            placeholder="Gender"
             className="w-full px-3 py-2 border rounded"
             required
-          />
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+            <option value="Prefer not to say">Prefer not to say</option>
+          </select>
+          <label htmlFor="qualifications">Qualifications</label>
           <input
             type="text"
+            id="qualifications"
             name="qualifications"
             value={form.qualifications}
             onChange={handleChange}
@@ -179,8 +211,10 @@ export default function Signup({ onSuccess }) {
           />
           {form.role === "faculty" && (
             <>
+              <label htmlFor="scaleOfPay">Scale of Pay</label>
               <input
                 type="text"
+                id="scaleOfPay"
                 name="scaleOfPay"
                 value={form.scaleOfPay}
                 onChange={handleChange}
@@ -188,8 +222,10 @@ export default function Signup({ onSuccess }) {
                 className="w-full px-3 py-2 border rounded"
                 required
               />
+              <label htmlFor="presentPay">Present Pay</label>
               <input
                 type="text"
+                id="presentPay"
                 name="presentPay"
                 value={form.presentPay}
                 onChange={handleChange}
@@ -197,7 +233,9 @@ export default function Signup({ onSuccess }) {
                 className="w-full px-3 py-2 border rounded"
                 required
               />
+              <label htmlFor="natureOfAppointment">Nature of Appointment</label>
               <select
+                id="natureOfAppointment"
                 name="natureOfAppointment"
                 value={form.natureOfAppointment}
                 onChange={handleChange}
