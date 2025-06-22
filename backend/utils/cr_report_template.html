@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Confidential Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .header { text-align: center; font-weight: bold; font-size: 18px; }
+    .section-title { font-weight: bold; margin-top: 24px; }
+    .field-label { font-weight: bold; }
+    .subsection { margin-left: 24px; }
+    .numbered { font-weight: bold; }
+    .row { margin-bottom: 8px; }
+    .signature-block { margin-top: 40px; }
+    .table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .table th, .table td { border: 1px solid #000; padding: 4px 8px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    ANNA UNIVERSITY CHENNAI<br>
+    PERFORMANCE AND POTENTIAL ASSESSMENT<br>
+    (For Teaching staff other than Deans/Head of the Institutions)<br>
+    Part I Performance Assessment<br>
+    For the year / Half year ending December 31 / June 30, <span>{{YEAR}}</span>
+  </div>
+
+  <div class="row numbered">1. (a) Name (in block letters): <span>{{FACULTY_NAME}}</span></div>
+  <div class="row numbered">   (b) Date of Birth and Age: <span>{{DOB}}</span></div>
+  <div class="row numbered">   (c) Qualifications: <span>{{QUALIFICATIONS}}</span></div>
+  <div class="row numbered">2. Designation: <span>{{DESIGNATION}}</span></div>
+  <div class="row numbered">3. Scale of pay and present pay: <span>{{SCALE_PAY}}</span></div>
+  <div class="row numbered">4. Post or posts held and nature of appointment: <span>{{POST_HELD}}</span></div>
+
+  <div class="row numbered">5. Ability as a teacher as evidenced from the performance of students in the subject taught by him:</div>
+  <div class="subsection">i) Control over the class and popularity among students: <span>{{CONTROL_CLASS}}</span></div>
+  <div class="subsection">ii) Students counselling and interest in student welfare: <span>{{STUDENT_COUNSELING}}</span></div>
+  <div class="subsection">iii) Average percentage of pass in the subject taught by him: <span>{{AVG_PASS_PERCENTAGE}}</span></div>
+
+  <div class="row numbered">6. Comments on maintenance of class records: <span>{{CLASS_RECORDS}}</span></div>
+  <div class="row numbered">7. Contributions to the development of the institution: <span>{{CONTRIBUTIONS}}</span></div>
+  <div class="row numbered">8. Interest in and ability for research: <span>{{RESEARCH_ABILITY}}</span></div>
+  <div class="row numbered">9. Professional standing: <span>{{PROFESSIONAL_STANDING}}</span></div>
+  <div class="row numbered">10. Extra-curricular responsibilities held: <span>{{EXTRA_CURRICULAR}}</span></div>
+  <div class="row numbered">11. Willingness to accept such work and co-operate: <span>{{WILLINGNESS}}</span></div>
+  <div class="row numbered">12. Lapses pointed out/punishment awarded: <span>{{LAPSES}}</span></div>
+  <div class="row numbered">13. Reporting officer’s overall rating: <span>{{OVERALL_RATING}}</span></div>
+
+  <div class="signature-block">
+    <div>Station: <span>{{HOD_STATION}}</span></div>
+    <div>Date: <span>{{HOD_DATE}}</span></div>
+    <div>Signature: ____________________</div>
+    <div>Reporting Officer: <span>{{HOD_NAME}}</span></div>
+  </div>
+
+  <div class="signature-block">
+    <div>Signature: ____________________</div>
+    <div>Name: <span>{{FACULTY_NAME}}</span></div>
+  </div>
+
+  <div class="section-title">Part II: Potential Assessment (HOD)</div>
+  <div class="row">A. (i) Physical Capacity and general demeanour: <span>{{PHYSICAL_CAPACITY}}</span></div>
+  <div class="row">   (ii) Stability, Poise, Fairness, Dependability: <span>{{STABILITY}}</span></div>
+  <div class="row">   (iii) Mental Capacity: <span>{{MENTAL_CAPACITY}}</span></div>
+  <div class="row">B. (i) Aptitude for work: <span>{{APTITUDE}}</span></div>
+  <div class="row">   (ii) Ability to manage: <span>{{ABILITY_TO_MANAGE}}</span></div>
+  <div class="row">C. (i) Ability to get along: <span>{{GET_ALONG}}</span></div>
+  <div class="row">   (ii) Potential for Academic leadership: <span>{{ACADEMIC_LEADERSHIP}}</span></div>
+  <div class="row">   (iii) General appraisal: <span>{{GENERAL_APPRAISAL}}</span></div>
+  <div class="row">   (iv) Special remarks: <span>{{SPECIAL_REMARKS}}</span></div>
+  <div class="row">D. Fitness for regularization / Declaration of completion of probation / confirmation / promotion: <span>{{FITNESS}}</span></div>
+
+  <div class="signature-block">
+    <div>Signature of the Reporting Officer: ____________________</div>
+    <div>Name: <span>{{HOD_NAME}}</span></div>
+  </div>
+
+  <div class="section-title">Form for Self-Assessment (Faculty)</div>
+  <div class="row">(a) Designation: <span>{{DESIGNATION}}</span></div>
+  <div class="row">(b) Date of Birth and Age: <span>{{DOB}}</span></div>
+  <div class="row">(c) Pay and Scale of pay: <span>{{SCALE_PAY}}</span></div>
+  <div class="row">(d) Institution: <span>{{INSTITUTION}}</span></div>
+  <div class="row">(e) Department: <span>{{DEPARTMENT}}</span></div>
+  <div class="row">Date of joining in the present post: <span>{{DATE_OF_JOINING}}</span></div>
+  <div class="row">Academic Qualification: <span>{{QUALIFICATIONS}}</span></div>
+  <div class="row">Membership: <span>{{MEMBERSHIP}}</span></div>
+  <div class="row">Examination results: <span>{{EXAM_RESULTS}}</span></div>
+  <!-- Add table for subjects taught, etc. as per template -->
+
+  <div class="section-title">Attachments</div>
+  <div>{{ATTACHMENTS}}</div>
+</body>
+</html>
