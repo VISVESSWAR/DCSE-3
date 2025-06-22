@@ -9,6 +9,7 @@ const publicationRoutes = require("./routes/publicationRoutes");
 const authRoutes = require("./routes/authRoutes");
 const path = require("path");
 const odRoutes = require("./routes/ODRoutes");
+const crReportRoutes = require("./routes/crRoutes");
 
 dotenv.config();
 connectDB();
@@ -49,6 +50,7 @@ app.use("/uploads", express.static("uploads", {
 }));
 app.use('/static', express.static(path.join(__dirname, 'assets')))
 app.use("/api/odrequests", odRoutes);
+app.use("/api/crreport", crReportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

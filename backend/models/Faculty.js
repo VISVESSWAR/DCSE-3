@@ -23,6 +23,12 @@ const facultySchema = new mongoose.Schema({
   gender: { type: String },
   profilePicUrl: { type: String },
   isActive: { type: Boolean, default: true },
+  scaleOfPay: { type: String },
+  presentPay: { type: String },
+  natureOfAppointment: {
+    type: String,
+    enum: ["Temporary", "Probationer", "Approved Probationer", "Permanent"],
+  },
 });
 
 module.exports = mongoose.model("Faculty", facultySchema);
