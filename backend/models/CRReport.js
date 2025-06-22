@@ -95,6 +95,7 @@ const CRReportSchema = new mongoose.Schema({
     dateOfJoining: Date,
   },
   year: String,
+  period:String,
   status: {
     type: String,
     enum: ['draft', 'submitted', 'pending_hod_review', 'hod-signed', 'finalized'],

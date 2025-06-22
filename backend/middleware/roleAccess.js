@@ -1,4 +1,6 @@
 const User = require('../models/User'); 
+// const Faculty = require('../models/Faculty');
+
 // Middleware to check if user is authenticated and has the required role
 // The middleware checks the header of the request for a user email,
 // retrieves the user from the database, and checks if the user has the required role.  
