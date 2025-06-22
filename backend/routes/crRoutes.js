@@ -115,7 +115,6 @@ router.post(
 );
 
 // Upload attachments for self-assessment (faculty only)
-// Upload attachments for self-assessment (faculty only)
 router.post(
   "/:reportId/self-assessment/attachments",
   restrictTo("faculty"),

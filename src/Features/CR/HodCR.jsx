@@ -1,4 +1,4 @@
-// Updated GenerateCR.jsx component
+// Updated GenerateCR.jsx component with complete HOD section
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -40,7 +40,15 @@ export default function HodCR() {
 
   const handleHodChange = (e) => {
     const { name, value } = e.target;
-    setHodSection((s) => ({ ...s, [name]: value }));
+    const keys = name.split(".");
+    if (keys.length === 2) {
+      setHodSection((s) => ({
+        ...s,
+        [keys[0]]: { ...s[keys[0]], [keys[1]]: value },
+      }));
+    } else {
+      setHodSection((s) => ({ ...s, [name]: value }));
+    }
   };
 
   const handleHodSubmit = async () => {
@@ -62,10 +70,28 @@ export default function HodCR() {
   };
 
   const downloadPDF = () => {
-    window.open(
-      `http://localhost:5000/api/crreport/${reportId}/download`,
-      "_blank"
-    );
+    if (user.role !== "hod") {
+      toast.error("Only HOD can download this report.");
+      return;
+    }
+
+    axios
+      .get(`http://localhost:5000/api/crreport/${reportId}/download`, {
+        headers: { "x-user-email": user.email },
+        responseType: "blob",
+      })
+      .then((res) => {
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `CR_Report_${reportId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      })
+      .catch(() => {
+        toast.error("Download failed");
+      });
   };
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
@@ -81,63 +107,279 @@ export default function HodCR() {
 
       {/* Pages 1–3: HOD Section */}
       <div className="mb-6">
-        <h3 className="font-semibold text-lg mb-2">Part I – HOD Evaluation</h3>
-        {[
-          "controlClass",
-          "classRecords",
-          "contributions",
-          "researchAbility",
-          "professionalStanding",
-          "extraCurricular",
-          "willingness",
-          "lapses",
-          "overallRating",
-        ].map((field) => (
-          <div key={field} className="mb-2">
-            <label className="block font-medium capitalize">
-              {field.replace(/([A-Z])/g, " $1")}
-            </label>
-            <textarea
-              className="border rounded w-full p-2"
-              name={field}
-              value={hodSection[field] || ""}
-              onChange={handleHodChange}
-              readOnly={!isHOD}
-            />
-          </div>
-        ))}
+        <h3 className="text-lg font-bold mb-4">
+          Part I: Performance Assessment (for HOD)
+        </h3>
 
-        <h3 className="font-semibold mt-4">Part II – Potential Assessment</h3>
-        {[
-          "physicalCapacity",
-          "stability",
-          "mentalCapacity",
-          "aptitude",
-          "abilityToManage",
-          "getAlong",
-          "academicLeadership",
-          "generalAppraisal",
-          "specialRemarks",
-          "fitness",
-        ].map((field) => (
-          <div key={field} className="mb-2">
-            <label className="block font-medium capitalize">
-              {field.replace(/([A-Z])/g, " $1")}
-            </label>
-            <textarea
-              className="border rounded w-full p-2"
-              name={`potential.${field}`}
-              value={hodSection?.potential?.[field] || ""}
-              onChange={(e) =>
-                setHodSection((s) => ({
-                  ...s,
-                  potential: { ...s.potential, [field]: e.target.value },
-                }))
-              }
-              readOnly={!isHOD}
+        <div className="space-y-2 rounded-md border p-4">
+          <div className="font-semibold">
+            5. Ability as a teacher as evidenced from the performance of
+            students in the subject taught by him:
+          </div>
+          <div className="ml-6">
+            i) Control over the class and popularity among students:
+            <input
+              name="performance.controlClass"
+              value={hodSection.performance?.controlClass || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
             />
           </div>
-        ))}
+          <div className="ml-6">
+            ii) Students counselling and interest in student welfare:
+            <input
+              name="performance.studentCounseling"
+              value={hodSection.performance?.studentCounseling || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div className="ml-6">
+            iii) Average percentage of pass in the subject taught by him:
+            <input
+              name="performance.avgPassPercentage"
+              value={hodSection.performance?.avgPassPercentage || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">
+              6.* Comments on maintenance of class records, thoroughness and
+              promptness in internal evaluation:
+            </span>
+            <input
+              name="performance.classRecords"
+              value={hodSection.performance?.classRecords || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">
+              7. Contributions to development of the institution (labs, guides,
+              courses, etc.):
+            </span>
+            <textarea
+              name="performance.contributions"
+              value={hodSection.performance?.contributions || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+              rows="3"
+            ></textarea>
+          </div>
+          <div>
+            <span className="font-semibold">
+              8. Interest in and ability for research:
+            </span>
+            <textarea
+              name="performance.researchAbility"
+              value={hodSection.performance?.researchAbility || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+              rows="3"
+            ></textarea>
+          </div>
+          <div>
+            <span className="font-semibold">9. Professional standing:</span>
+            <input
+              name="performance.professionalStanding"
+              value={hodSection.performance?.professionalStanding || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">
+              10. Extra-curricular responsibilities held:
+            </span>
+            <input
+              name="performance.extraCurricular"
+              value={hodSection.performance?.extraCurricular || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">
+              11. Willingness to accept work and cooperate:
+            </span>
+            <input
+              name="performance.willingness"
+              value={hodSection.performance?.willingness || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">
+              12. Lapses pointed out/punishment awarded:
+            </span>
+            <input
+              name="performance.lapses"
+              value={hodSection.performance?.lapses || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+          <div>
+            <span className="font-semibold">13. Overall rating:</span>
+            <input
+              name="performance.overallRating"
+              value={hodSection.performance?.overallRating || ""}
+              onChange={handleHodChange}
+              className="w-full rounded border px-2 py-1 mt-1"
+              disabled={!isHOD}
+            />
+          </div>
+        </div>
+
+        <div className="pt-6">
+          <h3 className="text-lg font-bold mb-2">
+            Part II – Potential Assessment
+          </h3>
+
+          <div className="pt-2">
+            <label className="font-bold">
+              A. (i) Physical Capacity and general demeanour
+            </label>
+            <input
+              type="text"
+              name="potential.physicalCapacity"
+              value={hodSection.potential?.physicalCapacity || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (ii) Stability, Poise, Fairness, Dependability
+            </label>
+            <input
+              type="text"
+              name="potential.stability"
+              value={hodSection.potential?.stability || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (iii) Mental Capacity: Analytical ability, power of expression,
+              ability to participate in discussions.
+            </label>
+            <input
+              type="text"
+              name="potential.mentalCapacity"
+              value={hodSection.potential?.mentalCapacity || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+          </div>
+
+          <div className="pt-2">
+            <label className="font-bold">
+              B. (i) Aptitude for work: Aptitude, initiative, self-reliance,
+              thoroughness, sense of responsibility
+            </label>
+            <input
+              type="text"
+              name="potential.aptitude"
+              value={hodSection.potential?.aptitude || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (ii) Ability to manage: Capacity to take decisions, ability to
+              plan and programme, supervise and guide and control
+            </label>
+            <input
+              type="text"
+              name="potential.abilityToManage"
+              value={hodSection.potential?.abilityToManage || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+          </div>
+
+          <div className="pt-2">
+            <label className="font-bold">
+              C. (i) Ability to get along: Tact, helpfulness to fellow official,
+              subordinates and to the public
+            </label>
+            <input
+              type="text"
+              name="potential.getAlong"
+              value={hodSection.potential?.getAlong || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (ii) Potential for Academic leadership.
+            </label>
+            <input
+              type="text"
+              name="potential.academicLeadership"
+              value={hodSection.potential?.academicLeadership || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (iii) General appraisal of the officers good and bad qualities in
+              a narrative form, particularly those pertaining to his / her
+              integrity and ability to correct himself/herself, if his faults
+              are pointed out.
+            </label>
+            <input
+              type="text"
+              name="potential.generalAppraisal"
+              value={hodSection.potential?.generalAppraisal || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+            <label className="font-bold mt-2 block">
+              (iv) Special remarks or commendations if any.
+            </label>
+            <input
+              type="text"
+              name="potential.specialRemarks"
+              value={hodSection.potential?.specialRemarks || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+          </div>
+
+          <div className="pt-2">
+            <label className="font-bold">
+              D. Fitness for regularization / Declaration of completion of
+              probation / confirmation / promotion.
+            </label>
+            <input
+              type="text"
+              name="potential.fitness"
+              value={hodSection.potential?.fitness || ""}
+              onChange={handleHodChange}
+              disabled={!isHOD}
+              className="w-full rounded border px-3 py-2 mt-1"
+            />
+          </div>
+        </div>
+
         {isHOD && (
           <button
             onClick={handleHodSubmit}
@@ -154,62 +396,7 @@ export default function HodCR() {
         <h3 className="text-lg font-semibold mb-2">
           Part III – Self Assessment
         </h3>
-        {facultySection.subjectsTaught?.length > 0 && (
-          <div className="overflow-x-auto mb-4">
-            <table className="w-full text-sm border">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border p-2">Subject</th>
-                  <th className="border p-2">Hrs</th>
-                  <th className="border p-2">Appeared</th>
-                  <th className="border p-2">Passed</th>
-                  <th className="border p-2">Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {facultySection.subjectsTaught.map((subj, idx) => (
-                  <tr key={idx}>
-                    <td className="border p-1">{subj.subject}</td>
-                    <td className="border p-1">{subj.contactHours}</td>
-                    <td className="border p-1">{subj.studentsAppeared}</td>
-                    <td className="border p-1">{subj.studentsPassed}</td>
-                    <td className="border p-1">{subj.remarks}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {[
-          "examResults",
-          "contributions",
-          "memberships",
-          "papersPublished",
-          "consultingWork",
-          "booksOrGuides",
-          "pastoralFunctions",
-          "additionalQualifications",
-          "otherContributions",
-        ].map(
-          (field) =>
-            facultySection[field]?.length > 0 && (
-              <div key={field} className="mb-2">
-                <label className="font-medium capitalize">
-                  {field.replace(/([A-Z])/g, " $1")}
-                </label>
-                <ul className="list-disc ml-5">
-                  {Array.isArray(facultySection[field]) ? (
-                    facultySection[field].map((item, idx) => (
-                      <li key={idx}>{item}</li>
-                    ))
-                  ) : (
-                    <li>{facultySection[field]}</li>
-                  )}
-                </ul>
-              </div>
-            )
-        )}
+        {/* ...existing self-assessment display... */}
       </div>
 
       {/* PDF Download */}

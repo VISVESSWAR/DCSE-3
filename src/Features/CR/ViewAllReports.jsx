@@ -244,11 +244,14 @@ export default function AllCRReports() {
               onClick={async () => {
                 try {
                   const res = await axios.get(
-                    `http://localhost:5000/api/crreport/create?year=${new Date().getFullYear()}&period=december`,
+                    `http://localhost:5000/api/crreport/${
+                      user.facultyId || user.userId || user._id
+                    }?year=${new Date().getFullYear()}&period=december`,
                     {
                       headers: { "x-user-email": user.email },
                     }
                   );
+
                   navigate(`/CR/selfAssess/${res.data._id}`);
                 } catch (err) {
                   toast.error("Could not start or fetch CR Report");
