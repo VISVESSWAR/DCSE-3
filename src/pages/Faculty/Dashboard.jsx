@@ -11,7 +11,7 @@ export default function Dashboard() {
         Welcome {user.name}
       </h1>
 
-      <div className="bg-[#fbfbfb] text-black rounded-2xl shadow-md p-6 w-full max-w-md">
+      <div className="bg-[  ] text-black rounded-2xl shadow-md p-6 w-full max-w-md">
         <h2 className="text-xl font-bold mb-4 text-center">Your Profile</h2>
         <div className="space-y-3 text-lg">
           <p>

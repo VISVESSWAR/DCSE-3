@@ -140,6 +140,7 @@ export default function GenerateCR() {
        crData.hodSection = crData.hodSection || { performance: {}, potential: {} };
        crData.hodSection.performance = crData.hodSection.performance || {};
        crData.hodSection.potential = crData.hodSection.potential || {};
+       console.log(response.data)
       setSelectedCR(response.data);
       setForm(response.data);
       setIsEditing(false);
@@ -501,8 +502,8 @@ export default function GenerateCR() {
                     </div>
                     <div className="text-left">
                       <div><span className="font-semibold">Signature:</span></div>
-                      {selectedCR.facultyFinalSignature?.signatureImage ? (
-                        <img src={selectedCR.facultyFinalSignature.signatureImage} alt="Faculty Final Signature" className="w-48 h-24 mt-2 border" />
+                      {selectedCR.facultyAcknowledgement?.signatureImage ? (
+                        <img src={selectedCR.facultyAcknowledgement.signatureImage} alt="Faculty Final Signature" className="w-48 h-24 mt-2 border" />
                       ) : (
                         <div className="w-48 h-24 mt-2 border flex items-center justify-center text-gray-400">[Not Signed]</div>
                       )}

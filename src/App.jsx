@@ -15,6 +15,9 @@ import GenerateCR from "./Features/CR/GenerateCR";
 import Dashboard from "./pages/Faculty/Dashboard";
 import Signup from "./pages/Faculty/Signup";
 import ProtectedRoutes from "./ui/ProtectedRoutes";
+import SelfAssessmentForm from "./Features/CR/SelfAssessment";
+import AllCRReports from "./Features/CR/ViewAllReports";
+import HodCR from "./Features/CR/HodCR";
 function App() {
   const { user } = UserData();
   return (
@@ -40,6 +43,10 @@ function App() {
               <Route path="publications" element={<Publications />} />
               <Route path="publication/add" element={<AddPublication />} />
               <Route path="CR" element={<GenerateCR />} />
+              <Route path="CR/hodSection/:reportId" element={<HodCR />} />
+              <Route path="CR/view" element={<AllCRReports />} />
+              <Route path="CR/selfAssess" element={<SelfAssessmentForm />} />
+              <Route path="CR/selfAssess/:reportId" element={<SelfAssessmentForm />} />
             </Route>
           </Route>
         </Routes>

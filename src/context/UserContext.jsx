@@ -86,21 +86,26 @@ function UserProvider({ children }) {
   console.log(user);
 
   async function login(form) {
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        form
-      );
-      console.log(res.data.user);
-      setUser(res.data.user);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      toast.success("Login successful");
-      return true;
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
-      return false;
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", form);
+    const user = res.data.user;
+    if (user.role === "faculty") {
+      const facultyRes = await axios.get(`http://localhost:5000/api/faculty/${user.userId}`);
+      const faculty = facultyRes.data;
+
+      user.facultyId = faculty.facultyId || faculty._id;
+      user.facultyProfile = faculty;
     }
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+    toast.success("Login successful");
+    return true;
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Login failed");
+    return false;
   }
+}
+
 
   async function signup(form) {
     try {

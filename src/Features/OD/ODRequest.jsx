@@ -9,14 +9,16 @@ export default function ODRequestForm() {
     register,
     handleSubmit,
     watch,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm();
-  const {user}=UserData();
+  const { user } = UserData();
   const [type, setType] = useState("Conduct");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [numDays, setNumDays] = useState(0);
-
+  const [selectedFiles, setSelectedFiles] = useState([]);
   function updateDays(start, end) {
     if (start && end) {
       const startObj = new Date(start);
@@ -87,6 +89,7 @@ export default function ODRequestForm() {
 
       toast.success("Request submitted successfully");
       console.log("Saved ODRequest:", res.data);
+      reset();
     } catch (err) {
       toast.error(err.response?.data?.error || "Submission failed");
       console.error("Submission error:", err);
@@ -95,7 +98,7 @@ export default function ODRequestForm() {
 
   const [isOther, setIsOther] = useState(false);
 
-  const requestType = watch("requestType", "OD"); 
+  const requestType = watch("requestType", "OD");
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-black p-4 flex items-center justify-center">
@@ -110,7 +113,7 @@ export default function ODRequestForm() {
           <select
             {...register("requestType", { required: true })}
             className="w-full p-2 rounded bg-gray-100"
-            onChange={(e) => setType(e.target.value)} 
+            onChange={(e) => setType(e.target.value)}
           >
             <option value="OD">OD</option>
             <option value="SCL">SCL</option>
@@ -246,11 +249,46 @@ export default function ODRequestForm() {
           <input
             type="file"
             multiple
-            {...register("documents", { required: true })}
             className="w-full p-4 rounded bg-gray-100 file:text-white file:bg-[#145DA0] file:px-4 file:py-2 file:rounded"
-          />
+            onChange={(e) => {
+              const filesArray = Array.from(e.target.files);
+              const MAX_SIZE_MB = 2;
+              const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
-          {errors.document && <div className="h-0.5 bg-red-500"></div>}
+              const validNewFiles = [];
+              for (const file of filesArray) {
+                if (file.size > MAX_SIZE_BYTES) {
+                  toast.error(
+                    `"${file.name}" exceeds ${MAX_SIZE_MB}MB limit and was not added.`
+                  );
+                } else {
+                  // Prevent duplicates
+                  const alreadyAdded = selectedFiles.some(
+                    (f) => f.name === file.name && f.size === file.size
+                  );
+                  if (!alreadyAdded) validNewFiles.push(file);
+                }
+              }
+
+              const updatedFiles = [...selectedFiles, ...validNewFiles];
+              setSelectedFiles(updatedFiles);
+              setValue("documents", updatedFiles); // update RHF form
+              e.target.value = null; // allow re-selecting same file
+            }}
+          />
+          <p className="text-sm text-gray-500 mt-1">Max size: 2MB per file</p>
+
+          {selectedFiles.length > 0 && (
+            <ul className="list-disc list-inside text-sm text-gray-700 mt-2 space-y-1">
+              {selectedFiles.map((file, idx) => (
+                <li key={idx}>
+                  {file.name} ({(file.size / (1024 * 1024)).toFixed(2)} MB)
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {errors.documents && <div className="h-0.5 bg-red-500"></div>}
         </div>
 
         <div className="w-fit mx-auto">
