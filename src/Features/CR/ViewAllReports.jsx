@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { UserData } from "../../context/UserContext";
 import { toast } from "react-hot-toast";
-import { useNavigate } from "react-router-dom"; // Add this at the top
+import { useNavigate } from "react-router-dom";
 
 export default function AllCRReports() {
   const { user } = UserData();
@@ -19,7 +19,6 @@ export default function AllCRReports() {
 
   useEffect(() => {
     if (!user) return;
-    // if (!selectedYear || !selectedPeriod) return;
 
     const params = new URLSearchParams();
 
@@ -34,7 +33,6 @@ export default function AllCRReports() {
     }
 
     setLoading(true);
-    console.log(params.toString());
     axios
       .get(`http://localhost:5000/api/crreport?${params.toString()}`, {
         headers: { "x-user-email": user.email },
@@ -51,6 +49,37 @@ export default function AllCRReports() {
         setLoading(false);
       });
   }, [user, selectedYear, selectedPeriod, statusFilter, searchTerm, page]);
+
+  const handleActionClick = async (report) => {
+    if (user.role === "faculty" && report.status === "draft") {
+      navigate(`/CR/selfAssess/${report._id}`);
+    } else if (report.status === "hod-signed") {
+      navigate(`/CR/selfAssess/${report._id}`);
+    } else if (report.status === "faculty-filled" && user.role === "hod") {
+      navigate(`/CR/hodSection/${report._id}`);
+    } else if (report.status === "finalized") {
+      try {
+        const res = await axios.get(
+          `http://localhost:5000/api/crreport/${report._id}/download`,
+          {
+            headers: { "x-user-email": user.email },
+            responseType: "blob",
+          }
+        );
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `CR_Report_${report._id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+      } catch (err) {
+        toast.error("Download failed");
+      }
+    } else {
+      toast.error("Action not permitted for this report status.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#fbfbfb] text-black p-6">
@@ -115,6 +144,7 @@ export default function AllCRReports() {
             <option value="">All Statuses</option>
             <option value="draft">Draft</option>
             <option value="submitted">Submitted</option>
+            <option value="faculty-filled">Faculty Filled</option>
             <option value="pending_hod_review">Pending HOD Review</option>
             <option value="hod-signed">HOD Signed</option>
             <option value="finalized">Finalized</option>
@@ -154,20 +184,21 @@ export default function AllCRReports() {
                         {report.status.replace(/_/g, " ")}
                       </td>
                       <td className="p-3">
-                        <button
-                          onClick={() => {
-                            if (report.status === "hod-signed") {
-                              navigate(`/CR/selfAssess/${report._id}`);
-                            } else {
-                              toast.error(
-                                "Only reports with status HOD-Signed can be viewed here."
-                              );
-                            }
-                          }}
-                          className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
-                        >
-                          View
-                        </button>
+                        {(user.role === "faculty" &&
+                          report.status === "draft") ||
+                        report.status === "hod-signed" ||
+                        (report.status === "faculty-filled" &&
+                          user.role === "hod") ||
+                        report.status === "finalized" ? (
+                          <button
+                            onClick={() => handleActionClick(report)}
+                            className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
+                          >
+                            {report.status === "finalized"
+                              ? "Download"
+                              : "View"}
+                          </button>
+                        ) : null}
                       </td>
                     </tr>
                   ))
@@ -202,6 +233,30 @@ export default function AllCRReports() {
               className="bg-[#145DA0] text-white px-4 py-1 rounded disabled:opacity-50"
             >
               Next
+            </button>
+          </div>
+        )}
+
+        {/* Self-assessment redirect button */}
+        {user.role === "faculty" && (
+          <div className="text-center mt-8">
+            <button
+              onClick={async () => {
+                try {
+                  const res = await axios.get(
+                    `http://localhost:5000/api/crreport/create?year=${new Date().getFullYear()}&period=december`,
+                    {
+                      headers: { "x-user-email": user.email },
+                    }
+                  );
+                  navigate(`/CR/selfAssess/${res.data._id}`);
+                } catch (err) {
+                  toast.error("Could not start or fetch CR Report");
+                }
+              }}
+              className="bg-green-600 text-white px-6 py-2 rounded shadow hover:opacity-90"
+            >
+              Go to Self-Assessment Page
             </button>
           </div>
         )}

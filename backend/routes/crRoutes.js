@@ -30,17 +30,21 @@ router.get("/", restrictTo("faculty", "admin", "hod"), getAllReports);
 router.get("/:facultyId", restrictTo("faculty", "hod"), getOrCreateCRReport);
 
 // Get individual CR report by ID (for HOD access)
-router.get("/report/:reportId", restrictTo("hod"), async (req, res) => {
-  try {
-    const report = await CRReport.findById(req.params.reportId);
-    if (!report) {
-      return res.status(404).json({ message: "CR Report not found" });
+router.get(
+  "/report/:reportId",
+  restrictTo("faculty", "hod"),
+  async (req, res) => {
+    try {
+      const report = await CRReport.findById(req.params.reportId);
+      if (!report) {
+        return res.status(404).json({ message: "CR Report not found" });
+      }
+      res.json(report);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-    res.json(report);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
 // Create or update CR report (faculty only)
 router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
@@ -82,7 +86,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
         },
         year,
         period,
-        status: "pending_hod_review",
+        status: "faculty-filled",
       });
     }
 
@@ -111,6 +115,7 @@ router.post(
 );
 
 // Upload attachments for self-assessment (faculty only)
+// Upload attachments for self-assessment (faculty only)
 router.post(
   "/:reportId/self-assessment/attachments",
   restrictTo("faculty"),
@@ -119,19 +124,43 @@ router.post(
     try {
       const CRReport = require("../models/CRReport");
       const report = await CRReport.findById(req.params.reportId);
-      if (!report) return res.status(404).json({ message: "Report not found" });
+      if (!report) {
+        return res.status(404).json({ message: "Report not found" });
+      }
 
-      const files = req.files.map((f) => ({
-        filename: f.filename,
-        url: `/uploads/${f.filename}`,
-      }));
-      report.selfAssessment = { ...req.body, attachments: files };
-      report.facultySignature = req.user.name;
+      // Parse all JSON fields from form-data
+      const parsedSelfAssessment = {
+        examResults: req.body.examResults || "",
+        contributions: req.body.contributions || "",
+        facultySignature: req.user.name.toUpperCase(),
+        researchCounts: JSON.parse(req.body.researchCounts || "{}"),
+        subjectsTaught: JSON.parse(req.body.subjectsTaught || "[]"),
+        memberships: JSON.parse(req.body.memberships || "[]"),
+        booksOrGuides: JSON.parse(req.body.booksOrGuides || "[]"),
+        consultingWork: JSON.parse(req.body.consultingWork || "[]"),
+        papersPublished: JSON.parse(req.body.papersPublished || "[]"),
+        researchInstruments: JSON.parse(req.body.researchInstruments || "[]"),
+        additionalQualifications: JSON.parse(
+          req.body.additionalQualifications || "[]"
+        ),
+        pastoralFunctions: JSON.parse(req.body.pastoralFunctions || "[]"),
+        otherContributions: JSON.parse(req.body.otherContributions || "[]"),
+        attachments: req.files.map((f) => ({
+          filename: f.filename,
+          url: `/uploads/${f.filename}`,
+        })),
+      };
+
+      // Assign data and update metadata
+      report.selfAssessment = parsedSelfAssessment;
+      report.facultySignature = req.user.name.toUpperCase();
       report.facultySignDate = new Date();
-      report.status = "pending_hod_review";
+      report.status = "faculty-filled"; // Make sure this is allowed in schema
       await report.save();
+
       res.json(report);
     } catch (err) {
+      console.error("Self-assessment upload error:", err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -146,7 +175,7 @@ router.post("/:reportId/finalize", restrictTo("hod"), finalizeReport);
 // Download final report (faculty or HOD)
 router.get("/:reportId/download", restrictTo("faculty", "hod"), downloadReport);
 
-// List all CRs pending HOD review (HOD only)
+// List all CRs    HOD review (HOD only)
 router.get("/pending/hod", restrictTo("hod"), async (req, res) => {
   try {
     const CRReport = require("../models/CRReport");

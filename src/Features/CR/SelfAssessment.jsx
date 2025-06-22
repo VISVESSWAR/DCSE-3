@@ -3,26 +3,47 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import { UserData } from "../../context/UserContext";
 import { useParams } from "react-router-dom";
+
 export default function SelfAssessmentForm() {
   const { user } = UserData();
   const { reportId } = useParams();
 
   const [form, setForm] = useState({
-    examResults: "",
-    contributions: "",
-    researchCounts: { phd: 0, mphil: 0, pg: 0, ug: 0 },
-    subjectsTaught: [],
-    memberships: [],
-    booksOrGuides: [],
-    consultingWork: [],
-    papersPublished: [],
-    researchInstruments: [],
-    additionalQualifications: [],
-    pastoralFunctions: [],
-    attachments: [],
-    otherContributions: [],
-    facultySignature: "",
-  });
+  examResults: "85% pass overall. Excellent results in DSA and AI.",
+  contributions: "Organized coding workshops, developed lab manuals.",
+  researchCounts: { phd: 2, mphil: 1, pg: 4, ug: 8 },
+  subjectsTaught: [
+    {
+      subject: "Data Structures",
+      contactHours: 45,
+      studentsAppeared: 60,
+      studentsPassed: 58,
+      remarks: "Well performed",
+    },
+    {
+      subject: "AI Basics",
+      contactHours: 40,
+      studentsAppeared: 55,
+      studentsPassed: 50,
+      remarks: "Improved over the term",
+    },
+  ],
+  memberships: ["CSI", "IEEE"],
+  booksOrGuides: ["Guide to Data Structures", "AI Handbook"],
+  conferences: ["International Conf. on ML 2024"],
+  consultingWork: ["Industry collaboration with ABC Corp"],
+  papersPublished: [
+    "Efficient Algorithms for Sorting",
+    "AI in Education Systems",
+  ],
+  researchInstruments: ["TensorFlow Models", "Neural Net Simulators"],
+  additionalQualifications: ["PhD in AI", "M.Tech in CSE"],
+  pastoralFunctions: ["Mentor for 2nd year students"],
+  attachments: [],
+  otherContributions: ["Organized NSS camp", "Internal ISO auditor"],
+  facultySignature: "DR. JOHN DOE",
+});
+
   const [faculty, setFaculty] = useState({});
   const [fileUploads, setFileUploads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,38 +85,6 @@ export default function SelfAssessmentForm() {
       setLoading(false);
     }
   }, [user, reportId]);
-
-//   useEffect(() => {
-//     const loadData = () => {
-//       if (passedReport) {
-//         setFaculty(passedReport.faculty);
-//         setReportId(passedReport._id);
-//         if (passedReport.selfAssessment) {
-//           setForm((f) => ({
-//             ...f,
-//             ...passedReport.selfAssessment,
-//             researchCounts: passedReport.selfAssessment.researchCounts || {
-//               phd: 0,
-//               mphil: 0,
-//               pg: 0,
-//               ug: 0,
-//             },
-//             subjectsTaught: passedReport.selfAssessment.subjectsTaught || [],
-//           }));
-//         }
-//         setLoading(false);
-//       } else {
-//         toast.error("No report data provided. Please return and retry.");
-//         setLoading(false);
-//       }
-//     };
-
-//     if (user && user.role !== "hod") {
-//       loadData();
-//     } else {
-//       setLoading(false);
-//     }
-//   }, [user, passedReport]);
 
   const handleField = (e) => {
     const { name, value } = e.target;
@@ -166,7 +155,7 @@ export default function SelfAssessmentForm() {
         }
       );
 
-      toast.success("Self-assessment submitted!");
+      toast.success("Self-assessment submitted successfully!");
     } catch (err) {
       toast.error("Submission failed");
     }
@@ -183,7 +172,6 @@ export default function SelfAssessmentForm() {
         Faculty Self-Assessment
       </h2>
 
-      {/* Faculty Basic Info */}
       <div className="border rounded p-4 space-y-2 text-sm">
         <div>
           <strong>Name:</strong> {faculty.name}
@@ -198,8 +186,6 @@ export default function SelfAssessmentForm() {
           <strong>Department:</strong> {faculty.department}
         </div>
       </div>
-
-      {/* Subjects Taught */}
       <div className="space-y-2">
         <h3 className="font-semibold">Subjects Taught</h3>
         {form.subjectsTaught.map((subj, idx) => (
@@ -381,7 +367,6 @@ export default function SelfAssessmentForm() {
           </button>
         )}
       </div>
-
       <button
         type="submit"
         className="w-full bg-blue-600 text-white py-2 rounded"

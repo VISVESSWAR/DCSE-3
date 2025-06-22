@@ -15,7 +15,7 @@ const getAllReports = async (req, res) => {
       page = 1,
       limit = 10,
     } = req.query;
-    console.log(req.query)
+    console.log(req.query);
 
     const query = {};
 
@@ -29,7 +29,7 @@ const getAllReports = async (req, res) => {
 
     const reports = await CRReport.find(query).skip(skip).limit(Number(limit));
     const total = await CRReport.countDocuments(query);
-    console.log(reports,total)
+    console.log(reports, total);
     res.json({ reports, total });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -90,10 +90,26 @@ const updateSelfAssessment = async (req, res) => {
     const report = await CRReport.findById(reportId);
     if (!report) return res.status(404).json({ message: "Report not found" });
 
-    report.selfAssessment = update;
+    report.selfAssessment = {
+      ...req.body,
+      subjectsTaught: JSON.parse(req.body.subjectsTaught || "[]"),
+      researchCounts: JSON.parse(req.body.researchCounts || "{}"),
+      memberships: JSON.parse(req.body.memberships || "[]"),
+      booksOrGuides: JSON.parse(req.body.booksOrGuides || "[]"),
+      consultingWork: JSON.parse(req.body.consultingWork || "[]"),
+      papersPublished: JSON.parse(req.body.papersPublished || "[]"),
+      researchInstruments: JSON.parse(req.body.researchInstruments || "[]"),
+      additionalQualifications: JSON.parse(
+        req.body.additionalQualifications || "[]"
+      ),
+      pastoralFunctions: JSON.parse(req.body.pastoralFunctions || "[]"),
+      otherContributions: JSON.parse(req.body.otherContributions || "[]"),
+      attachments: files,
+    };
+
     report.facultySignature = req.user.name;
     report.facultySignDate = new Date();
-    report.status = "pending_hod_review";
+    report.status = "faculty-filled";
     await report.save();
     res.json(report);
   } catch (err) {
@@ -115,7 +131,7 @@ const updateHODSection = async (req, res) => {
       hodDate: new Date(),
     };
     report.hodSignDate = new Date();
-    report.status = "finalized";
+    report.status = "hod-signed";
     await report.save();
     res.json(report);
   } catch (err) {

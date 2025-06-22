@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const attachmentSchema = new mongoose.Schema({
   filename: String,
@@ -6,12 +6,14 @@ const attachmentSchema = new mongoose.Schema({
 });
 
 const selfAssessmentSchema = new mongoose.Schema({
-  coursesTaught: [{
-    title: String,
-    level: String, // UG or PG
-    hoursPerWeek: String,
-    studentsRegistered: Number
-  }],
+  coursesTaught: [
+    {
+      title: String,
+      level: String, // UG or PG
+      hoursPerWeek: String,
+      studentsRegistered: Number,
+    },
+  ],
   subjectsTaught: [
     {
       subject: String,
@@ -71,14 +73,14 @@ const hodSectionSchema = new mongoose.Schema({
   performanceAssessmentSignature: {
     signatureImage: String,
     date: Date,
-    station: String
+    station: String,
   },
   // Signature for Part II
   potentialAssessmentSignature: {
     signatureImage: String,
     date: Date,
-    station: String
-  }
+    station: String,
+  },
 });
 
 const CRReportSchema = new mongoose.Schema({
@@ -95,11 +97,11 @@ const CRReportSchema = new mongoose.Schema({
     dateOfJoining: Date,
   },
   year: String,
-  period:String,
+  period: String,
   status: {
     type: String,
-    enum: ['draft', 'submitted', 'pending_hod_review', 'hod-signed', 'finalized'],
-    default: 'draft',
+    enum: ["draft", "faculty-filled", "hod-signed", "finalized"],
+    default: "draft",
   },
   selfAssessment: selfAssessmentSchema,
   hodSection: hodSectionSchema,
@@ -112,13 +114,13 @@ const CRReportSchema = new mongoose.Schema({
     name: String,
     designation: String,
     date: Date,
-    signatureImage: String
+    signatureImage: String,
   },
   facultyAcknowledgement: {
-    remarks: String, 
+    remarks: String,
     date: Date,
-    signatureImage: String
-  }
+    signatureImage: String,
+  },
 });
 
-module.exports = mongoose.model('CRReport', CRReportSchema);
+module.exports = mongoose.model("CRReport", CRReportSchema);
