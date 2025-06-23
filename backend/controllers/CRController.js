@@ -377,8 +377,21 @@ const downloadReport = async (req, res) => {
       .replace(/{{HOD_NAME}}/g, report.hodName || "HOD")
       .replace(/{{MEMBERSHIP}}/g, (self.memberships || []).join(", "))
       .replace(/{{EXAM_RESULTS}}/g, self.examResults || "")
-      .replace(/{{SUBJECTS_TABLE}}/g, subjectsTableHtml)
-      .replace(/{{ATTACHMENTS}}/g, attachmentsHtml);
+  .replace(/{{SUBJECTS_TABLE}}/g, subjectsTableHtml)
+  .replace(/{{ATTACHMENTS}}/g, attachmentsHtml)
+  .replace(/{{SELF_EXAM_RESULTS}}/g, self.examResults || "")
+  .replace(/{{SELF_CONTRIBUTIONS}}/g, self.contributions || "")
+  .replace(/{{SELF_RESEARCH_PHD}}/g, self.researchCounts?.phd?.toString() || "0")
+  .replace(/{{SELF_RESEARCH_MPHIL}}/g, self.researchCounts?.mphil?.toString() || "0")
+  .replace(/{{SELF_RESEARCH_PG}}/g, self.researchCounts?.pg?.toString() || "0")
+  .replace(/{{SELF_RESEARCH_UG}}/g, self.researchCounts?.ug?.toString() || "0")
+  .replace(/{{SELF_PAPERS_PUBLISHED}}/g, (self.papersPublished || []).join(", "))
+  .replace(/{{SELF_BOOKS_GUIDES}}/g, (self.booksOrGuides || []).join(", "))
+  .replace(/{{SELF_RESEARCH_INSTRUMENTS}}/g, (self.researchInstruments || []).join(", "))
+  .replace(/{{SELF_ADDITIONAL_QUALIFICATIONS}}/g, (self.additionalQualifications || []).join(", "))
+  .replace(/{{SELF_CONSULTING}}/g, (self.consultingWork || []).join(", "))
+  .replace(/{{SELF_OTHER_CONTRIBUTIONS}}/g, (self.otherContributions || []).join(", "))
+  .replace(/{{SELF_PASTORAL_FUNCTIONS}}/g, (self.pastoralFunctions || []).join(", "))
 
     const browser = await puppeteer.launch({
       headless: true,

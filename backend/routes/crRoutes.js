@@ -86,7 +86,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
         },
         year,
         period,
-        status: "faculty-filled",
+        status: "draft",
       });
     }
 

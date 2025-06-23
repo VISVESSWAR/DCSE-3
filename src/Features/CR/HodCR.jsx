@@ -392,12 +392,11 @@ export default function HodCR() {
       </div>
 
       {/* Pages 4–5: Self Assessment */}
-      <div>
+      {/* <div>
         <h3 className="text-lg font-semibold mb-2">
           Part III – Self Assessment
         </h3>
-        {/* ...existing self-assessment display... */}
-      </div>
+      </div> */}
 
       {/* PDF Download */}
       <div className="mt-6">
