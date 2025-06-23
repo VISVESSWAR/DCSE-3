@@ -4,6 +4,8 @@ import { UserData } from "../../context/UserContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid } from 'recharts';
 
 function groupBy(arr, keyFn) {
   return arr.reduce((acc, item) => {
@@ -21,7 +23,48 @@ function getYears(arr, dateKey) {
   return Array.from(new Set(arr.map(item => item[dateKey] ? new Date(item[dateKey]).getFullYear() : null).filter(Boolean)));
 }
 
-export default function ConsolidationReport() {
+// --- Menu component ---
+export function ConsolidationReportMenu() {
+  const navigate = useNavigate();
+  return (
+    <div className="flex flex-col min-h-[70vh] justify-between items-center p-10">
+      <div className="flex-1 flex flex-col justify-center items-center w-full">
+        <h1 className="text-3xl font-bold mb-8 text-center">Select and view the consolidation reports</h1>
+      </div>
+      <div className="w-full flex flex-col items-center mb-10">
+        <div className="flex flex-wrap gap-6 justify-center w-full">
+          <button
+            className="bg-blue-600 text-white px-8 py-4 rounded shadow hover:bg-blue-700 transition font-semibold text-lg min-w-[200px]"
+            onClick={() => navigate('/admin/consolidation-report/scholars')}
+          >
+            Scholars Statistics
+          </button>
+          <button
+            className="bg-green-600 text-white px-8 py-4 rounded shadow hover:bg-green-700 transition font-semibold text-lg min-w-[200px]"
+            onClick={() => navigate('/admin/consolidation-report/OD')}
+          >
+            OD Requests
+          </button>
+          <button
+            className="bg-purple-600 text-white px-8 py-4 rounded shadow hover:bg-purple-700 transition font-semibold text-lg min-w-[200px]"
+            onClick={() => navigate('/admin/consolidation-report/faculty')}
+          >
+            Faculty Statistics
+          </button>
+          <button
+            className="bg-yellow-600 text-white px-8 py-4 rounded shadow hover:bg-yellow-700 transition font-semibold text-lg min-w-[200px]"
+            disabled
+          >
+            Publications
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Scholars section: all detailed report content ---
+export function ConsolidationReportScholars() {
   const { user } = UserData();
   const [scholars, setScholars] = useState([]);
   const [odRequests, setOdRequests] = useState([]);
@@ -567,6 +610,18 @@ export default function ConsolidationReport() {
     pdf.save("consolidation_report_text.pdf");
   }
 
+  const COLORS = ['#6366f1', '#f59e42', '#60a5fa', '#a3e635', '#fbbf24', '#f472b6', '#34d399', '#f87171', '#fbbf24', '#60a5fa'];
+
+  // Faculty-Type-Status Matrix columns (guaranteed scope)
+  const facultyTypeStatus = {};
+  odRequests.forEach(r => {
+    if (!facultyTypeStatus[r.name]) facultyTypeStatus[r.name] = {};
+    if (!facultyTypeStatus[r.name][r.requestType]) facultyTypeStatus[r.name][r.requestType] = {};
+    facultyTypeStatus[r.name][r.requestType][r.status] = (facultyTypeStatus[r.name][r.requestType][r.status] || 0) + 1;
+  });
+  const allTypes = Array.from(new Set(odRequests.map(r => r.requestType))).filter(t => t && t !== 'Conduct' && t !== 'Participate');
+  const allStatuses = Array.from(new Set(odRequests.map(r => r.status)));
+
   return (
     <div className="p-4 md:p-10 space-y-10">
       {/* Hidden test div for PDF troubleshooting */}
@@ -584,19 +639,19 @@ export default function ConsolidationReport() {
         {/* Scholar Analytics & Breakdown */}
         <section className="space-y-8">
           <h2 className="text-2xl font-semibold mb-4">Scholar Analytics & Breakdown</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-10">
             {/* By Area of Research (Bar) */}
-            <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <div className="bg-white rounded-xl shadow p-5 flex flex-col mb-8">
               <h3 className="font-semibold mb-2 text-lg">By Area of Research</h3>
               <HorizontalBarChart data={scholarsByArea} color="#6366f1" label="Area" showAll={showAllAreas} setShowAll={setShowAllAreas} />
             </div>
             {/* By Supervisor (Bar) */}
-            <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <div className="bg-white rounded-xl shadow p-5 flex flex-col mb-8">
               <h3 className="font-semibold mb-2 text-lg">By Supervisor</h3>
               <HorizontalBarChart data={scholarsBySupervisor} color="#f59e42" label="Supervisor" showAll={showAllSupervisors} setShowAll={setShowAllSupervisors} />
             </div>
             {/* By Scholar Status (Pie + Table) */}
-            <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center col-span-1 md:col-span-2 xl:col-span-1">
+            <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center col-span-1 md:col-span-2 xl:col-span-1 mb-8">
               <h3 className="font-semibold mb-2 text-lg">By Scholar Status</h3>
               <ScholarStatusPie />
               <table className="text-sm w-full mt-2">
@@ -609,17 +664,17 @@ export default function ConsolidationReport() {
             </div>
           </div>
           {/* By Year of Joining/Completion (Stacked Bar Chart) */}
-          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col mb-10">
             <h3 className="font-semibold mb-2 text-lg">By Year of Joining / Completion</h3>
             <ScholarsStackedBarChart />
           </div>
         </section>
         {/* Advanced Analytics */}
-        <section className="space-y-8">
+        <section className="space-y-8 mt-10 mb-10">
           <h2 className="text-2xl font-semibold mb-4">Advanced Analytics</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-10">
             {/* Average Duration */}
-            <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center justify-center">
+            <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center justify-center mb-8">
               <h3 className="font-semibold mb-2 text-lg">Average Duration to Completion</h3>
               <div className="text-4xl font-bold text-blue-700">{avgDurationYears}y {avgDurationRemMonths}m</div>
               <div className="text-xs text-gray-500 mt-1">(From joining to completion, among completed scholars)</div>
@@ -764,6 +819,496 @@ export default function ConsolidationReport() {
             </table>
           </div>
         </section>
+      </div>
+    </div>
+  );
+}
+
+// --- OD Requests section: statistics and breakdowns ---
+export function ConsolidationReportOD() {
+  const { user } = UserData();
+  const [odRequests, setOdRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const odRes = await axios.get("http://localhost:5000/api/odrequests", { headers: { "x-user-email": user.email } });
+        setOdRequests(odRes.data);
+      } catch (err) {
+        // Handle error
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [user.email]);
+
+  // Statistics
+  const totalOD = odRequests.length;
+  const pendingOD = odRequests.filter(r => r.status === "Pending").length;
+  const approvedOD = odRequests.filter(r => r.status === "Approved").length;
+  const rejectedOD = odRequests.filter(r => r.status === "Rejected").length;
+  const odByType = groupBy(odRequests, r => r.requestType || "Unknown");
+  const odByFaculty = groupBy(odRequests, r => r.name || "Unknown");
+
+  // --- Analytics ---
+  // 1. Trends Over Time
+  // Group by month/year
+  function getMonthYear(date) {
+    if (!date) return 'Unknown';
+    const d = new Date(date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+  const odByMonth = {};
+  const approvalByMonth = {};
+  odRequests.forEach(r => {
+    const key = getMonthYear(r.startDate || r.date);
+    odByMonth[key] = (odByMonth[key] || 0) + 1;
+    if (!approvalByMonth[key]) approvalByMonth[key] = { total: 0, approved: 0 };
+    approvalByMonth[key].total++;
+    if (r.status === 'Approved') approvalByMonth[key].approved++;
+  });
+  const odByMonthData = Object.entries(odByMonth).map(([month, count]) => ({ month, count }));
+  const approvalRateByMonthData = Object.entries(approvalByMonth).map(([month, obj]) => ({ month, rate: obj.total ? Math.round((obj.approved / obj.total) * 100) : 0 }));
+
+  // 2. Faculty Insights
+  const facultyCounts = Object.entries(odByFaculty).map(([faculty, count]) => ({ faculty, count }));
+  facultyCounts.sort((a, b) => b.count - a.count);
+  const topFaculty = facultyCounts.slice(0, 5);
+  // Approval rate by faculty
+  const facultyApproval = {};
+  odRequests.forEach(r => {
+    if (!facultyApproval[r.name]) facultyApproval[r.name] = { total: 0, approved: 0 };
+    facultyApproval[r.name].total++;
+    if (r.status === 'Approved') facultyApproval[r.name].approved++;
+  });
+  const facultyApprovalData = Object.entries(facultyApproval).map(([faculty, obj]) => ({ faculty, rate: obj.total ? Math.round((obj.approved / obj.total) * 100) : 0, total: obj.total }));
+  facultyApprovalData.sort((a, b) => b.total - a.total);
+
+  // 3. Type Analysis
+  const typeCounts = Object.entries(odByType).map(([type, count]) => ({ type, count }));
+  // Remove 'Conduct' and 'Participate' from typeCounts
+  const filteredTypeCounts = typeCounts.filter(item => item.type !== 'Conduct' && item.type !== 'Participate');
+  typeCounts.sort((a, b) => b.count - a.count);
+  // Approval rate by type
+  const typeApproval = {};
+  odRequests.forEach(r => {
+    if (!typeApproval[r.requestType]) typeApproval[r.requestType] = { total: 0, approved: 0 };
+    typeApproval[r.requestType].total++;
+    if (r.status === 'Approved') typeApproval[r.requestType].approved++;
+  });
+  let typeApprovalData = Object.entries(typeApproval).map(([type, obj]) => ({ type, rate: obj.total ? Math.round((obj.approved / obj.total) * 100) : 0, total: obj.total }));
+  typeApprovalData = typeApprovalData.filter(item => item.type !== 'Conduct' && item.type !== 'Participate');
+  typeApprovalData.sort((a, b) => b.total - a.total);
+
+  // 4. Duration Analysis
+  function getDurationDays(start, end) {
+    if (!start || !end) return null;
+    return Math.round((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1;
+  }
+  const durations = odRequests.map(r => getDurationDays(r.startDate, r.endDate)).filter(d => d !== null);
+  const avgDuration = durations.length ? (durations.reduce((a, b) => a + b, 0) / durations.length).toFixed(1) : '-';
+  const sortedDurations = odRequests
+    .map(r => ({ ...r, duration: getDurationDays(r.startDate, r.endDate) }))
+    .filter(r => r.duration !== null)
+    .sort((a, b) => b.duration - a.duration);
+  const longest = sortedDurations[0];
+  const shortest = sortedDurations[sortedDurations.length - 1];
+
+  const COLORS = ['#6366f1', '#f59e42', '#60a5fa', '#a3e635', '#fbbf24', '#f472b6', '#34d399', '#f87171', '#fbbf24', '#60a5fa'];
+
+  // Faculty-Type-Status Matrix columns (guaranteed scope)
+  const facultyTypeStatus = {};
+  odRequests.forEach(r => {
+    if (!facultyTypeStatus[r.name]) facultyTypeStatus[r.name] = {};
+    if (!facultyTypeStatus[r.name][r.requestType]) facultyTypeStatus[r.name][r.requestType] = {};
+    facultyTypeStatus[r.name][r.requestType][r.status] = (facultyTypeStatus[r.name][r.requestType][r.status] || 0) + 1;
+  });
+  const allTypes = Array.from(new Set(odRequests.map(r => r.requestType))).filter(t => t && t !== 'Conduct' && t !== 'Participate');
+  const allStatuses = Array.from(new Set(odRequests.map(r => r.status)));
+
+  // PDF Export Handler for OD
+  async function handleExportODPDF() {
+    try {
+      const reportElement = document.getElementById("od-consolidation-report-export");
+      if (!reportElement) throw new Error("Report element not found");
+      const canvas = await html2canvas(reportElement, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = pageWidth - 40;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.setFontSize(22);
+      pdf.setFont(undefined, 'bold');
+      pdf.text("OD Consolidation Report", pageWidth / 2, 40, { align: 'center' });
+      pdf.addImage(imgData, "PNG", 20, 60, imgWidth, imgHeight);
+      pdf.save("od_consolidation_report.pdf");
+    } catch (err) {
+      if (err && err.message && err.message.includes('oklch')) {
+        if (window.confirm("PDF export failed due to unsupported color (oklch). Would you like to export a text-based PDF instead?")) {
+          exportODTextPDF();
+        }
+      } else {
+        alert("PDF export failed: " + (err.message || err));
+      }
+    }
+  }
+
+  // Text-based PDF fallback for OD
+  function exportODTextPDF() {
+    const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
+    let y = 40;
+    pdf.setFontSize(20);
+    pdf.setFont(undefined, 'bold');
+    pdf.text("College of Engineering Guindy, Anna University", pdf.internal.pageSize.getWidth() / 2, y + 30, { align: 'center' });
+    pdf.setFontSize(16);
+    pdf.setFont(undefined, 'normal');
+    pdf.text("Department of Computer Science and Engineering", pdf.internal.pageSize.getWidth() / 2, y + 55, { align: 'center' });
+    pdf.setFontSize(18);
+    pdf.setFont(undefined, 'bold');
+    pdf.text("OD Consolidation Report", pdf.internal.pageSize.getWidth() / 2, y + 85, { align: 'center' });
+    y += 100;
+    pdf.setLineWidth(1);
+    pdf.line(40, y, pdf.internal.pageSize.getWidth() - 40, y);
+    y += 20;
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text("Summary", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    pdf.setFontSize(12);
+    autoTable(pdf, {
+      startY: y,
+      head: [["Metric", "Value"]],
+      body: [
+        ["Total OD Requests", totalOD],
+        ["Pending", pendingOD],
+        ["Approved", approvedOD],
+        ["Rejected", rejectedOD],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 250,
+    });
+    y = pdf.lastAutoTable.finalY + 30;
+    pdf.setFont(undefined, 'bold');
+    pdf.text("Breakdown by Type", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    autoTable(pdf, {
+      startY: y,
+      head: [["Type", "Count"]],
+      body: Object.entries(odByType).map(([type, count]) => [type, count]),
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 250,
+    });
+    y = pdf.lastAutoTable.finalY + 30;
+    pdf.setFont(undefined, 'bold');
+    pdf.text("Breakdown by Faculty", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    autoTable(pdf, {
+      startY: y,
+      head: [["Faculty", "Count"]],
+      body: Object.entries(odByFaculty).map(([faculty, count]) => [faculty, count]),
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 250,
+    });
+    y = pdf.lastAutoTable.finalY + 30;
+    pdf.setFont(undefined, 'bold');
+    pdf.text("Breakdown by Status", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    autoTable(pdf, {
+      startY: y,
+      head: [["Status", "Count"]],
+      body: [
+        ["Pending", pendingOD],
+        ["Approved", approvedOD],
+        ["Rejected", rejectedOD],
+      ],
+      theme: 'grid',
+      styles: { fontSize: 10 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 150,
+    });
+    y = pdf.lastAutoTable.finalY + 30;
+    // Add Faculty-Type-Status Table
+    pdf.setFont(undefined, 'bold');
+    pdf.text("OD Request Counts by Faculty, Type, and Status", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    // Build table head and body
+    const facultyTypeStatusHead = ["Faculty"];
+    allTypes.forEach(type => {
+      allStatuses.forEach(status => {
+        facultyTypeStatusHead.push(`${type} (${status})`);
+      });
+    });
+    const facultyTypeStatusBody = Object.entries(facultyTypeStatus).map(([faculty, typeObj]) => {
+      const row = [faculty];
+      allTypes.forEach(type => {
+        allStatuses.forEach(status => {
+          row.push(typeObj[type]?.[status] || 0);
+        });
+      });
+      return row;
+    });
+    autoTable(pdf, {
+      startY: y,
+      head: [facultyTypeStatusHead],
+      body: facultyTypeStatusBody,
+      theme: 'grid',
+      styles: { fontSize: 9 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 'auto',
+    });
+    y = pdf.lastAutoTable.finalY + 30;
+    pdf.setFont(undefined, 'bold');
+    pdf.text("All OD Requests", 40, y);
+    y += 18;
+    pdf.setFont(undefined, 'normal');
+    autoTable(pdf, {
+      startY: y,
+      head: [["Faculty", "Type", "OD Dates", "Status"]],
+      body: odRequests.map(r => [
+        r.name,
+        r.requestType,
+        r.startDate && r.endDate
+          ? `${new Date(r.startDate).toLocaleDateString('en-IN')} - ${new Date(r.endDate).toLocaleDateString('en-IN')}`
+          : (r.startDate ? new Date(r.startDate).toLocaleDateString('en-IN') : '-') ,
+        r.status
+      ]),
+      theme: 'grid',
+      styles: { fontSize: 9 },
+      margin: { left: 40, right: 40 },
+      tableWidth: 'auto',
+    });
+    pdf.save("od_consolidation_report_text.pdf");
+  }
+
+  return (
+    <div className="p-4 md:p-10 space-y-10">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={handleExportODPDF}
+          className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold"
+        >
+          Export as PDF
+        </button>
+      </div>
+      <div id="od-consolidation-report-export">
+        <h1 className="text-3xl font-bold mb-6">OD Consolidation Report</h1>
+        {/* Trends Over Time */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">OD Requests per Month</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={odByMonthData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="month" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#6366f1" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Approval Rate Over Time (%)</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={approvalRateByMonthData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="month" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Line type="monotone" dataKey="rate" stroke="#34d399" strokeWidth={3} />
+                <CartesianGrid strokeDasharray="3 3" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        {/* Faculty Insights */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Top Requesting Faculty</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={topFaculty} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="faculty" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#f59e42" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Approval Rate by Faculty (%)</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={facultyApprovalData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="faculty" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Bar dataKey="rate" fill="#60a5fa" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        {/* Type Analysis */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <h2 className="font-semibold mb-2 text-lg">Most Common OD Types</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie data={filteredTypeCounts} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={80} label>
+                  {filteredTypeCounts.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Approval Rate by OD Type (%)</h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={typeApprovalData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="type" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Bar dataKey="rate" fill="#a3e635" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        {/* Duration Analysis */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center justify-center">
+            <h2 className="font-semibold mb-2 text-lg">Average OD Duration</h2>
+            <div className="text-4xl font-bold text-blue-700">{avgDuration} days</div>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Longest/Shortest OD Requests</h2>
+            <ul className="text-sm">
+              <li className="mb-2"><span className="font-semibold">Longest:</span> {longest ? `${longest.name} (${longest.requestType}) - ${longest.duration} days (${longest.startDate} to ${longest.endDate})` : '-'}</li>
+              <li><span className="font-semibold">Shortest:</span> {shortest ? `${shortest.name} (${shortest.requestType}) - ${shortest.duration} days (${shortest.startDate} to ${shortest.endDate})` : '-'}</li>
+            </ul>
+          </div>
+        </div>
+        {/* Faculty-Type-Status Table */}
+        <div className="bg-white rounded-xl shadow p-5 mt-8">
+          <h2 className="font-semibold mb-2 text-lg">OD Request Counts by Faculty, Type, and Status</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm border">
+              <thead>
+                <tr>
+                  <th className="px-2 py-1 border">Faculty</th>
+                  {allTypes.map(type => (
+                    allStatuses.map(status => (
+                      <th key={type + status} className="px-2 py-1 border">{type} ({status})</th>
+                    ))
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(facultyTypeStatus).map(([faculty, typeObj]) => (
+                  <tr key={faculty}>
+                    <td className="px-2 py-1 border font-semibold">{faculty}</td>
+                    {allTypes.map(type => (
+                      allStatuses.map(status => (
+                        <td key={faculty + type + status} className="px-2 py-1 border text-center">
+                          {typeObj[type]?.[status] || 0}
+                        </td>
+                      ))
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {/* Existing summary cards and table remain below */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <div className="text-4xl font-bold text-blue-700">{totalOD}</div>
+            <div className="text-lg font-semibold mt-2">Total OD Requests</div>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <div className="text-4xl font-bold text-yellow-500">{pendingOD}</div>
+            <div className="text-lg font-semibold mt-2">Pending</div>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <div className="text-4xl font-bold text-green-600">{approvedOD}</div>
+            <div className="text-lg font-semibold mt-2">Approved</div>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col items-center">
+            <div className="text-4xl font-bold text-red-500">{rejectedOD}</div>
+            <div className="text-lg font-semibold mt-2">Rejected</div>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Breakdown by Type</h2>
+            <ul className="text-sm">
+              {Object.entries(odByType).map(([type, count]) => (
+                <li key={type} className="flex justify-between border-b py-1"><span>{type}</span><span className="font-bold">{count}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Breakdown by Faculty</h2>
+            <ul className="text-sm max-h-60 overflow-auto">
+              {Object.entries(odByFaculty).map(([faculty, count]) => (
+                <li key={faculty} className="flex justify-between border-b py-1"><span>{faculty}</span><span className="font-bold">{count}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div className="bg-white rounded-xl shadow p-5 flex flex-col">
+            <h2 className="font-semibold mb-2 text-lg">Breakdown by Status</h2>
+            <ul className="text-sm">
+              <li className="flex justify-between border-b py-1"><span>Pending</span><span className="font-bold">{pendingOD}</span></li>
+              <li className="flex justify-between border-b py-1"><span>Approved</span><span className="font-bold">{approvedOD}</span></li>
+              <li className="flex justify-between border-b py-1"><span>Rejected</span><span className="font-bold">{rejectedOD}</span></li>
+            </ul>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5 flex flex-col mt-8">
+          <h2 className="font-semibold mb-2 text-lg">All OD Requests</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white rounded shadow text-sm">
+              <thead className="bg-blue-100">
+                <tr>
+                  <th className="px-3 py-2 text-left">Faculty</th>
+                  <th className="px-3 py-2 text-left">Type</th>
+                  <th className="px-3 py-2 text-left">OD Dates</th>
+                  <th className="px-3 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {odRequests.length === 0 ? (
+                  <tr><td colSpan={4} className="text-center py-4">No OD requests found.</td></tr>
+                ) : (
+                  odRequests.map(r => (
+                    <tr key={r._id} className="border-b hover:bg-blue-50">
+                      <td className="px-3 py-2">{r.name}</td>
+                      <td className="px-3 py-2">{r.requestType}</td>
+                      <td className="px-3 py-2">{
+                        r.startDate && r.endDate
+                          ? `${new Date(r.startDate).toLocaleDateString('en-IN')} - ${new Date(r.endDate).toLocaleDateString('en-IN')}`
+                          : (r.startDate ? new Date(r.startDate).toLocaleDateString('en-IN') : '-')
+                      }</td>
+                      <td className="px-3 py-2">{r.status}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ export default function Sidebar() {
     { name: "OD History", path: "OD", icon: <TbHistory />, roles: ["all"] },
     { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
-    { name: "Consolidation Report", path: "/admin/consolidation-report", icon: <TbReport />, roles: ["admin"] },
+    { name: "Consolidation Report", path: "/admin/consolidation-report/menu", icon: <TbReport />, roles: ["admin"] },
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [
