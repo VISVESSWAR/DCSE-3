@@ -31,8 +31,6 @@ export default function Sidebar() {
     { name: "OD History", path: "OD", icon: <TbHistory />, roles: ["all"] },
     { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
-    { name: "Hod CR", path: "CR/hod", icon: <TbReport />, roles: ["all"] },
-    { name: "Self Assessment CR", path: "CR/selfAssess", icon: <TbReport />, roles: ["all"] },
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [

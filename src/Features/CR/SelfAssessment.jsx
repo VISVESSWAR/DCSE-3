@@ -41,7 +41,7 @@ export default function SelfAssessmentForm() {
   pastoralFunctions: ["Mentor for 2nd year students"],
   attachments: [],
   otherContributions: ["Organized NSS camp", "Internal ISO auditor"],
-  facultySignature: "DR. JOHN DOE",
+  facultySignature: "",
 });
 
   const [faculty, setFaculty] = useState({});
@@ -118,7 +118,7 @@ export default function SelfAssessmentForm() {
   };
 
   const confirmSignature = () => {
-    if (window.confirm(`Sign this report as ${user.name.toUpperCase()}?`)) {
+    if (window.confirm(`Clicking OK will digitally sign this report as ${user.name.toUpperCase()}. This action cannot be undone. Proceed?`)) {
       setForm((f) => ({ ...f, facultySignature: user.name.toUpperCase() }));
     }
   };
