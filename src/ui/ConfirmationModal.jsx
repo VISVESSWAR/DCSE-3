@@ -1,5 +1,5 @@
 // components/ConfirmationModal.js
-export default function ConfirmationModal({ title, description, onConfirm, onCancel }) {
+export default function ConfirmationModal({ title, description, onConfirm, onCancel, onView }) {
   return (
     <div className="fixed inset-0  bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-md">
@@ -12,6 +12,14 @@ export default function ConfirmationModal({ title, description, onConfirm, onCan
           >
             Cancel
           </button>
+          {onView && (
+            <button
+              onClick={onView}
+              className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              View Request Letter
+            </button>
+          )}
           <button
             onClick={onConfirm}
             className="bg-[#145DA0] text-white px-4 py-2 rounded hover:bg-[#0e3e6e]"

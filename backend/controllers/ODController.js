@@ -47,9 +47,15 @@ const updateStatus = async (req, res) => {
     if (!["approve", "reject"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
     }
+    let updateFields = { status: status === "approve" ? "Approved" : "Rejected" };
+    if (status === "approve") {
+      updateFields.hodName = req.user?.name || "HOD";
+      updateFields.hodSignDate = Date.now();
+      updateFields.hodDigitallySigned = true;
+    }
     const updated = await ODRequest.findByIdAndUpdate(
       req.params.id,
-      { status: status === "approve" ? "Approved" : "Rejected" },
+      updateFields,
       { new: true }
     );
     res.json(updated);
@@ -105,10 +111,18 @@ const getImageBase64 = (imagePath) => {
 const generateODLetter = async (req, res) => {
   try {
     const requestId = req.params.id;
-    const request = await ODRequest.findById(requestId);
+    let request = await ODRequest.findById(requestId);
 
     if (!request)
       return res.status(404).json({ error: "OD request not found" });
+
+    // If faculty signature not set, set it now
+    if (!request.facultyDigitallySigned && req.user && req.user.role === "faculty") {
+      request.facultySignName = req.user.name;
+      request.facultySignDate = Date.now();
+      request.facultyDigitallySigned = true;
+      await request.save();
+    }
 
     const collegeName = "College of Engineering Guindy, Anna University";
     const district = "Chennai";
@@ -126,7 +140,13 @@ const generateODLetter = async (req, res) => {
       endTime,
       numberOfDays,
       forwardToDean,
-      status
+      status,
+      hodName,
+      hodSignDate,
+      hodDigitallySigned,
+      facultySignName,
+      facultySignDate,
+      facultyDigitallySigned
     } = request;
     const year = new Date().getFullYear();
     const formattedFrom = new Date(startDate).toLocaleDateString("en-IN");
@@ -135,7 +155,13 @@ const generateODLetter = async (req, res) => {
     const leaveType = requestType;
     const forwardTo = requestType.toUpperCase() === "SCL" ? "The Head of Department" : "The Registrar";
 
+    const registrarSignature = requestType && requestType.toUpperCase() === "OD"
+      ? `<span class=\"bold\">Registrar</span><br><br>___________________`
+      : '';
 
+    const facultySignature = facultyDigitallySigned
+      ? `<span class=\"bold\">Faculty</span><br><span style=\"font-size: 12px;\">Digitally Signed</span><br><span style=\"font-size: 12px;\">${facultySignName || ''}${facultySignDate ? ' (' + new Date(facultySignDate).toLocaleDateString('en-IN') + ')' : ''}</span><br>___________________`
+      : '<span class=\"bold\">Faculty</span><br><br>___________________';
 
     const templatePath = path.join(
       __dirname,
@@ -147,9 +173,7 @@ const generateODLetter = async (req, res) => {
     const hodSignature = `
       <div class="signature">
         <span class="bold">Head of Department</span><br>
-        ${status === "Approved" ? '<span style="font-size: 12px;">Virtually Signed</span><br> ' : '</br/>'}
-       
-        ___________________
+        ${hodDigitallySigned ? `<span style=\"font-size: 12px;\">Digitally Signed</span><br><span style=\"font-size: 12px;\">${hodName || ''}${hodSignDate ? ' (' + new Date(hodSignDate).toLocaleDateString('en-IN') + ')' : ''}</span><br>___________________` : '___________________'}
       </div>`;
 
     const deanSignature = forwardToDean
@@ -182,12 +206,16 @@ const generateODLetter = async (req, res) => {
       .replace(/{{FORWARD_TO}}/g, forwardTo)
       .replace(
         /{{FROM_SECTION}}/g,
-        `<p><span class="bold">From,</span><br>${name}<br>${department}<br>${collegeName}<br>${district}</p>`
+        `<p><span class=\"bold\">From,</span><br>${name}<br>${department}<br>${collegeName}<br>${district}</p>`
       )
       .replace(/{{PURPOSE_PARAGRAPH}}/g, fullDetailsParagraph)
       .replace(/{{NAME}}/g, name)
       .replace(/{{DEAN_SIGNATURE}}/g, deanSignature)
-      .replace(/{{HOD_SIGNATURE}}/g, hodSignature);
+      .replace(/{{HOD_SIGNATURE}}/g, hodSignature)
+      .replace(/{{REGISTRAR_SIGNATURE}}/g, registrarSignature)
+      .replace(/<div class=\"signature\">\s*<span class=\"bold\">Faculty<\/span>[\s\S]*?___________________/,
+        `<div class=\"signature\">${facultySignature}`
+      );
 
     console.log("Attempting to launch browser...");
     const browser = await puppeteer.launch({

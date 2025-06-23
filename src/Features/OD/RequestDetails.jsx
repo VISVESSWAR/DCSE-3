@@ -332,9 +332,38 @@ export default function RequestDetails({
       {confirmAction && (
         <ConfirmationModal
           title="Are you sure?"
-          description={`This will ${confirmAction} the request.`}
+          description={
+            confirmAction === "approve"
+              ? "Approving this will digitally sign the request letter with your name and the current date."
+              : `This will ${confirmAction} the request.`
+          }
           onConfirm={() => approve(confirmAction)}
           onCancel={() => setConfirmAction(null)}
+          onView={
+            confirmAction === "approve"
+              ? async () => {
+                  try {
+                    const res = await fetch(
+                      `http://localhost:5000/api/odrequests/${data._id}/generate-letter`,
+                      {
+                        method: "GET",
+                        headers: {
+                          "x-user-email": user.email,
+                        },
+                      }
+                    );
+                    if (!res.ok) {
+                      throw new Error("Failed to fetch letter");
+                    }
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, "_blank");
+                  } catch (err) {
+                    toast.error("Could not preview letter");
+                  }
+                }
+              : undefined
+          }
         />
       )}
     </div>

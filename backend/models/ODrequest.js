@@ -70,6 +70,30 @@ const ODRequestSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  hodName: {
+    type: String,
+    default: null,
+  },
+  hodSignDate: {
+    type: Date,
+    default: null,
+  },
+  hodDigitallySigned: {
+    type: Boolean,
+    default: false,
+  },
+  facultySignName: {
+    type: String,
+    default: null,
+  },
+  facultySignDate: {
+    type: Date,
+    default: null,
+  },
+  facultyDigitallySigned: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("ODRequest", ODRequestSchema);
