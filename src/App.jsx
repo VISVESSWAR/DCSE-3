@@ -18,6 +18,8 @@ import ProtectedRoutes from "./ui/ProtectedRoutes";
 import SelfAssessmentForm from "./Features/CR/SelfAssessment";
 import AllCRReports from "./Features/CR/ViewAllReports";
 import HodCR from "./Features/CR/HodCR";
+import ConsolidationReport from "./pages/Admin/ConsolidationReport";
+
 function App() {
   const { user } = UserData();
   return (
@@ -47,6 +49,7 @@ function App() {
               <Route path="CR/view" element={<AllCRReports />} />
               <Route path="CR/selfAssess" element={<SelfAssessmentForm />} />
               <Route path="CR/selfAssess/:reportId" element={<SelfAssessmentForm />} />
+              <Route path="/admin/consolidation-report" element={<ConsolidationReport />} />
             </Route>
           </Route>
         </Routes>

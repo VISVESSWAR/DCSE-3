@@ -32,6 +32,7 @@ export default function Sidebar() {
     { name: "OD History", path: "OD", icon: <TbHistory />, roles: ["all"] },
     { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
+    { name: "Consolidation Report", path: "/admin/consolidation-report", icon: <TbReport />, roles: ["admin"] },
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [
@@ -45,6 +46,7 @@ export default function Sidebar() {
     if (link.name === "Generate CR" && isAdmin) return false;
     if (link.roles.includes("all")) return true;
     if (link.roles.includes("faculty") && isFaculty) return true;
+    if (link.roles.includes("admin") && isAdmin) return true;
     return false;
   });
 
@@ -54,9 +56,10 @@ export default function Sidebar() {
   }
   return (
     <div
-      className={`relative left-0 top-0 h-full ${
-        open ? "lg:w-72 w-screen" : "lg:w-10 "
+      className={`fixed left-0 top-0 h-full z-[1000] ${
+        open ? "w-72" : "w-10"
       } transition-all duration-300`}
+      style={{ background: open ? '#145DA0' : 'transparent' }}
     >
       <div
         className={`${
