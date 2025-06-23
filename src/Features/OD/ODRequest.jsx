@@ -58,7 +58,6 @@ export default function ODRequestForm() {
     formData.append("endTime", data.endTime);
     formData.append("topic", data.topic);
     formData.append("location", data.location);
-    formData.append("forwardToDean", data.forwardToDean);
 
     if (data.procurements !== undefined) {
       formData.append("procurements", data.procurements);
@@ -230,18 +229,6 @@ export default function ODRequestForm() {
             className="w-full p-2 rounded bg-gray-100"
           />
           {errors.location && <div className="h-0.5 bg-red-500"></div>}
-        </div>
-
-        <div className="space-y-1">
-          <label className="block">Forward Request to Dean?</label>
-          <select
-            {...register("forwardToDean", { required: true })}
-            className="w-full p-2 rounded bg-gray-100"
-          >
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-          </select>
-          {errors.forwardToDean && <div className="h-0.5 bg-red-500"></div>}
         </div>
 
         <div className="space-y-1">

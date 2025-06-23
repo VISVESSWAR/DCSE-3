@@ -20,6 +20,7 @@ export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const { user, logout } = UserData();
   const isFaculty = user?.role === "faculty";
+  const isAdmin = user?.role === "admin";
 
   const fullLinks = [
     { name: "Home", path: "/", icon: <TbHome />, roles: ["all"] },
@@ -41,6 +42,7 @@ export default function Sidebar() {
 
 
   const links = fullLinks.filter((link) => {
+    if (link.name === "Generate CR" && isAdmin) return false;
     if (link.roles.includes("all")) return true;
     if (link.roles.includes("faculty") && isFaculty) return true;
     return false;
