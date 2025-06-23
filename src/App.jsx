@@ -18,6 +18,8 @@ import ProtectedRoutes from "./ui/ProtectedRoutes";
 import SelfAssessmentForm from "./Features/CR/SelfAssessment";
 import AllCRReports from "./Features/CR/ViewAllReports";
 import HodCR from "./Features/CR/HodCR";
+import FullCRReport from "./Features/CR/FullCRReport";
+import FullReport from "./Features/CR/FullReport";
 function App() {
   const { user } = UserData();
   return (
@@ -43,10 +45,21 @@ function App() {
               <Route path="publications" element={<Publications />} />
               <Route path="publication/add" element={<AddPublication />} />
               <Route path="CR" element={<GenerateCR />} />
+              <Route
+                path="/CR/fullReport/:reportId"
+                element={<FullReport user={user} />}
+              />
+              <Route
+                path="/crreport/:reportId/full"
+                element={<FullCRReport />}
+              />
               <Route path="CR/hodSection/:reportId" element={<HodCR />} />
               <Route path="CR/view" element={<AllCRReports />} />
               <Route path="CR/selfAssess" element={<SelfAssessmentForm />} />
-              <Route path="CR/selfAssess/:reportId" element={<SelfAssessmentForm />} />
+              <Route
+                path="CR/selfAssess/:reportId"
+                element={<SelfAssessmentForm />}
+              />
             </Route>
           </Route>
         </Routes>

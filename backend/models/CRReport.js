@@ -71,15 +71,28 @@ const hodSectionSchema = new mongoose.Schema({
   },
   // Signature for Part I
   performanceAssessmentSignature: {
-    signatureImage: String,
-    date: Date,
-    station: String,
+    reportingOfficer: {
+      name: String,
+      date: Date,
+    },
+    reviewingOfficer: {
+      name: String,
+      date: Date,
+    },
+    principal: {
+      name: String,
+      date: Date,
+    },
   },
-  // Signature for Part II
   potentialAssessmentSignature: {
-    signatureImage: String,
-    date: Date,
-    station: String,
+    hod: {
+      name: String,
+      date: Date,
+    },
+    principal: {
+      name: String,
+      date: Date,
+    },
   },
 });
 

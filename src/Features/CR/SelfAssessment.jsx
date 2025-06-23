@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
-import { UserData } from "../../context/UserContext";
-import { useParams } from "react-router-dom";
+// import { UserData } from "../../context/UserContext";
+// import { useParams } from "react-router-dom";
 
-export default function SelfAssessmentForm() {
-  const { user } = UserData();
-  const { reportId } = useParams();
+// export default function SelfAssessmentForm() {
+//   const { user } = UserData();
+//   const { reportId } = useParams();
+export default function SelfAssessmentForm({ reportId, user }) {
 
   const [form, setForm] = useState({
   examResults: "85% pass overall. Excellent results in DSA and AI.",

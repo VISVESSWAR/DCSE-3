@@ -51,13 +51,8 @@ export default function AllCRReports() {
   }, [user, selectedYear, selectedPeriod, statusFilter, searchTerm, page]);
 
   const handleActionClick = async (report) => {
-    if (user.role === "faculty" && report.status === "draft") {
-      navigate(`/CR/selfAssess/${report._id}`);
-    } else if (report.status === "hod-signed") {
-      navigate(`/CR/selfAssess/${report._id}`);
-    } else if (report.status === "faculty-filled" && user.role === "hod") {
-      navigate(`/CR/hodSection/${report._id}`);
-    } else if (report.status === "finalized") {
+    if (report.status === "finalized") {
+      // Allow anyone to download finalized report
       try {
         const res = await axios.get(
           `http://localhost:5000/api/crreport/${report._id}/download`,
@@ -77,7 +72,8 @@ export default function AllCRReports() {
         toast.error("Download failed");
       }
     } else {
-      toast.error("Action not permitted for this report status.");
+      // For all other statuses, redirect to unified view
+      navigate(`/crreport/${report._id}/full`);
     }
   };
 
@@ -183,7 +179,20 @@ export default function AllCRReports() {
                       <td className="p-3 capitalize">
                         {report.status.replace(/_/g, " ")}
                       </td>
-                      <td className="p-3">
+                      {/* <td className="p-3">
+                        {(report.status !== "draft" ||
+                          user.role === "faculty") && (
+                          <button
+                            onClick={() => handleActionClick(report)}
+                            className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
+                          >
+                            {report.status === "finalized"
+                              ? "Download"
+                              : "View"}
+                          </button>
+                        )}
+                      </td> */}
+                      <td className="p-3 flex gap-2">
                         {(user.role === "faculty" &&
                           report.status === "draft") ||
                         report.status === "hod-signed" ||
@@ -199,6 +208,16 @@ export default function AllCRReports() {
                               : "View"}
                           </button>
                         ) : null}
+
+                        {/* NEW: Full Report Button */}
+                        <button
+                          onClick={() =>
+                            navigate(`/CR/fullReport/${report._id}`)
+                          }
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+                        >
+                          Full Report
+                        </button>
                       </td>
                     </tr>
                   ))

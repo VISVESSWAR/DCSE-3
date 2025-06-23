@@ -1,13 +1,15 @@
 // Updated GenerateCR.jsx component with complete HOD section
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import { UserData } from "../../context/UserContext";
 import { toast } from "react-hot-toast";
+// import { useParams } from "react-router-dom";
+// import { UserData } from "../../context/UserContext";
 
-export default function HodCR() {
-  const { user } = UserData();
-  const { reportId } = useParams();
+// export default function HodCR() {
+//   const { user } = UserData();
+//   const { reportId } = useParams();
+export default function HodCR({ reportId, user }) {
+
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
