@@ -159,6 +159,195 @@ export default function ConsolidationReportFaculty() {
       pdf.text(`Areas of Expertise: ${selectedFaculty.areasOfExpertise.join(", ")}`, 40, y);
       y += 22;
     }
+    // --- CR Report Self-Assessment Details ---
+    // Robustly match CR reports for this faculty
+    const facultyCRs = crReports.filter(r => {
+      // Try to match by facultyId (string, unique)
+      const reportFacultyId = r.facultyId || r.faculty?.facultyId || r.faculty?._id || r.faculty;
+      return (
+        reportFacultyId === selectedFaculty.facultyId ||
+        reportFacultyId === selectedFaculty._id ||
+        r.faculty?.name === selectedFaculty.name
+      );
+    });
+    const latestCR = facultyCRs.length > 0 ? facultyCRs.reduce((a, b) => new Date(a.facultySignDate || a.hodSignDate || 0) > new Date(b.facultySignDate || b.hodSignDate || 0) ? a : b) : null;
+    if (latestCR && latestCR.selfAssessment) {
+      // Section Title
+      y += 10;
+      pdf.setFont(undefined, 'bold');
+      pdf.setFontSize(14);
+      pdf.text("Annual Faculty Activity Summary", 40, y);
+      y += 18;
+      pdf.setFont(undefined, 'normal');
+      pdf.setFontSize(12);
+      const crDate = latestCR.facultySignDate || latestCR.hodSignDate;
+      if (crDate) {
+        pdf.setFont(undefined, 'italic');
+        pdf.text(`CR Report Date: ${new Date(crDate).toLocaleDateString('en-IN')}`, 40, y);
+        y += 16;
+        pdf.setFont(undefined, 'normal');
+      }
+      const sa = latestCR.selfAssessment;
+      // Courses Taught
+      if (Array.isArray(sa.coursesTaught) && sa.coursesTaught.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Courses Taught:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.coursesTaught.forEach(c => {
+          pdf.text(`• ${c.title || ''} (${c.level || ''}), Hours/Week: ${c.hoursPerWeek || '-'}, Students Registered: ${c.studentsRegistered || '-'}`, 50, y);
+          y += 13;
+        });
+        y += 6;
+      }
+      // Subjects Taught
+      if (Array.isArray(sa.subjectsTaught) && sa.subjectsTaught.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Subjects Taught:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.subjectsTaught.forEach(sj => {
+          pdf.text(`• ${sj.subject || ''}, Contact Hours: ${sj.contactHours || '-'}, Appeared: ${sj.studentsAppeared || '-'}, Passed: ${sj.studentsPassed || '-'}, Remarks: ${sj.remarks || '-'}`, 50, y);
+          y += 13;
+        });
+        y += 6;
+      }
+      // Exam Results
+      if (sa.examResults) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Exam Results:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        pdf.text(sa.examResults, 50, y);
+        y += 13;
+      }
+      // Contributions
+      if (sa.contributions) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Contributions:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        pdf.text(sa.contributions, 50, y);
+        y += 13;
+      }
+      // Research Supervised
+      if (sa.researchCounts && (sa.researchCounts.phd || sa.researchCounts.mphil || sa.researchCounts.pg || sa.researchCounts.ug)) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Research Supervised:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`PhD: ${sa.researchCounts.phd || 0}, MPhil: ${sa.researchCounts.mphil || 0}, PG: ${sa.researchCounts.pg || 0}, UG: ${sa.researchCounts.ug || 0}`, 50, y);
+        y += 13;
+      }
+      // Papers Published
+      if (Array.isArray(sa.papersPublished) && sa.papersPublished.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Papers Published:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.papersPublished.forEach(p => {
+          pdf.text(`• ${p}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Books/Guides Authored
+      if (Array.isArray(sa.booksOrGuides) && sa.booksOrGuides.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Books/Guides Authored:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.booksOrGuides.forEach(b => {
+          pdf.text(`• ${b}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Memberships
+      if (Array.isArray(sa.memberships) && sa.memberships.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Memberships:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.memberships.forEach(m => {
+          pdf.text(`• ${m}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Conferences Attended
+      if (Array.isArray(sa.conferences) && sa.conferences.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Conferences Attended:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.conferences.forEach(c => {
+          pdf.text(`• ${c}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Consulting Work
+      if (Array.isArray(sa.consultingWork) && sa.consultingWork.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Consulting Work:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.consultingWork.forEach(c => {
+          pdf.text(`• ${c}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Additional Qualifications
+      if (Array.isArray(sa.additionalQualifications) && sa.additionalQualifications.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Additional Qualifications:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.additionalQualifications.forEach(aq => {
+          pdf.text(`• ${aq}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Research Instruments
+      if (Array.isArray(sa.researchInstruments) && sa.researchInstruments.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Research Instruments:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.researchInstruments.forEach(ri => {
+          pdf.text(`• ${ri}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Pastoral Functions
+      if (Array.isArray(sa.pastoralFunctions) && sa.pastoralFunctions.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Pastoral Functions:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.pastoralFunctions.forEach(pf => {
+          pdf.text(`• ${pf}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+      // Other Contributions
+      if (Array.isArray(sa.otherContributions) && sa.otherContributions.length > 0) {
+        pdf.setFont(undefined, 'bold');
+        pdf.text("Other Contributions:", 40, y);
+        y += 14;
+        pdf.setFont(undefined, 'normal');
+        sa.otherContributions.forEach(oc => {
+          pdf.text(`• ${oc}`, 50, y);
+          y += 12;
+        });
+        y += 4;
+      }
+    }
     // Scholars Supervised
     pdf.setFont(undefined, 'bold');
     pdf.setFontSize(13);
@@ -311,47 +500,47 @@ export default function ConsolidationReportFaculty() {
   }
 
   // --- UI Section: FDP Participation ---
-  function FacultyFDPSection() {
-    const hasFDPs = odFDPRequests.length > 0;
-    return (
-      <section className="bg-white rounded-xl shadow p-6 mt-10">
-        <h2 className="text-2xl font-semibold mb-4">Faculty Development Programs (FDPs)</h2>
-        {!hasFDPs && (
-          <div className="text-gray-500 mb-4">
-            No Faculty Development Program data available.<br />
-            <span className="text-yellow-700 font-semibold">Recommendation:</span> Please add structured FDP records in the faculty management section for better analytics.<br />
-            <span className="text-xs">(Recommended: Add a dedicated FDP model and entry form in the admin panel.)</span>
-          </div>
-        )}
-        {hasFDPs && (
-          <div className="mb-4">
-            <div className="overflow-x-auto">
-              <table className="min-w-[400px] bg-gray-50 rounded shadow text-sm">
-                <thead className="bg-indigo-100">
-                  <tr>
-                    <th className="px-3 py-2 text-left">Faculty</th>
-                    <th className="px-3 py-2 text-left">FDP Name</th>
-                    <th className="px-3 py-2 text-left">Dates</th>
-                    <th className="px-3 py-2 text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {odFDPRequests.map((r, idx) => (
-                    <tr key={r._id || idx} className="border-b">
-                      <td className="px-3 py-2">{r.name}</td>
-                      <td className="px-3 py-2">{r.topic || '-'}</td>
-                      <td className="px-3 py-2">{r.startDate ? new Date(r.startDate).toLocaleDateString('en-IN') : '-'}{r.endDate ? ' - ' + new Date(r.endDate).toLocaleDateString('en-IN') : ''}</td>
-                      <td className="px-3 py-2">{r.status}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </section>
-    );
-  }
+  // function FacultyFDPSection() {
+  //   const hasFDPs = odFDPRequests.length > 0;
+  //   return (
+  //     <section className="bg-white rounded-xl shadow p-6 mt-10">
+  //       <h2 className="text-2xl font-semibold mb-4">Faculty Development Programs (FDPs)</h2>
+  //       {!hasFDPs && (
+  //         <div className="text-gray-500 mb-4">
+  //           No Faculty Development Program data available.<br />
+  //           <span className="text-yellow-700 font-semibold">Recommendation:</span> Please add structured FDP records in the faculty management section for better analytics.<br />
+  //           <span className="text-xs">(Recommended: Add a dedicated FDP model and entry form in the admin panel.)</span>
+  //         </div>
+  //       )}
+  //       {hasFDPs && (
+  //         <div className="mb-4">
+  //           <div className="overflow-x-auto">
+  //             <table className="min-w-[400px] bg-gray-50 rounded shadow text-sm">
+  //               <thead className="bg-indigo-100">
+  //                 <tr>
+  //                   <th className="px-3 py-2 text-left">Faculty</th>
+  //                   <th className="px-3 py-2 text-left">FDP Name</th>
+  //                   <th className="px-3 py-2 text-left">Dates</th>
+  //                   <th className="px-3 py-2 text-left">Status</th>
+  //                 </tr>
+  //               </thead>
+  //               <tbody>
+  //                 {odFDPRequests.map((r, idx) => (
+  //                   <tr key={r._id || idx} className="border-b">
+  //                     <td className="px-3 py-2">{r.name}</td>
+  //                     <td className="px-3 py-2">{r.topic || '-'}</td>
+  //                     <td className="px-3 py-2">{r.startDate ? new Date(r.startDate).toLocaleDateString('en-IN') : '-'}{r.endDate ? ' - ' + new Date(r.endDate).toLocaleDateString('en-IN') : ''}</td>
+  //                     <td className="px-3 py-2">{r.status}</td>
+  //                   </tr>
+  //                 ))}
+  //               </tbody>
+  //             </table>
+  //           </div>
+  //         </div>
+  //       )}
+  //     </section>
+  //   );
+  // }
 
   // --- UI Section: FDP/Conference Participation ---
   function FacultyConferenceSection() {
@@ -445,7 +634,7 @@ export default function ConsolidationReportFaculty() {
           Export PDF
         </button>
       </div>
-      <FacultyFDPSection />
+      {/* <FacultyFDPSection /> */}
       <FacultyConferenceSection />
       <section className="space-y-8">
         <h2 className="text-2xl font-semibold mb-4">Demographics & Overview</h2>
@@ -455,6 +644,53 @@ export default function ConsolidationReportFaculty() {
           <StatCard title="Inactive Faculty" value={inactiveFaculty} color="border-red-500" />
           <StatCard title="Avg. Years Experience" value={avgExperience} color="border-purple-500" />
           <StatCard title="Total Publications" value={totalPublications} color="border-yellow-500" />
+          {/* Faculty CR Report Statistics (from selfAssessment) */}
+          <div className="bg-white rounded-xl shadow p-6 mb-8">
+            <h3 className="text-xl font-semibold mb-4">Faculty CR Report Statistics (from Self-Assessment)</h3>
+            <ul className="text-base space-y-2">
+              {(() => {
+                // Aggregate statistics from all CR reports' selfAssessment
+                const allSelf = crReports.map(r => r.selfAssessment || {});
+                const totalCoursesTaught = allSelf.reduce((sum, s) => sum + (Array.isArray(s.coursesTaught) ? s.coursesTaught.length : 0), 0);
+                const totalSubjectsTaught = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.length : 0), 0);
+                const totalStudentsRegistered = allSelf.reduce((sum, s) => sum + (Array.isArray(s.coursesTaught) ? s.coursesTaught.reduce((acc, c) => acc + (c.studentsRegistered || 0), 0) : 0), 0);
+                const totalStudentsAppeared = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.reduce((acc, subj) => acc + (subj.studentsAppeared || 0), 0) : 0), 0);
+                const totalStudentsPassed = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.reduce((acc, subj) => acc + (subj.studentsPassed || 0), 0) : 0), 0);
+                const avgPassPercentage = totalStudentsAppeared ? ((totalStudentsPassed / totalStudentsAppeared) * 100).toFixed(1) : '-';
+                const totalPapersPublished = allSelf.reduce((sum, s) => sum + (Array.isArray(s.papersPublished) ? s.papersPublished.length : 0), 0);
+                const totalBooksGuides = allSelf.reduce((sum, s) => sum + (Array.isArray(s.booksOrGuides) ? s.booksOrGuides.length : 0), 0);
+                const totalMemberships = allSelf.reduce((sum, s) => sum + (Array.isArray(s.memberships) ? s.memberships.length : 0), 0);
+                const totalConferences = allSelf.reduce((sum, s) => sum + (Array.isArray(s.conferences) ? s.conferences.length : 0), 0);
+                const totalConsulting = allSelf.reduce((sum, s) => sum + (Array.isArray(s.consultingWork) ? s.consultingWork.length : 0), 0);
+                const totalAddQual = allSelf.reduce((sum, s) => sum + (Array.isArray(s.additionalQualifications) ? s.additionalQualifications.length : 0), 0);
+                const totalResearchCounts = allSelf.reduce((acc, s) => {
+                  const rc = s.researchCounts || {};
+                  acc.phd += rc.phd || 0;
+                  acc.mphil += rc.mphil || 0;
+                  acc.pg += rc.pg || 0;
+                  acc.ug += rc.ug || 0;
+                  return acc;
+                }, { phd: 0, mphil: 0, pg: 0, ug: 0 });
+                return [
+                  <li key="courses">Total Courses Taught (UG/PG): <b>{totalCoursesTaught}</b></li>,
+                  <li key="subjects">Total Subjects Taught: <b>{totalSubjectsTaught}</b></li>,
+                  <li key="students">Total Students Registered (Courses): <b>{totalStudentsRegistered}</b></li>,
+                  <li key="pass">Average Pass Percentage (Subjects): <b>{avgPassPercentage}%</b></li>,
+                  <li key="papers">Total Papers Published: <b>{totalPapersPublished}</b></li>,
+                  <li key="books">Total Books/Guides Authored: <b>{totalBooksGuides}</b></li>,
+                  <li key="memberships">Total Memberships: <b>{totalMemberships}</b></li>,
+                  <li key="conferences">Total Conferences Attended: <b>{totalConferences}</b></li>,
+                  <li key="consulting">Total Consulting Works: <b>{totalConsulting}</b></li>,
+                  <li key="addqual">Total Additional Qualifications: <b>{totalAddQual}</b></li>,
+                  <li key="research">Total Research Supervised: PhD: <b>{totalResearchCounts.phd}</b>, MPhil: <b>{totalResearchCounts.mphil}</b>, PG: <b>{totalResearchCounts.pg}</b>, UG: <b>{totalResearchCounts.ug}</b></li>,
+                ];
+              })()}
+            </ul>
+          </div>
+          {/* CR Report Statistics */}
+          <StatCard title="Total CR Reports" value={crReports.length} color="border-indigo-600" />
+          <StatCard title="Faculty with CR Reports" value={new Set(crReports.map(r => r.facultyId || r.faculty?._id || r.faculty)).size} color="border-pink-500" />
+          <StatCard title="Avg. CR Reports per Faculty" value={totalFaculty ? (crReports.length / totalFaculty).toFixed(2) : '-'} color="border-cyan-500" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Active vs Inactive Pie */}
