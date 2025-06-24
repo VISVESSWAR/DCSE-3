@@ -297,7 +297,10 @@ const downloadReport = async (req, res) => {
       return res.status(404).json({ message: "Finalized report not found" });
     }
 
-    const templatePath = path.join(__dirname, "../utils/cr_report_template.html");
+    const templatePath = path.join(
+      __dirname,
+      "../utils/cr_report_template.html"
+    );
     let templateHtml = fs.readFileSync(templatePath, "utf8");
 
     const faculty = report.faculty || {};
@@ -343,21 +346,38 @@ const downloadReport = async (req, res) => {
     templateHtml = templateHtml
       .replace(/{{YEAR}}/g, year)
       .replace(/{{FACULTY_NAME}}/g, faculty.name || "")
-      .replace(/{{DOB}}/g, faculty.dob ? new Date(faculty.dob).toLocaleDateString() : "")
+      .replace(
+        /{{DOB}}/g,
+        faculty.dob ? new Date(faculty.dob).toLocaleDateString() : ""
+      )
       .replace(/{{QUALIFICATIONS}}/g, faculty.qualifications || "")
       .replace(/{{DESIGNATION}}/g, faculty.designation || "")
       .replace(/{{SCALE_PAY}}/g, faculty.scaleOfPay || "")
       .replace(/{{POST_HELD}}/g, faculty.postHeld || "")
       .replace(/{{INSTITUTION}}/g, "Anna University")
       .replace(/{{DEPARTMENT}}/g, faculty.department || "")
-      .replace(/{{DATE_OF_JOINING}}/g, faculty.dateOfJoining ? new Date(faculty.dateOfJoining).toLocaleDateString() : "")
+      .replace(
+        /{{DATE_OF_JOINING}}/g,
+        faculty.dateOfJoining
+          ? new Date(faculty.dateOfJoining).toLocaleDateString()
+          : ""
+      )
       .replace(/{{CONTROL_CLASS}}/g, hod.performance?.controlClass || "")
-      .replace(/{{STUDENT_COUNSELING}}/g, hod.performance?.studentCounseling || "")
-      .replace(/{{AVG_PASS_PERCENTAGE}}/g, hod.performance?.avgPassPercentage || "")
+      .replace(
+        /{{STUDENT_COUNSELING}}/g,
+        hod.performance?.studentCounseling || ""
+      )
+      .replace(
+        /{{AVG_PASS_PERCENTAGE}}/g,
+        hod.performance?.avgPassPercentage || ""
+      )
       .replace(/{{CLASS_RECORDS}}/g, hod.performance?.classRecords || "")
       .replace(/{{CONTRIBUTIONS}}/g, hod.performance?.contributions || "")
       .replace(/{{RESEARCH_ABILITY}}/g, hod.performance?.researchAbility || "")
-      .replace(/{{PROFESSIONAL_STANDING}}/g, hod.performance?.professionalStanding || "")
+      .replace(
+        /{{PROFESSIONAL_STANDING}}/g,
+        hod.performance?.professionalStanding || ""
+      )
       .replace(/{{EXTRA_CURRICULAR}}/g, hod.performance?.extraCurricular || "")
       .replace(/{{WILLINGNESS}}/g, hod.performance?.willingness || "")
       .replace(/{{LAPSES}}/g, hod.performance?.lapses || "")
@@ -368,12 +388,25 @@ const downloadReport = async (req, res) => {
       .replace(/{{APTITUDE}}/g, hod.potential?.aptitude || "")
       .replace(/{{ABILITY_TO_MANAGE}}/g, hod.potential?.abilityToManage || "")
       .replace(/{{GET_ALONG}}/g, hod.potential?.getAlong || "")
-      .replace(/{{ACADEMIC_LEADERSHIP}}/g, hod.potential?.academicLeadership || "")
+      .replace(
+        /{{ACADEMIC_LEADERSHIP}}/g,
+        hod.potential?.academicLeadership || ""
+      )
       .replace(/{{GENERAL_APPRAISAL}}/g, hod.potential?.generalAppraisal || "")
       .replace(/{{SPECIAL_REMARKS}}/g, hod.potential?.specialRemarks || "")
       .replace(/{{FITNESS}}/g, hod.potential?.fitness || "")
-      .replace(/{{HOD_STATION}}/g, hod.performanceAssessmentSignature?.station || "DCSE, AU, Chennai")
-      .replace(/{{HOD_DATE}}/g, hod.performanceAssessmentSignature?.date ? new Date(hod.performanceAssessmentSignature.date).toLocaleDateString() : "")
+      .replace(
+        /{{HOD_STATION}}/g,
+        hod.performanceAssessmentSignature?.station || "DCSE, AU, Chennai"
+      )
+      .replace(
+        /{{HOD_DATE}}/g,
+        hod.performanceAssessmentSignature?.date
+          ? new Date(
+              hod.performanceAssessmentSignature.date
+            ).toLocaleDateString()
+          : ""
+      )
       .replace(/{{HOD_NAME}}/g, report.hodName || "HOD")
       .replace(/{{MEMBERSHIP}}/g, (self.memberships || []).join(", "))
       .replace(/{{EXAM_RESULTS}}/g, self.examResults || "")
@@ -381,19 +414,51 @@ const downloadReport = async (req, res) => {
       .replace(/{{ATTACHMENTS}}/g, attachmentsHtml)
       .replace(/{{SELF_EXAM_RESULTS}}/g, self.examResults || "")
       .replace(/{{SELF_CONTRIBUTIONS}}/g, self.contributions || "")
-      .replace(/{{SELF_RESEARCH_PHD}}/g, self.researchCounts?.phd?.toString() || "0")
-      .replace(/{{SELF_RESEARCH_MPHIL}}/g, self.researchCounts?.mphil?.toString() || "0")
-      .replace(/{{SELF_RESEARCH_PG}}/g, self.researchCounts?.pg?.toString() || "0")
-      .replace(/{{SELF_RESEARCH_UG}}/g, self.researchCounts?.ug?.toString() || "0")
-      .replace(/{{SELF_PAPERS_PUBLISHED}}/g, (self.papersPublished || []).join(", "))
+      .replace(
+        /{{SELF_RESEARCH_PHD}}/g,
+        self.researchCounts?.phd?.toString() || "0"
+      )
+      .replace(
+        /{{SELF_RESEARCH_MPHIL}}/g,
+        self.researchCounts?.mphil?.toString() || "0"
+      )
+      .replace(
+        /{{SELF_RESEARCH_PG}}/g,
+        self.researchCounts?.pg?.toString() || "0"
+      )
+      .replace(
+        /{{SELF_RESEARCH_UG}}/g,
+        self.researchCounts?.ug?.toString() || "0"
+      )
+      .replace(
+        /{{SELF_PAPERS_PUBLISHED}}/g,
+        (self.papersPublished || []).join(", ")
+      )
       .replace(/{{SELF_BOOKS_GUIDES}}/g, (self.booksOrGuides || []).join(", "))
-      .replace(/{{SELF_RESEARCH_INSTRUMENTS}}/g, (self.researchInstruments || []).join(", "))
-      .replace(/{{SELF_ADDITIONAL_QUALIFICATIONS}}/g, (self.additionalQualifications || []).join(", "))
+      .replace(
+        /{{SELF_RESEARCH_INSTRUMENTS}}/g,
+        (self.researchInstruments || []).join(", ")
+      )
+      .replace(
+        /{{SELF_ADDITIONAL_QUALIFICATIONS}}/g,
+        (self.additionalQualifications || []).join(", ")
+      )
       .replace(/{{SELF_CONSULTING}}/g, (self.consultingWork || []).join(", "))
-      .replace(/{{SELF_OTHER_CONTRIBUTIONS}}/g, (self.otherContributions || []).join(", "))
-      .replace(/{{SELF_PASTORAL_FUNCTIONS}}/g, (self.pastoralFunctions || []).join(", "))
+      .replace(
+        /{{SELF_OTHER_CONTRIBUTIONS}}/g,
+        (self.otherContributions || []).join(", ")
+      )
+      .replace(
+        /{{SELF_PASTORAL_FUNCTIONS}}/g,
+        (self.pastoralFunctions || []).join(", ")
+      )
       .replace(/{{FACULTY_SIGNATURE}}/g, report.facultySignature || "")
-      .replace(/{{FACULTY_SIGN_DATE}}/g, report.facultySignDate ? new Date(report.facultySignDate).toLocaleDateString() : "");
+      .replace(
+        /{{FACULTY_SIGN_DATE}}/g,
+        report.facultySignDate
+          ? new Date(report.facultySignDate).toLocaleDateString()
+          : ""
+      );
 
     const browser = await puppeteer.launch({
       headless: true,
@@ -401,7 +466,10 @@ const downloadReport = async (req, res) => {
     });
     const page = await browser.newPage();
     await page.setContent(templateHtml, { waitUntil: "networkidle0" });
-    const pdfPath = path.join(__dirname, `../outputs/CR_Report_${reportId}.pdf`);
+    const pdfPath = path.join(
+      __dirname,
+      `../outputs/CR_Report_${reportId}.pdf`
+    );
     await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
     await browser.close();
 
@@ -524,6 +592,60 @@ const downloadCRPDF = async (req, res) => {
   }
 };
 
+const updateFull = async (req, res) => {
+  try {
+    const report = await CRReport.findById(req.params.reportId);
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    const {
+      selfAssessment = {},
+      hodSection = {},
+      status,
+      period,
+      facultySignature,
+      facultySignatureDate,
+    } = req.body;
+
+    // Update selfAssessment (merge)
+    report.selfAssessment = {
+      ...report.selfAssessment,
+      ...selfAssessment,
+    };
+    console.log(JSON.stringify(req.body.hodSection, null, 2));
+
+    // Update HOD sections (merge)
+    if (!report.hodSection) {
+      report.hodSection = { performance: {}, potential: {} };
+    }
+
+    // Overwrite deeply — don’t shallow merge
+    report.hodSection.performance = {
+      ...report.hodSection.performance,
+      ...req.body.hodSection?.performance,
+    };
+
+    report.hodSection.potential = {
+      ...report.hodSection.potential,
+      ...req.body.hodSection?.potential,
+    };
+
+    console.log(report.hodSection);
+    if (facultySignature) report.facultySignature = facultySignature;
+    if (facultySignatureDate)
+      report.facultySignatureDate = facultySignatureDate;
+    if (status) report.status = status;
+    if (period) report.period = period;
+
+    await report.save();
+    res.json(report);
+  } catch (err) {
+    console.error("Error in PATCH /update-full:", err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
 module.exports = {
   getAllReports,
   getOrCreateCRReport,
@@ -532,4 +654,5 @@ module.exports = {
   finalizeReport,
   downloadReport,
   downloadCRPDF,
+  updateFull,
 };

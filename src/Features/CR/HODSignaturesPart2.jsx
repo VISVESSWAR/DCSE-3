@@ -5,9 +5,7 @@ export default function HODSignaturesPart2({ form, setForm, user }) {
   const sig = form.hodPart2?.potentialAssessmentSignature || {};
 
   const confirm = (roleKey) => {
-    if (
-      window.confirm(`Sign as ${user.name.toUpperCase()} for ${roleKey}?`)
-    ) {
+    if (window.confirm(`Sign as ${user.name.toUpperCase()} for ${roleKey}?`)) {
       const newEntry = {
         name: user.name.toUpperCase(),
         date: new Date().toISOString(),
@@ -29,7 +27,7 @@ export default function HODSignaturesPart2({ form, setForm, user }) {
   return (
     <div className="mt-6 border rounded p-4">
       <h3 className="text-lg font-bold text-[#145DA0] mb-2">
-        HOD Signatures – Potential Assessment
+        Signatures – Potential Assessment (Part II)
       </h3>
 
       <ConfirmedSignature
@@ -38,14 +36,18 @@ export default function HODSignaturesPart2({ form, setForm, user }) {
         date={sig.hod?.date && new Date(sig.hod.date).toLocaleDateString()}
         confirmed={!!sig.hod}
         onConfirm={() => confirm("hod")}
+        canSign={user.role === "hod"}
       />
 
       <ConfirmedSignature
-        label="Signature of Principal"
-        name={sig.principal?.name}
-        date={sig.principal?.date && new Date(sig.principal.date).toLocaleDateString()}
-        confirmed={!!sig.principal}
-        onConfirm={() => confirm("principal")}
+        label="Signature of Faculty"
+        name={sig.faculty?.name}
+        date={
+          sig.faculty?.date && new Date(sig.faculty.date).toLocaleDateString()
+        }
+        confirmed={!!sig.faculty}
+        onConfirm={() => confirm("faculty")}
+        canSign={user.role === "faculty"}
       />
     </div>
   );

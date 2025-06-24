@@ -49,10 +49,30 @@ export default function AllCRReports() {
         setLoading(false);
       });
   }, [user, selectedYear, selectedPeriod, statusFilter, searchTerm, page]);
+  const handleCreateReport = async () => {
+    if (!selectedPeriod || !selectedYear) {
+      toast.error("Please select both period and year");
+      return;
+    }
+
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/crreport/${
+          user.facultyId || user.userId || user._id
+        }?year=${selectedYear}&period=${selectedPeriod}`,
+        {
+          headers: { "x-user-email": user.email },
+        }
+      );
+
+      navigate(`/CR/fullReport/${res.data._id}`);
+    } catch (err) {
+      toast.error("Could not create or fetch CR Report");
+    }
+  };
 
   const handleActionClick = async (report) => {
     if (report.status === "finalized") {
-      // Allow anyone to download finalized report
       try {
         const res = await axios.get(
           `http://localhost:5000/api/crreport/${report._id}/download`,
@@ -209,7 +229,6 @@ export default function AllCRReports() {
                           </button>
                         ) : null}
 
-                        {/* NEW: Full Report Button */}
                         <button
                           onClick={() =>
                             navigate(`/CR/fullReport/${report._id}`)
@@ -233,7 +252,6 @@ export default function AllCRReports() {
           </div>
         )}
 
-        {/* Pagination */}
         {!loading && total > limit && (
           <div className="flex justify-between items-center mt-6">
             <button
@@ -256,30 +274,54 @@ export default function AllCRReports() {
           </div>
         )}
 
-        {/* Self-assessment redirect button */}
         {user.role === "faculty" && (
-          <div className="text-center mt-8">
-            <button
-              onClick={async () => {
-                try {
-                  const res = await axios.get(
-                    `http://localhost:5000/api/crreport/${
-                      user.facultyId || user.userId || user._id
-                    }?year=${new Date().getFullYear()}&period=december`,
-                    {
-                      headers: { "x-user-email": user.email },
-                    }
-                  );
+          <div className="mt-10 max-w-lg mx-auto border rounded p-4 bg-white shadow space-y-4">
+            <h3 className="text-lg font-bold text-[#145DA0]">
+              Create New CR Report
+            </h3>
 
-                  navigate(`/CR/selfAssess/${res.data._id}`);
-                } catch (err) {
-                  toast.error("Could not start or fetch CR Report");
-                }
-              }}
-              className="bg-green-600 text-white px-6 py-2 rounded shadow hover:opacity-90"
-            >
-              Go to Self-Assessment Page
-            </button>
+            <div className="space-y-2 text-sm flex lg:flex-row flex-col">
+              <label className="font-semibold block">
+                Report for the Year / Half-year ending:
+              </label>
+
+              <div className="flex lg:flex-row flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0">
+                <select
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                  className="border rounded px-3 py-2 bg-gray-100"
+                >
+                  <option value="">Select Period</option>
+                  <option value="december">December 31</option>
+                  <option value="june">June 30</option>
+                </select>
+
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="border rounded px-3 py-2 bg-gray-100"
+                >
+                  <option value="">Select Year</option>
+                  {[...Array(10)].map((_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
+
+            <div className="text-center pt-2">
+              <button
+                onClick={handleCreateReport}
+                className="bg-green-600 text-white px-6 py-2 rounded shadow hover:opacity-90 w-full sm:w-auto"
+              >
+                Create New Report
+              </button>
+            </div>
           </div>
         )}
       </div>

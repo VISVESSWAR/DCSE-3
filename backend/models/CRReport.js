@@ -6,14 +6,6 @@ const attachmentSchema = new mongoose.Schema({
 });
 
 const selfAssessmentSchema = new mongoose.Schema({
-  coursesTaught: [
-    {
-      title: String,
-      level: String, // UG or PG
-      hoursPerWeek: String,
-      studentsRegistered: Number,
-    },
-  ],
   subjectsTaught: [
     {
       subject: String,
@@ -23,17 +15,31 @@ const selfAssessmentSchema = new mongoose.Schema({
       remarks: String,
     },
   ],
-  examResults: String,
-  contributions: String,
-  attachments: [attachmentSchema],
-  researchCounts: {
-    phd: Number,
-    mphil: Number,
-    pg: Number,
-    ug: Number,
+  examResults: String, // 5(b)
+
+  // 6. Contributions
+  labDevelopment: String,
+  modelsAndAids: String,
+  shortCourses: String,
+
+  // 7. Research Guidance
+  researchGuidance: {
+    qualified: {
+      phd: { type: Number, default: 0 }, // 7(a)
+      mphil: { type: Number, default: 0 },
+      pg: { type: Number, default: 0 },
+    },
+    registered: {
+      phd: { type: Number, default: 0 }, // 7(b)
+      pg: { type: Number, default: 0 },
+      pgDiploma: { type: Number, default: 0 },
+      ug: { type: Number, default: 0 },
+    },
   },
-  papersPublished: [String],
-  researchInstruments: [String],
+
+  papersPublished: [String], // 7(c)
+  researchInstruments: [String], // 7(d)
+
   additionalQualifications: [String],
   booksOrGuides: [String],
   memberships: [String],
@@ -41,6 +47,7 @@ const selfAssessmentSchema = new mongoose.Schema({
   consultingWork: [String],
   otherContributions: [String],
   pastoralFunctions: [String],
+  attachments: [attachmentSchema], // assuming imported
 });
 
 const hodSectionSchema = new mongoose.Schema({
@@ -56,6 +63,20 @@ const hodSectionSchema = new mongoose.Schema({
     willingness: String,
     lapses: String,
     overallRating: String,
+    performanceAssessmentSignature: {
+    hod: {
+      name: String,
+      date: Date,
+    },
+    reviewingOfficer: {
+      name: String,
+      date: Date,
+    },
+    faculty: {
+      name: String,
+      date: Date,
+    },
+  },
   },
   potential: {
     physicalCapacity: String,
@@ -68,32 +89,42 @@ const hodSectionSchema = new mongoose.Schema({
     generalAppraisal: String,
     specialRemarks: String,
     fitness: String,
-  },
-  // Signature for Part I
-  performanceAssessmentSignature: {
-    reportingOfficer: {
-      name: String,
-      date: Date,
-    },
-    reviewingOfficer: {
-      name: String,
-      date: Date,
-    },
-    principal: {
-      name: String,
-      date: Date,
-    },
-  },
-  potentialAssessmentSignature: {
+    potentialAssessmentSignature: {
     hod: {
       name: String,
       date: Date,
     },
-    principal: {
+    faculty: {
       name: String,
       date: Date,
     },
   },
+  },
+  // Signature for Part I
+  // performanceAssessmentSignature: {
+  //   hod: {
+  //     name: String,
+  //     date: Date,
+  //   },
+  //   reviewingOfficer: {
+  //     name: String,
+  //     date: Date,
+  //   },
+  //   faculty: {
+  //     name: String,
+  //     date: Date,
+  //   },
+  // },
+  // potentialAssessmentSignature: {
+  //   hod: {
+  //     name: String,
+  //     date: Date,
+  //   },
+  //   faculty: {
+  //     name: String,
+  //     date: Date,
+  //   },
+  // },
 });
 
 const CRReportSchema = new mongoose.Schema({
@@ -119,7 +150,7 @@ const CRReportSchema = new mongoose.Schema({
   selfAssessment: selfAssessmentSchema,
   hodSection: hodSectionSchema,
   facultySignature: String, // Faculty's name as signature
-  facultySignDate: Date,
+  facultySignatureDate: Date,
   hodSignDate: Date,
   attachments: [attachmentSchema],
   intermediateOfficerRemarks: String,

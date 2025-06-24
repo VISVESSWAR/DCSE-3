@@ -1,7 +1,12 @@
 import React from "react";
-
-export default function FacultyPart4Research({ form, setForm }) {
-    console.log(form)
+export default function FacultyPart4Research({
+  form,
+  setForm,
+  fileUploads,
+  setFileUploads,
+  readOnly,
+}) {
+  console.log(form);
   const handleListChange = (field, index, value) => {
     const updated = [...form[field]];
     updated[index] = value;
@@ -19,8 +24,6 @@ export default function FacultyPart4Research({ form, setForm }) {
   };
 
   const fields = [
-    "papersPublished",
-    "researchInstruments",
     "additionalQualifications",
     "booksOrGuides",
     "memberships",
@@ -45,26 +48,31 @@ export default function FacultyPart4Research({ form, setForm }) {
             <div key={idx} className="flex gap-2 mt-1">
               <input
                 type="text"
+                disabled={readOnly}
                 value={item}
                 onChange={(e) => handleListChange(field, idx, e.target.value)}
                 className="w-full border p-1 rounded"
               />
-              <button
-                type="button"
-                onClick={() => removeRow(field, idx)}
-                className="text-red-500 text-sm"
-              >
-                Remove
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => removeRow(field, idx)}
+                  className="text-red-500 text-sm"
+                >
+                  Remove
+                </button>
+              )}
             </div>
           ))}
-          <button
-            type="button"
-            onClick={() => addRow(field)}
-            className="text-blue-600 text-sm mt-1"
-          >
-            + Add {field.replace(/([A-Z])/g, " $1")}
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => addRow(field)}
+              className="text-blue-600 text-sm mt-1"
+            >
+              + Add {field.replace(/([A-Z])/g, " $1")}
+            </button>
+          )}
         </div>
       ))}
     </div>

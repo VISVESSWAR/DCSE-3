@@ -11,30 +11,154 @@ import HODSignaturesPart1 from "./HODSignaturesPart1";
 import HODSignaturesPart2 from "./HODSignaturesPart2";
 export default function FullReport({ user }) {
   const { reportId } = useParams();
+  const testFacultyForm = {
+    // 5(a) - Subjects Taught
+    subjectsTaught: [
+      {
+        subject: "Data Structures",
+        contactHours: 45,
+        studentsAppeared: 60,
+        studentsPassed: 55,
+        remarks: "Strong student engagement",
+      },
+      {
+        subject: "Operating Systems",
+        contactHours: 40,
+        studentsAppeared: 58,
+        studentsPassed: 50,
+        remarks: "Improved performance",
+      },
+    ],
+
+    // 5(b)
+    examResults: "Pass percentage exceeded 85% for both subjects.",
+
+    // 6 - Contributions
+    labDevelopment: "Designed new OS lab experiments and manual.",
+    modelsAndAids: "Developed visual aids for memory management.",
+    shortCourses: "Conducted a short course on Linux System Programming.",
+
+    // 7 - Research Guidance
+    researchGuidance: {
+      qualified: {
+        phd: 1,
+        mphil: 0,
+        pg: 2,
+      },
+      registered: {
+        phd: 1,
+        pg: 1,
+        pgDiploma: 0,
+        ug: 2,
+      },
+    },
+
+    // 7(c)
+    papersPublished: [
+      "Efficient Lock-Free Queue Implementation, IJCA, 2023",
+      "Kernel Optimization for Embedded Systems, IEEE Access, 2024",
+    ],
+
+    // 7(d)
+    researchInstruments: ["Raspberry Pi 4", "Jetson Nano", "BeagleBone Black"],
+
+    // Optional/Additional
+    additionalQualifications: [
+      "NPTEL AI/ML Certification",
+      "Coursera Cloud Fundamentals",
+    ],
+
+    booksOrGuides: [
+      "Operating Systems Simplified, TechBooks 2022",
+      "Hands-on with Linux, CodePress 2023",
+    ],
+
+    memberships: ["IEEE", "CSI", "ACM"],
+
+    conferences: [
+      "ICACSE 2024 - Presented on Hybrid Kernels",
+      "ICCT 2023 - Panel Speaker on Microservices",
+    ],
+
+    consultingWork: [
+      "Kernel optimization for TechEdge Pvt Ltd",
+      "Linux performance audit for SoftServe",
+    ],
+
+    otherContributions: [
+      "Organized CODEFEST 2024",
+      "Conducted weekly technical seminars",
+    ],
+
+    pastoralFunctions: [
+      "Mentor for 30 UG students",
+      "Coordinated peer learning",
+    ],
+
+    attachments: [],
+
+    // Optional metadata
+    period: "2024-2025",
+    status: "draft",
+
+    // Signatures
+    facultySignature: "",
+    facultySignatureDate: "",
+
+    // For HOD use (can be empty)
+    hodPart1: {},
+    hodPart2: {},
+  };
+
   const [form, setForm] = useState({
-    examResults: "",
-    contributions: "",
-    researchCounts: { phd: 0, mphil: 0, pg: 0, ug: 0 },
+    // 5(a) - Subjects Taught
     subjectsTaught: [],
+
+    // 5(b) - Other exam related info
+    examResults: "",
+
+    // 6 - Contributions
+    labDevelopment: "",
+    modelsAndAids: "",
+    shortCourses: "",
+
+    // 7 - Research guidance
+    researchGuidance: {
+      qualified: { phd: 0, mphil: 0, pg: 0 }, // 7(a)
+      registered: { phd: 0, pg: 0, pgDiploma: 0, ug: 0 }, // 7(b)
+    },
+
+    // 7(c) - Papers published
+    papersPublished: [],
+
+    // 7(d) - Instrumentation
+    researchInstruments: [],
+
+    // Extra academic/professional info (optional)
     memberships: [],
     booksOrGuides: [],
     conferences: [],
     consultingWork: [],
-    papersPublished: [],
-    researchInstruments: [],
     additionalQualifications: [],
     pastoralFunctions: [],
-    attachments: [],
     otherContributions: [],
+    attachments: [],
+    //period and status
+    period: "",
+    status: "",
+    // Signatures & HOD Parts
     facultySignature: "",
-    hodPart1: {}, // <-- mapped to hodSection.performance
-    hodPart2: {}, // <-- mapped to hodSection.potential
+    facultySignatureDate: "",
+    hodPart1: {},
+    hodPart2: {},
   });
 
+  console.log(user.role, form.status);
   const [faculty, setFaculty] = useState({});
   const [fileUploads, setFileUploads] = useState([]);
   const [loading, setLoading] = useState(true);
   const isHOD = user?.role === "hod";
+  // console.log(user.role, isHOD);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,23 +170,40 @@ export default function FullReport({ user }) {
           }
         );
         const report = res.data;
-        console.log(report);
+        console.log("Fetched report:", report);
 
         setFaculty(report.faculty || {});
 
-        setForm((prev) => ({
-          ...prev,
-          ...report.selfAssessment,
-          hodPart1: report.hodSection?.performance || {},
-          hodPart2: report.hodSection?.potential || {},
-          researchCounts: report.selfAssessment?.researchCounts || {
-            phd: 0,
-            mphil: 0,
-            pg: 0,
-            ug: 0,
-          },
-          subjectsTaught: report.selfAssessment?.subjectsTaught || [],
-        }));
+        // Inject test data for faculty section
+        const mergedSelfAssessment = {
+  subjectsTaught: report.selfAssessment?.subjectsTaught ?? testFacultyForm.subjectsTaught,
+  examResults: report.selfAssessment?.examResults ?? testFacultyForm.examResults,
+  labDevelopment: report.selfAssessment?.labDevelopment ?? testFacultyForm.labDevelopment,
+  modelsAndAids: report.selfAssessment?.modelsAndAids ?? testFacultyForm.modelsAndAids,
+  shortCourses: report.selfAssessment?.shortCourses ?? testFacultyForm.shortCourses,
+  researchGuidance: report.selfAssessment?.researchGuidance ?? testFacultyForm.researchGuidance,
+  papersPublished: report.selfAssessment?.papersPublished ?? testFacultyForm.papersPublished,
+  researchInstruments: report.selfAssessment?.researchInstruments ?? testFacultyForm.researchInstruments,
+  memberships: report.selfAssessment?.memberships ?? testFacultyForm.memberships,
+  booksOrGuides: report.selfAssessment?.booksOrGuides ?? testFacultyForm.booksOrGuides,
+  conferences: report.selfAssessment?.conferences ?? testFacultyForm.conferences,
+  consultingWork: report.selfAssessment?.consultingWork ?? testFacultyForm.consultingWork,
+  additionalQualifications: report.selfAssessment?.additionalQualifications ?? testFacultyForm.additionalQualifications,
+  pastoralFunctions: report.selfAssessment?.pastoralFunctions ?? testFacultyForm.pastoralFunctions,
+  otherContributions: report.selfAssessment?.otherContributions ?? testFacultyForm.otherContributions,
+  attachments: report.selfAssessment?.attachments ?? testFacultyForm.attachments,
+};
+
+setForm((prev) => ({
+  ...prev,
+  ...mergedSelfAssessment,
+  hodPart1: report.hodSection?.performance ?? testFacultyForm.hodPart1,
+  hodPart2: report.hodSection?.potential ?? testFacultyForm.hodPart2,
+  period: report.period ?? testFacultyForm.period,
+  status: report.status ?? testFacultyForm.status,
+  facultySignature: report.facultySignature ?? testFacultyForm.facultySignature,
+  facultySignatureDate: report.facultySignatureDate ?? testFacultyForm.facultySignatureDate,
+}));
       } catch (err) {
         toast.error("Failed to load report");
       } finally {
@@ -73,35 +214,83 @@ export default function FullReport({ user }) {
     fetchData();
   }, [reportId, user]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleFinalize = async () => {
     try {
-      const data = new FormData();
-
-      // Append self-assessment (excluding HOD parts)
-      const { hodPart1, hodPart2, ...selfAssessmentOnly } = form;
-
-      data.append("selfAssessment", JSON.stringify(selfAssessmentOnly));
-
-      // Append HOD section
-      const hodSection = {
-        performance: hodPart1,
-        potential: hodPart2,
-      };
-      data.append("hodSection", JSON.stringify(hodSection));
-
-      // Append attachments
-      fileUploads.forEach((file) => data.append("attachments", file));
-
       await axios.post(
-        `http://localhost:5000/api/crreport/${reportId}/self-assessment/attachments`,
-        data,
+        `http://localhost:5000/api/crreport/${reportId}/finalize`,
+        {},
         { headers: { "x-user-email": user.email } }
       );
-
-      toast.success("CR Report submitted successfully");
+      toast.success("Report finalized");
     } catch (err) {
+      toast.error("Failed to finalize report");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (user.role === "faculty") {
+      const facultySigMissing =
+        !form.facultySignature?.trim() || !form.facultySignatureDate?.trim();
+
+      const hodPart1Missing =
+        !form.hodPart1?.performanceAssessmentSignature?.faculty?.name ||
+        !form.hodPart1?.performanceAssessmentSignature?.faculty?.date;
+
+      const hodPart2Missing =
+        !form.hodPart2?.potentialAssessmentSignature?.faculty?.name ||
+        !form.hodPart2?.potentialAssessmentSignature?.faculty?.date;
+
+      if (facultySigMissing || hodPart1Missing || hodPart2Missing) {
+        toast.error(
+          "Faculty signature and both HOD section faculty signatures are required before submission."
+        );
+        return;
+      }
+    }
+
+    if (user.role === "hod") {
+      const hodPart1SigMissing =
+        !form.hodPart1?.performanceAssessmentSignature?.hod?.name ||
+        !form.hodPart1?.performanceAssessmentSignature?.hod?.date;
+
+      const hodPart2SigMissing =
+        !form.hodPart2?.potentialAssessmentSignature?.hod?.name ||
+        !form.hodPart2?.potentialAssessmentSignature?.hod?.date;
+
+      if (hodPart1SigMissing || hodPart2SigMissing) {
+        toast.error(
+          "Please provide HOD signatures in both Part I and Part II before finalizing."
+        );
+        return;
+      }
+    }
+
+    try {
+      const { hodPart1, hodPart2, ...selfAssessmentOnly } = form;
+      console.log(hodPart1, hodPart2, selfAssessmentOnly);
+      await axios.patch(
+        `http://localhost:5000/api/crreport/${reportId}/update-full`,
+        {
+          selfAssessment: selfAssessmentOnly,
+          hodSection: {
+            performance: hodPart1,
+            potential: hodPart2,
+          },
+          status:
+            user.role === "faculty" ? "faculty-filled" : form.status || "draft",
+          period: form.period,
+          facultySignature: form.facultySignature,
+          facultySignatureDate: form.facultySignatureDate,
+        },
+        {
+          headers: { "x-user-email": user.email },
+        }
+      );
+
+      toast.success("CR Report saved successfully");
+    } catch (err) {
+      console.error("Error saving CR report:", err);
       toast.error("Submission failed");
     }
   };
@@ -117,7 +306,6 @@ export default function FullReport({ user }) {
         Confidential Report (CR) Full Report
       </h2>
 
-      {/* Faculty Basic Info (shown at top of Page 1 & 4) */}
       <div className="space-y-2 border p-4 rounded text-sm">
         <div>
           <strong>Name:</strong> {faculty.name}
@@ -153,11 +341,10 @@ export default function FullReport({ user }) {
             },
           }))
         }
-        readOnly={!isHOD}
+        readOnly={!isHOD || form.status !== "faculty-filled"}
       />
-      {isHOD && (
-        <HODSignaturesPart1 form={form} setForm={setForm} user={user} />
-      )}
+      <HODSignaturesPart1 form={form} setForm={setForm} user={user} />
+
       {/* Part II: Potential Assessment */}
       <HODPart2Assessment
         data={form.hodPart2}
@@ -170,11 +357,10 @@ export default function FullReport({ user }) {
             },
           }))
         }
-        readOnly={!isHOD}
+        readOnly={!isHOD || form.status !== "faculty-filled"}
       />
-      {isHOD && (
-        <HODSignaturesPart2 form={form} setForm={setForm} user={user} />
-      )}
+
+      <HODSignaturesPart2 form={form} setForm={setForm} user={user} />
 
       {/* Part III: Faculty Self-Assessment */}
       <FacultyPart3Potential
@@ -182,6 +368,7 @@ export default function FullReport({ user }) {
         setForm={setForm}
         user={user}
         faculty={faculty}
+        readOnly={user.role !== "faculty" || form.status !== "draft"}
       />
 
       {/* Part IV: Faculty Research */}
@@ -190,17 +377,29 @@ export default function FullReport({ user }) {
         setForm={setForm}
         fileUploads={fileUploads}
         setFileUploads={setFileUploads}
+        readOnly={user.role !== "faculty" || form.status !== "draft"}
       />
 
-      {/* Signatures */}
       <FacultySignatures form={form} setForm={setForm} user={user} />
 
-      <button
-        type="submit"
-        className="w-full bg-green-600 text-white py-2 rounded font-semibold mt-4"
-      >
-        Submit CR Report
-      </button>
+      {user.role === "faculty" && form.status === "draft" && (
+        <button
+          type="submit"
+          className="w-full bg-green-600 text-white py-2 rounded font-semibold mt-4"
+        >
+          Submit CR Report
+        </button>
+      )}
+
+      {user.role === "hod" && form.status === "faculty-filled" && (
+        <button
+          type="button"
+          onClick={handleFinalize}
+          className="w-full bg-blue-600 text-white py-2 rounded font-semibold mt-4"
+        >
+          Finalize Report
+        </button>
+      )}
     </form>
   );
 }

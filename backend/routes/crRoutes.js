@@ -9,6 +9,7 @@ const {
   finalizeReport,
   downloadReport,
   getAllReports,
+  updateFull,
 } = require("../controllers/CRController");
 const { restrictTo } = require("../middleware/roleAccess");
 const CRReport = require("../models/CRReport");
@@ -28,31 +29,13 @@ const upload = multer({ storage });
 router.get("/", restrictTo("faculty", "admin", "hod"), getAllReports);
 // Get or create CR report for a faculty (faculty or HOD)
 router.get("/:facultyId", restrictTo("faculty", "hod"), getOrCreateCRReport);
-
-// Get individual CR report by ID (for HOD access)
-router.get(
-  "/report/:reportId",
-  restrictTo("faculty", "hod"),
-  async (req, res) => {
-    try {
-      const report = await CRReport.findById(req.params.reportId);
-      if (!report) {
-        return res.status(404).json({ message: "CR Report not found" });
-      }
-      res.json(report);
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  }
-);
-
 // Create or update CR report (faculty only)
 router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
   try {
     const facultyId = req.params.facultyId;
     const { year, period, facultyAcknowledgement, facultyFinalSignature } =
-      req.body;
-
+    req.body;
+    
     // Find existing report or create new one
     let report = await CRReport.findOne({
       "faculty.facultyId": facultyId,
@@ -70,7 +53,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
       }
       if (!faculty)
         return res.status(404).json({ message: "Faculty not found" });
-
+      
       report = new CRReport({
         faculty: {
           facultyId: faculty.facultyId || faculty._id,
@@ -89,7 +72,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
         status: "draft",
       });
     }
-
+    
     // Update faculty acknowledgement
     if (facultyAcknowledgement) {
       report.facultyAcknowledgement = facultyAcknowledgement;
@@ -99,13 +82,29 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
     if (facultyFinalSignature) {
       report.facultyFinalSignature = facultyFinalSignature;
     }
-
+    
     await report.save();
     res.json(report);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+// Get individual CR report by ID (for HOD access)
+router.get(
+  "/report/:reportId",
+  restrictTo("faculty", "hod"),
+  async (req, res) => {
+    try {
+      const report = await CRReport.findById(req.params.reportId);
+      if (!report) {
+        return res.status(404).json({ message: "CR Report not found" });
+      }
+      res.json(report);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+);
 
 // Update self-assessment (faculty only)
 router.post(
@@ -113,6 +112,9 @@ router.post(
   restrictTo("faculty"),
   updateSelfAssessment
 );
+
+router.patch("/:reportId/update-full", updateFull);
+
 
 // Upload attachments for self-assessment (faculty only)
 router.post(
