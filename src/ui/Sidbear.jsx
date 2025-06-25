@@ -30,7 +30,7 @@ export default function Sidebar() {
     { name: "Add Publication", path: "publication/add", icon: <TbBookUpload />, roles: ["faculty"] },
     { name: "OD Request", path: "OD/new", icon: <TbFilePlus />, roles: ["faculty"] },
     { name: "OD History", path: "OD", icon: <TbHistory />, roles: ["all"] },
-    { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
+    // { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
     { name: "Consolidation Report", path: "/admin/consolidation-report/menu", icon: <TbReport />, roles: ["admin"] },
     ...(user

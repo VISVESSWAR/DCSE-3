@@ -52,17 +52,17 @@ function App() {
                 path="/CR/fullReport/:reportId"
                 element={<FullReport user={user} />}
               />
-              <Route
+                <Route path="CR/view" element={<AllCRReports />} />
+              {/* <Route
                 path="/crreport/:reportId/full"
                 element={<FullCRReport />}
-              />
-              <Route path="CR/hodSection/:reportId" element={<HodCR />} />
-              <Route path="CR/view" element={<AllCRReports />} />
-              <Route path="CR/selfAssess" element={<SelfAssessmentForm />} />
-              <Route
+              /> */}
+              {/* <Route path="CR/hodSection/:reportId" element={<HodCR />} />
+              <Route path="CR/selfAssess" element={<SelfAssessmentForm />} /> */}
+              {/* <Route
                 path="CR/selfAssess/:reportId"
                 element={<SelfAssessmentForm />}
-              />
+              /> */}
               <Route path="/admin/consolidation-report/menu" element={<ConsolidationReportMenu />} />
               <Route path="/admin/consolidation-report/scholars" element={<ConsolidationReportScholars />} />
               <Route path="/admin/consolidation-report/OD" element={<ConsolidationReportOD />} />
