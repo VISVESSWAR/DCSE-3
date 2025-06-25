@@ -110,6 +110,8 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       },
       areaOfResearch: data.areaOfResearch,
       supervisor: user.userId,
+      dateOfJoining: data.dateOfJoining,
+      dateOfCompletion: data.dateOfCompletion,
     };
 
     if (isEditing) {
@@ -191,6 +193,24 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
             {...register("areaOfResearch", {
               required: "This is required field",
             })}
+          />
+        </FormRow>
+
+        <FormRow label="Date of Joining" error={errors?.dateOfJoining}>
+          <input
+            name="dateOfJoining"
+            type="date"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("dateOfJoining")}
+          />
+        </FormRow>
+
+        <FormRow label="Date of Completion" error={errors?.dateOfCompletion}>
+          <input
+            name="dateOfCompletion"
+            type="date"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("dateOfCompletion")}
           />
         </FormRow>
 

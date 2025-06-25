@@ -40,6 +40,16 @@ const pgScholarSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  dateOfJoining: {
+    type: Date,
+    required: false,
+  },
+
+  dateOfCompletion: {
+    type: Date,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("PGScholar", pgScholarSchema);

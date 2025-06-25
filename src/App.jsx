@@ -18,6 +18,9 @@ import ProtectedRoutes from "./ui/ProtectedRoutes";
 import SelfAssessmentForm from "./Features/CR/SelfAssessment";
 import AllCRReports from "./Features/CR/ViewAllReports";
 import HodCR from "./Features/CR/HodCR";
+import { ConsolidationReportMenu, ConsolidationReportScholars, ConsolidationReportOD } from "./pages/Admin/ConsolidationReport";
+import ConsolidationReportFaculty from "./pages/Admin/ConsolidationReportFaculty";
+
 import FullCRReport from "./Features/CR/FullCRReport";
 import FullReport from "./Features/CR/FullReport";
 function App() {
@@ -60,6 +63,11 @@ function App() {
                 path="CR/selfAssess/:reportId"
                 element={<SelfAssessmentForm />}
               />
+              <Route path="/admin/consolidation-report/menu" element={<ConsolidationReportMenu />} />
+              <Route path="/admin/consolidation-report/scholars" element={<ConsolidationReportScholars />} />
+              <Route path="/admin/consolidation-report/OD" element={<ConsolidationReportOD />} />
+              <Route path="/admin/consolidation-report/faculty" element={<ConsolidationReportFaculty />} />
+              <Route path="/admin/consolidation-report" element={<ConsolidationReportMenu />} />
             </Route>
           </Route>
         </Routes>
