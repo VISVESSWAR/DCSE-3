@@ -3,7 +3,8 @@ const Faculty = require("../models/Faculty");
 const path = require("path");
 const fs = require("fs");
 const puppeteer = require("puppeteer");
-
+const formatDate = require("../utils/formatDate");
+const { PDFDocument } = require("pdf-lib");
 const getAllReports = async (req, res) => {
   try {
     const {
@@ -29,7 +30,7 @@ const getAllReports = async (req, res) => {
 
     const reports = await CRReport.find(query).skip(skip).limit(Number(limit));
     const total = await CRReport.countDocuments(query);
-    console.log(reports, total);
+    // console.log(reports, total);
     res.json({ reports, total });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -45,38 +46,52 @@ const getOrCreateCRReport = async (req, res) => {
       year: req.query.year,
       period: req.query.period,
     });
-    // console.log(req.query, facultyId, report);
-    if (!report) {
-      // Try to find by facultyId, then by _id
-      let faculty = await Faculty.findOne({ facultyId });
-      if (!faculty) {
-        try {
-          faculty = await Faculty.findById(facultyId);
-        } catch (e) {
-          // Not a valid ObjectId, skip
-        }
-      }
-      if (!faculty)
-        return res.status(404).json({ message: "Faculty not found" });
-      report = new CRReport({
-        faculty: {
-          facultyId: faculty.facultyId || faculty._id,
-          name: faculty.name,
-          dob: faculty.dob,
-          qualifications: faculty.areasOfExpertise?.join(", "),
-          designation: faculty.position,
-          scaleOfPay: faculty.scaleOfPay,
-          presentPay: faculty.presentPay,
-          postHeld: faculty.natureOfAppointment,
-          department: faculty.department,
-          dateOfJoining: faculty.dateOfJoining,
-        },
-        year: req.query.year,
-        period: req.query.period,
+
+    if (report) {
+      return res.status(200).json({
+        message: "Report already exists",
+        created: false,
+        report,
       });
-      await report.save();
     }
-    res.json(report);
+
+    // Try to find by facultyId string first
+    let faculty = await Faculty.findOne({ facultyId });
+
+    // If not found, try to use it as an ObjectId only if valid
+    if (!faculty && mongoose.Types.ObjectId.isValid(facultyId)) {
+      faculty = await Faculty.findById(facultyId);
+    }
+
+    if (!faculty) {
+      return res.status(404).json({ message: "Faculty not found" });
+    }
+
+    // Create new report
+    report = new CRReport({
+      faculty: {
+        facultyId: faculty.facultyId || faculty._id,
+        name: faculty.name,
+        dob: faculty.dob,
+        qualifications: faculty.areasOfExpertise?.join(", "),
+        designation: faculty.position,
+        scaleOfPay: faculty.scaleOfPay,
+        presentPay: faculty.presentPay,
+        postHeld: faculty.natureOfAppointment,
+        department: faculty.department,
+        dateOfJoining: faculty.dateOfJoining,
+      },
+      year: req.query.year,
+      period: req.query.period,
+    });
+
+    await report.save();
+
+    res.status(201).json({
+      message: "New CR Report created successfully",
+      created: true,
+      report,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -486,35 +501,70 @@ const downloadReport = async (req, res) => {
 
 module.exports = { downloadReport };
 
-// GET /api/crreport/:id/download
+
 const downloadCRPDF = async (req, res) => {
   try {
-    const reportId = req.params.id;
+    const reportId = req.params.reportId;
+    console.log(reportId)
     const report = await CRReport.findById(reportId);
     if (!report)
       return res.status(404).json({ message: "CR Report not found" });
 
-    // Load HTML template
     const templatePath = path.join(
       __dirname,
       "../utils/cr_report_template.html"
     );
     let templateHtml = fs.readFileSync(templatePath, "utf8");
 
-    // Prepare data for template
     const faculty = report.faculty || {};
     const hod = report.hodSection || {};
     const self = report.selfAssessment || {};
     const year = report.year || "";
+    const period = report.period || "";
+    const attachments = self.attachments || [];
 
-    // Replace placeholders in template
+    console.log(hod, self);
+
+    // Subjects table rows
+    const subjectsHtml = (self.subjectsTaught || [])
+      .map(
+        (s) => `
+      <tr>
+        <td>${s.subject}</td>
+        <td>${s.contactHours}</td>
+        <td>${s.studentsAppeared}</td>
+        <td>${s.studentsPassed}</td>
+        <td>${s.remarks || ""}</td>
+      </tr>
+    `
+      )
+      .join("");
+
+    const enclosuresHtml = attachments
+      .map(
+        (a, i) => `
+      <p><strong>Attachment ${i + 1}:</strong> ${a.filename}</p>
+    `
+      )
+      .join("");
+
+    // Replace placeholders
     templateHtml = templateHtml
       .replace(/{{YEAR}}/g, year)
+      .replace(/{{PERIOD}}/g, period)
       .replace(/{{FACULTY_NAME}}/g, faculty.name || "")
+      .replace(/{{DOB}}/g, formatDate(faculty.dob))
+      .replace(/{{QUALIFICATIONS}}/g, faculty.qualifications || "")
+      .replace(/{{DESIGNATION}}/g, faculty.designation || "")
       .replace(
-        /{{DOB}}/g,
-        faculty.dob ? new Date(faculty.dob).toLocaleDateString() : ""
+        /{{SCALE_PAY}}/g,
+        `${faculty.scaleOfPay || ""}, Present Pay: ${faculty.presentPay || ""}`
       )
+      .replace(/{{POST_HELD}}/g, faculty.postHeld || "")
+      .replace(/{{DEPARTMENT}}/g, faculty.department || "")
+      .replace(/{{DATE_OF_JOINING}}/g, formatDate(faculty.dateOfJoining))
+
+      // Part I HOD Assessment
       .replace(/{{CONTROL_CLASS}}/g, hod.performance?.controlClass || "")
       .replace(
         /{{STUDENT_COUNSELING}}/g,
@@ -536,7 +586,29 @@ const downloadCRPDF = async (req, res) => {
       .replace(/{{LAPSES}}/g, hod.performance?.lapses || "")
       .replace(/{{OVERALL_RATING}}/g, hod.performance?.overallRating || "")
 
-      // Potential Assessment
+      // Part I Signatures
+      .replace(
+        /{{PERF_HOD_NAME}}/g,
+        hod.performance?.performanceAssessmentSignature?.hod?.name || ""
+      )
+      .replace(
+        /{{PERF_HOD_DATE}}/g,
+        formatDate(hod.performance?.performanceAssessmentSignature?.hod?.date)
+      )
+      .replace(
+        /{{PERF_FACULTY_NAME}}/g,
+        hod.performance?.performanceAssessmentSignature?.faculty?.name || ""
+      )
+      .replace(
+        /{{PERF_FACULTY_DATE}}/g,
+        formatDate(
+          hod.performance?.performanceAssessmentSignature?.faculty?.date
+        )
+      )
+      // .replace(/{{PERF_REVIEWING_NAME}}/g, hod.performance?.performanceAssessmentSignature?.reviewingOfficer?.name || "")
+      // .replace(/{{PERF_REVIEWING_DATE}}/g, formatDate(hod.performance?.performanceAssessmentSignature?.reviewingOfficer?.date))
+
+      // Part II HOD Potential
       .replace(/{{PHYSICAL_CAPACITY}}/g, hod.potential?.physicalCapacity || "")
       .replace(/{{STABILITY}}/g, hod.potential?.stability || "")
       .replace(/{{MENTAL_CAPACITY}}/g, hod.potential?.mentalCapacity || "")
@@ -550,47 +622,135 @@ const downloadCRPDF = async (req, res) => {
       .replace(/{{GENERAL_APPRAISAL}}/g, hod.potential?.generalAppraisal || "")
       .replace(/{{SPECIAL_REMARKS}}/g, hod.potential?.specialRemarks || "")
       .replace(/{{FITNESS}}/g, hod.potential?.fitness || "")
-      // Self-Assessment
-      .replace(/{{MEMBERSHIP}}/g, self.membership || "")
+
+      // Part II Signatures
+      .replace(
+        /{{POT_HOD_NAME}}/g,
+        hod.potential?.potentialAssessmentSignature?.hod?.name || ""
+      )
+      .replace(
+        /{{POT_HOD_DATE}}/g,
+        formatDate(hod.potential?.potentialAssessmentSignature?.hod?.date)
+      )
+      .replace(
+        /{{POT_FACULTY_NAME}}/g,
+        hod.potential?.potentialAssessmentSignature?.faculty?.name || ""
+      )
+      .replace(
+        /{{POT_FACULTY_DATE}}/g,
+        formatDate(hod.potential?.potentialAssessmentSignature?.faculty?.date)
+      )
+
+      // Self-assessment
+      .replace(/{{MEMBERSHIPS}}/g, (self.memberships || []).join(", ")) // ✅ fix placeholder
+      .replace(
+        /{{SUBJECTS_ROWS}}/g,
+        (self.subjectsTaught || [])
+          .map(
+            (s, idx) => `
+            <tr>
+              <td>${s.subject}</td>
+              <td>${s.contactHours}</td>
+              <td>${s.studentsAppeared}</td>
+              <td>${s.studentsPassed}</td>
+              <td>${s.remarks || ""}</td>
+            </tr>
+            `
+          )
+          .join("")
+      )
       .replace(/{{EXAM_RESULTS}}/g, self.examResults || "")
-      .replace(/{{CONTRIBUTIONS}}/g, self.contributions || "");
-    // Add more replacements as needed
+      .replace(/{{LAB_DEVELOPMENT}}/g, self.labDevelopment || "")
+      .replace(/{{MODELS_AND_AIDS}}/g, self.modelsAndAids || "")
+      .replace(/{{SHORT_COURSES}}/g, self.shortCourses || "")
+      .replace(/{{Q_PHD}}/g, self.researchGuidance?.qualified?.phd || "0")
+      .replace(/{{Q_PG}}/g, self.researchGuidance?.qualified?.pg || "0")
+      .replace(/{{Q_MPHIL}}/g, self.researchGuidance?.qualified?.mphil || "0")
+      .replace(/{{R_PHD}}/g, self.researchGuidance?.registered?.phd || "0")
+      .replace(/{{R_PG}}/g, self.researchGuidance?.registered?.pg || "0")
+      .replace(/{{R_PGD}}/g, self.researchGuidance?.registered?.pgDiploma || "0")
+      .replace(/{{R_UG}}/g, self.researchGuidance?.registered?.ug || "0")
+      .replace(/{{PAPERS_PUBLISHED}}/g, (self.papersPublished || []).join("; "))
+      .replace(/{{BOOKS_GUIDES}}/g, (self.booksOrGuides || []).join("; "))
+      .replace(
+        /{{RESEARCH_INSTRUMENTS}}/g,
+        (self.researchInstruments || []).join("; ")
+      )
+      .replace(/{{CONFERENCES}}/g, (self.conferences || []).join("; "))
+      .replace(/{{CONSULTING_WORK}}/g, (self.consultingWork || []).join("; "))
+      .replace(
+        /{{ADDITIONAL_QUALIFICATIONS}}/g,
+        (self.additionalQualifications || []).join("; ")
+      )
+      .replace(
+        /{{PASTORAL_FUNCTIONS}}/g,
+        (self.pastoralFunctions || []).join("; ")
+      )
+      .replace(
+        /{{OTHER_CONTRIBUTIONS}}/g,
+        (self.otherContributions || []).join("; ")
+      )
+      .replace(
+        /{{FACULTY_SIGN_DATE}}/g,
+        formatDate(report.facultySignatureDate)
+      )
+      .replace(/{{FACULTY_SIGNATURE}}/g, report.facultySignature || "")
+      .replace(
+        /{{FACULTY_SIGN_DATE}}/g,
+        formatDate(report.facultySignatureDate)
+      )
+      .replace(/{{ENCLOSURE_OBJECTS}}/g, enclosuresHtml);
 
-    // Attachments (as links)
-    let attachmentsHtml = "";
-    if (report.attachments && report.attachments.length > 0) {
-      attachmentsHtml += "<ul>";
-      report.attachments.forEach((a) => {
-        attachmentsHtml += `<li><a href=\"${a.url}\">${a.filename}</a></li>`;
-      });
-      attachmentsHtml += "</ul>";
-    }
-    templateHtml = templateHtml.replace(/{{ATTACHMENTS}}/g, attachmentsHtml);
-
-    // Generate PDF
+    // === Generate Main PDF ===
     const browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: ["--no-sandbox"],
     });
     const page = await browser.newPage();
     await page.setContent(templateHtml, { waitUntil: "networkidle0" });
-    const pdfPath = path.join(
-      __dirname,
-      `../outputs/CR_Report_${reportId}.pdf`
-    );
-    await page.pdf({ path: pdfPath, format: "A4", printBackground: true });
-    await browser.close();
 
-    res.download(pdfPath, `CR_Report_${reportId}.pdf`, (err) => {
-      if (!err) {
-        fs.unlink(pdfPath, () => {});
-      }
+    const tempDir = path.join(__dirname, "../outputs");
+    const mainPDFPath = path.join(tempDir, `CR_Main_${reportId}.pdf`);
+    await page.pdf({ path: mainPDFPath, format: "A4", printBackground: true });
+
+    // === Merge Attachment PDFs ===
+    const mergedPdf = await PDFDocument.create();
+    const addPdf = async (filePath) => {
+      const pdfBytes = fs.readFileSync(filePath);
+      const doc = await PDFDocument.load(pdfBytes);
+      const pages = await mergedPdf.copyPages(doc, doc.getPageIndices());
+      pages.forEach((p) => mergedPdf.addPage(p));
+    };
+
+    await addPdf(mainPDFPath);
+    for (const att of attachments) {
+      const attPath = path.join(
+        __dirname,
+        "..",
+        "uploads",
+        path.basename(att.url)
+      );
+      if (fs.existsSync(attPath) && attPath.endsWith(".pdf"))
+        await addPdf(attPath);
+    }
+
+    const finalBytes = await mergedPdf.save();
+    const finalPath = path.join(tempDir, `CR_Report_${reportId}_final.pdf`);
+    fs.writeFileSync(finalPath, finalBytes);
+
+    await browser.close();
+    fs.unlinkSync(mainPDFPath);
+
+    res.download(finalPath, `CR_Report_${reportId}.pdf`, (err) => {
+      if (!err) fs.unlink(finalPath, () => {});
     });
   } catch (err) {
-    console.error("Error generating CR report PDF:", err);
+    console.error("Error generating CR PDF:", err);
     res.status(500).json({ message: "Failed to generate CR report PDF" });
   }
 };
+
+module.exports = downloadCRPDF;
 
 const updateFull = async (req, res) => {
   try {
@@ -653,8 +813,6 @@ const updateFull = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
-
-
 
 module.exports = {
   getAllReports,

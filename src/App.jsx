@@ -15,13 +15,10 @@ import GenerateCR from "./Features/CR/GenerateCR";
 import Dashboard from "./pages/Faculty/Dashboard";
 import Signup from "./pages/Faculty/Signup";
 import ProtectedRoutes from "./ui/ProtectedRoutes";
-import SelfAssessmentForm from "./Features/CR/SelfAssessment";
 import AllCRReports from "./Features/CR/ViewAllReports";
-import HodCR from "./Features/CR/HodCR";
 import { ConsolidationReportMenu, ConsolidationReportScholars, ConsolidationReportOD } from "./pages/Admin/ConsolidationReport";
 import ConsolidationReportFaculty from "./pages/Admin/ConsolidationReportFaculty";
 
-import FullCRReport from "./Features/CR/FullCRReport";
 import FullReport from "./Features/CR/FullReport";
 function App() {
   const { user } = UserData();
@@ -53,16 +50,7 @@ function App() {
                 element={<FullReport user={user} />}
               />
                 <Route path="CR/view" element={<AllCRReports />} />
-              {/* <Route
-                path="/crreport/:reportId/full"
-                element={<FullCRReport />}
-              /> */}
-              {/* <Route path="CR/hodSection/:reportId" element={<HodCR />} />
-              <Route path="CR/selfAssess" element={<SelfAssessmentForm />} /> */}
-              {/* <Route
-                path="CR/selfAssess/:reportId"
-                element={<SelfAssessmentForm />}
-              /> */}
+
               <Route path="/admin/consolidation-report/menu" element={<ConsolidationReportMenu />} />
               <Route path="/admin/consolidation-report/scholars" element={<ConsolidationReportScholars />} />
               <Route path="/admin/consolidation-report/OD" element={<ConsolidationReportOD />} />

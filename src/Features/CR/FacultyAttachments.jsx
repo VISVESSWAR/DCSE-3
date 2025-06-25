@@ -3,24 +3,47 @@ import { toast } from "react-hot-toast";
 
 export default function FacultyAttachments({ form, setForm, readOnly }) {
   const fileInputRef = useRef();
+  const MAX_SIZE_MB = 2;
+  const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
 
   const handleUpload = (e) => {
     const files = Array.from(e.target.files);
     if (!files.length) return;
 
-    const newAttachments = files.map((file) => ({
-      name: file.name,
-      type: file.type,
-      size: file.size,
-      file, // actual File object
-    }));
+    const existingFiles = form.attachments || [];
+    const newAttachments = [];
 
-    setForm((prev) => ({
-      ...prev,
-      attachments: [...(prev.attachments || []), ...newAttachments],
-    }));
+    for (const file of files) {
+      if (file.size > MAX_SIZE_BYTES) {
+        toast.error(
+          `"${file.name}" exceeds ${MAX_SIZE_MB}MB limit and was not added.`
+        );
+        continue;
+      }
 
-    toast.success(`${files.length} file(s) added`);
+      // Avoid duplicate files (same name and size)
+      const alreadyExists = existingFiles.some(
+        (f) => f.name === file.name && f.size === file.size
+      );
+      if (!alreadyExists) {
+        newAttachments.push({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          file, // actual File object
+        });
+      }
+    }
+
+    if (newAttachments.length) {
+      setForm((prev) => ({
+        ...prev,
+        attachments: [...existingFiles, ...newAttachments],
+      }));
+      toast.success(`${newAttachments.length} file(s) added`);
+    }
+
+    e.target.value = null; // allow re-selecting the same file
   };
 
   const removeFile = (index) => {
@@ -52,13 +75,14 @@ export default function FacultyAttachments({ form, setForm, readOnly }) {
           >
             Upload Files
           </button>
+          <p className="text-sm text-gray-500 mt-1">Max size: 2MB per file</p>
         </div>
       )}
 
       {form.attachments?.length > 0 ? (
         <ul className="list-disc pl-5 space-y-1">
           {form.attachments.map((file, index) => {
-            const isUploaded = file.url && file.filename; // uploaded file
+            const isUploaded = file.url && file.filename;
             const displayName = file.name || file.filename;
 
             return (

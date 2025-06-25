@@ -64,8 +64,13 @@ export default function AllCRReports() {
           headers: { "x-user-email": user.email },
         }
       );
-
-      navigate(`/CR/fullReport/${res.data._id}`);
+      // console.log(res);
+      if (res.data.created) {
+        toast.success(res.data.message);
+        navigate(`/CR/fullReport/${res.data.report._id}`);
+      } else {
+        toast.error(res.data.message);
+      }
     } catch (err) {
       toast.error("Could not create or fetch CR Report");
     }
@@ -91,9 +96,6 @@ export default function AllCRReports() {
       } catch (err) {
         toast.error("Download failed");
       }
-    } else {
-      // For all other statuses, redirect to unified view
-      navigate(`/crreport/${report._id}/full`);
     }
   };
 
@@ -213,22 +215,16 @@ export default function AllCRReports() {
                         )}
                       </td> */}
                       <td className="p-3 flex gap-2">
-                        {(user.role === "faculty" &&
-                          report.status === "draft") ||
-                        report.status === "hod-signed" ||
-                        (report.status === "faculty-filled" &&
-                          user.role === "hod") ||
-                        report.status === "finalized" ? (
+                        {report.status === "finalized" && (
                           <button
                             onClick={() => handleActionClick(report)}
                             className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
                           >
                             {report.status === "finalized"
                               ? "Download"
-                              : "View"}
+                              : "View Full Report"}
                           </button>
-                        ) : null}
-
+                        )}
                         <button
                           onClick={() =>
                             navigate(`/CR/fullReport/${report._id}`)
