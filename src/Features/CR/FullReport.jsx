@@ -9,6 +9,7 @@ import FacultyPart4Research from "./FacultyPart4Research";
 import FacultySignatures from "./FacultySignatures";
 import HODSignaturesPart1 from "./HODSignaturesPart1";
 import HODSignaturesPart2 from "./HODSignaturesPart2";
+import FacultyAttachments from "./FacultyAttachments";
 export default function FullReport({ user }) {
   const { reportId } = useParams();
   const testFacultyForm = {
@@ -176,34 +177,63 @@ export default function FullReport({ user }) {
 
         // Inject test data for faculty section
         const mergedSelfAssessment = {
-  subjectsTaught: report.selfAssessment?.subjectsTaught ?? testFacultyForm.subjectsTaught,
-  examResults: report.selfAssessment?.examResults ?? testFacultyForm.examResults,
-  labDevelopment: report.selfAssessment?.labDevelopment ?? testFacultyForm.labDevelopment,
-  modelsAndAids: report.selfAssessment?.modelsAndAids ?? testFacultyForm.modelsAndAids,
-  shortCourses: report.selfAssessment?.shortCourses ?? testFacultyForm.shortCourses,
-  researchGuidance: report.selfAssessment?.researchGuidance ?? testFacultyForm.researchGuidance,
-  papersPublished: report.selfAssessment?.papersPublished ?? testFacultyForm.papersPublished,
-  researchInstruments: report.selfAssessment?.researchInstruments ?? testFacultyForm.researchInstruments,
-  memberships: report.selfAssessment?.memberships ?? testFacultyForm.memberships,
-  booksOrGuides: report.selfAssessment?.booksOrGuides ?? testFacultyForm.booksOrGuides,
-  conferences: report.selfAssessment?.conferences ?? testFacultyForm.conferences,
-  consultingWork: report.selfAssessment?.consultingWork ?? testFacultyForm.consultingWork,
-  additionalQualifications: report.selfAssessment?.additionalQualifications ?? testFacultyForm.additionalQualifications,
-  pastoralFunctions: report.selfAssessment?.pastoralFunctions ?? testFacultyForm.pastoralFunctions,
-  otherContributions: report.selfAssessment?.otherContributions ?? testFacultyForm.otherContributions,
-  attachments: report.selfAssessment?.attachments ?? testFacultyForm.attachments,
-};
+          subjectsTaught:
+            report.selfAssessment?.subjectsTaught ??
+            testFacultyForm.subjectsTaught,
+          examResults:
+            report.selfAssessment?.examResults ?? testFacultyForm.examResults,
+          labDevelopment:
+            report.selfAssessment?.labDevelopment ??
+            testFacultyForm.labDevelopment,
+          modelsAndAids:
+            report.selfAssessment?.modelsAndAids ??
+            testFacultyForm.modelsAndAids,
+          shortCourses:
+            report.selfAssessment?.shortCourses ?? testFacultyForm.shortCourses,
+          researchGuidance:
+            report.selfAssessment?.researchGuidance ??
+            testFacultyForm.researchGuidance,
+          papersPublished:
+            report.selfAssessment?.papersPublished ??
+            testFacultyForm.papersPublished,
+          researchInstruments:
+            report.selfAssessment?.researchInstruments ??
+            testFacultyForm.researchInstruments,
+          memberships:
+            report.selfAssessment?.memberships ?? testFacultyForm.memberships,
+          booksOrGuides:
+            report.selfAssessment?.booksOrGuides ??
+            testFacultyForm.booksOrGuides,
+          conferences:
+            report.selfAssessment?.conferences ?? testFacultyForm.conferences,
+          consultingWork:
+            report.selfAssessment?.consultingWork ??
+            testFacultyForm.consultingWork,
+          additionalQualifications:
+            report.selfAssessment?.additionalQualifications ??
+            testFacultyForm.additionalQualifications,
+          pastoralFunctions:
+            report.selfAssessment?.pastoralFunctions ??
+            testFacultyForm.pastoralFunctions,
+          otherContributions:
+            report.selfAssessment?.otherContributions ??
+            testFacultyForm.otherContributions,
+          attachments:
+            report.selfAssessment?.attachments ?? testFacultyForm.attachments,
+        };
 
-setForm((prev) => ({
-  ...prev,
-  ...mergedSelfAssessment,
-  hodPart1: report.hodSection?.performance ?? testFacultyForm.hodPart1,
-  hodPart2: report.hodSection?.potential ?? testFacultyForm.hodPart2,
-  period: report.period ?? testFacultyForm.period,
-  status: report.status ?? testFacultyForm.status,
-  facultySignature: report.facultySignature ?? testFacultyForm.facultySignature,
-  facultySignatureDate: report.facultySignatureDate ?? testFacultyForm.facultySignatureDate,
-}));
+        setForm((prev) => ({
+          ...prev,
+          ...mergedSelfAssessment,
+          hodPart1: report.hodSection?.performance ?? testFacultyForm.hodPart1,
+          hodPart2: report.hodSection?.potential ?? testFacultyForm.hodPart2,
+          period: report.period ?? testFacultyForm.period,
+          status: report.status ?? testFacultyForm.status,
+          facultySignature:
+            report.facultySignature ?? testFacultyForm.facultySignature,
+          facultySignatureDate:
+            report.facultySignatureDate ?? testFacultyForm.facultySignatureDate,
+        }));
       } catch (err) {
         toast.error("Failed to load report");
       } finally {
@@ -227,16 +257,19 @@ setForm((prev) => ({
     }
   };
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
-    if (user.role === "faculty") {
+
+    const isFaculty = user.role === "faculty";
+    const isHOD = user.role === "hod";
+
+    // Faculty validation
+    if (isFaculty) {
       const facultySigMissing =
         !form.facultySignature?.trim() || !form.facultySignatureDate?.trim();
-
       const hodPart1Missing =
         !form.hodPart1?.performanceAssessmentSignature?.faculty?.name ||
         !form.hodPart1?.performanceAssessmentSignature?.faculty?.date;
-
       const hodPart2Missing =
         !form.hodPart2?.potentialAssessmentSignature?.faculty?.name ||
         !form.hodPart2?.potentialAssessmentSignature?.faculty?.date;
@@ -249,11 +282,11 @@ setForm((prev) => ({
       }
     }
 
-    if (user.role === "hod") {
+    // HOD validation
+    if (isHOD) {
       const hodPart1SigMissing =
         !form.hodPart1?.performanceAssessmentSignature?.hod?.name ||
         !form.hodPart1?.performanceAssessmentSignature?.hod?.date;
-
       const hodPart2SigMissing =
         !form.hodPart2?.potentialAssessmentSignature?.hod?.name ||
         !form.hodPart2?.potentialAssessmentSignature?.hod?.date;
@@ -267,18 +300,64 @@ setForm((prev) => ({
     }
 
     try {
-      const { hodPart1, hodPart2, ...selfAssessmentOnly } = form;
-      console.log(hodPart1, hodPart2, selfAssessmentOnly);
+      let updatedAttachments = [...form.attachments];
+
+      if (isFaculty && form.attachments?.length > 0) {
+        const newFiles = form.attachments.filter((f) => f.file); // Only new ones
+        if (newFiles.length > 0) {
+          const formData = new FormData();
+          newFiles.forEach((f) => formData.append("attachments", f.file));
+
+          const uploadRes = await axios.post(
+            `http://localhost:5000/api/crreport/${reportId}/self-assessment/attachments`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                "x-user-email": user.email,
+              },
+            }
+          );
+
+          const uploaded = uploadRes.data?.selfAssessment?.attachments || [];
+
+          // Merge new + old (excluding unuploaded files)
+          updatedAttachments = [
+            ...form.attachments.filter((f) => !f.file),
+            ...uploaded,
+          ];
+        }
+      }
+
+      // Build self-assessment payload cleanly
+      const selfAssessmentOnly = {
+        subjectsTaught: form.subjectsTaught,
+        examResults: form.examResults,
+        labDevelopment: form.labDevelopment,
+        modelsAndAids: form.modelsAndAids,
+        shortCourses: form.shortCourses,
+        researchGuidance: form.researchGuidance,
+        papersPublished: form.papersPublished,
+        researchInstruments: form.researchInstruments,
+        memberships: form.memberships,
+        booksOrGuides: form.booksOrGuides,
+        conferences: form.conferences,
+        consultingWork: form.consultingWork,
+        additionalQualifications: form.additionalQualifications,
+        pastoralFunctions: form.pastoralFunctions,
+        otherContributions: form.otherContributions,
+        // attachments: updatedAttachments,
+      };
+      console.log(form,selfAssessmentOnly)
       await axios.patch(
         `http://localhost:5000/api/crreport/${reportId}/update-full`,
         {
           selfAssessment: selfAssessmentOnly,
           hodSection: {
-            performance: hodPart1,
-            potential: hodPart2,
+            performance: form.hodPart1,
+            potential: form.hodPart2,
           },
-          status:
-            user.role === "faculty" ? "faculty-filled" : form.status || "draft",
+          status: isFaculty ? "faculty-filled" : form.status || "draft",
           period: form.period,
           facultySignature: form.facultySignature,
           facultySignatureDate: form.facultySignatureDate,
@@ -289,6 +368,10 @@ setForm((prev) => ({
       );
 
       toast.success("CR Report saved successfully");
+
+      if (isHOD) {
+        await handleFinalize();
+      }
     } catch (err) {
       console.error("Error saving CR report:", err);
       toast.error("Submission failed");
@@ -379,7 +462,12 @@ setForm((prev) => ({
         setFileUploads={setFileUploads}
         readOnly={user.role !== "faculty" || form.status !== "draft"}
       />
-
+      {user.role === "faculty" &&  (
+        <FacultyAttachments form={form} setForm={setForm} readOnly={form.status !== "draft"} />
+      )}
+      {user.role !== "faculty" &&  (
+        <FacultyAttachments form={form} setForm={setForm} readOnly={true} />
+      )}
       <FacultySignatures form={form} setForm={setForm} user={user} />
 
       {user.role === "faculty" && form.status === "draft" && (
@@ -393,8 +481,7 @@ setForm((prev) => ({
 
       {user.role === "hod" && form.status === "faculty-filled" && (
         <button
-          type="button"
-          onClick={handleFinalize}
+          type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded font-semibold mt-4"
         >
           Finalize Report

@@ -47,7 +47,7 @@ const selfAssessmentSchema = new mongoose.Schema({
   consultingWork: [String],
   otherContributions: [String],
   pastoralFunctions: [String],
-  attachments: [attachmentSchema], // assuming imported
+  attachments: [attachmentSchema], 
 });
 
 const hodSectionSchema = new mongoose.Schema({
@@ -100,31 +100,7 @@ const hodSectionSchema = new mongoose.Schema({
     },
   },
   },
-  // Signature for Part I
-  // performanceAssessmentSignature: {
-  //   hod: {
-  //     name: String,
-  //     date: Date,
-  //   },
-  //   reviewingOfficer: {
-  //     name: String,
-  //     date: Date,
-  //   },
-  //   faculty: {
-  //     name: String,
-  //     date: Date,
-  //   },
-  // },
-  // potentialAssessmentSignature: {
-  //   hod: {
-  //     name: String,
-  //     date: Date,
-  //   },
-  //   faculty: {
-  //     name: String,
-  //     date: Date,
-  //   },
-  // },
+  
 });
 
 const CRReportSchema = new mongoose.Schema({
@@ -152,7 +128,7 @@ const CRReportSchema = new mongoose.Schema({
   facultySignature: String, // Faculty's name as signature
   facultySignatureDate: Date,
   hodSignDate: Date,
-  attachments: [attachmentSchema],
+  // attachments: [attachmentSchema],
   intermediateOfficerRemarks: String,
   intermediateOfficerSignature: {
     name: String,

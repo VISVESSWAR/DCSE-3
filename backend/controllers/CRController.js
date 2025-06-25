@@ -608,30 +608,37 @@ const updateFull = async (req, res) => {
       facultySignatureDate,
     } = req.body;
 
-    // Update selfAssessment (merge)
+    console.log("Incoming selfAssessment:", selfAssessment);
+    console.log("Current report.selfAssessment:", report.selfAssessment);
+
+    // Step 1: Remove attachments from incoming selfAssessment if present
+    const { attachments, ...safeSelfAssessment } = selfAssessment;
+
+    // Step 1: Preserve existing attachments from DB
+    const existingAttachments = report.selfAssessment?.attachments || [];
+
+    // Step 2: Replace selfAssessment with frontend values
     report.selfAssessment = {
-      ...report.selfAssessment,
-      ...selfAssessment,
+      ...safeSelfAssessment,
     };
-    console.log(JSON.stringify(req.body.hodSection, null, 2));
 
-    // Update HOD sections (merge)
-    if (!report.hodSection) {
-      report.hodSection = { performance: {}, potential: {} };
-    }
+    // Step 3: Re-assign preserved attachments
+    report.selfAssessment.attachments = existingAttachments;
 
-    // Overwrite deeply — don’t shallow merge
+    // Step 4: Merge HOD Section deeply
+    report.hodSection = report.hodSection || { performance: {}, potential: {} };
+
     report.hodSection.performance = {
       ...report.hodSection.performance,
-      ...req.body.hodSection?.performance,
+      ...hodSection?.performance,
     };
 
     report.hodSection.potential = {
       ...report.hodSection.potential,
-      ...req.body.hodSection?.potential,
+      ...hodSection?.potential,
     };
 
-    console.log(report.hodSection);
+    // Step 5: Update other fields
     if (facultySignature) report.facultySignature = facultySignature;
     if (facultySignatureDate)
       report.facultySignatureDate = facultySignatureDate;
@@ -639,12 +646,15 @@ const updateFull = async (req, res) => {
     if (period) report.period = period;
 
     await report.save();
+    console.log("Saved report:", report);
     res.json(report);
   } catch (err) {
     console.error("Error in PATCH /update-full:", err);
     res.status(500).json({ message: err.message });
   }
 };
+
+
 
 module.exports = {
   getAllReports,

@@ -34,8 +34,8 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
   try {
     const facultyId = req.params.facultyId;
     const { year, period, facultyAcknowledgement, facultyFinalSignature } =
-    req.body;
-    
+      req.body;
+
     // Find existing report or create new one
     let report = await CRReport.findOne({
       "faculty.facultyId": facultyId,
@@ -53,7 +53,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
       }
       if (!faculty)
         return res.status(404).json({ message: "Faculty not found" });
-      
+
       report = new CRReport({
         faculty: {
           facultyId: faculty.facultyId || faculty._id,
@@ -72,7 +72,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
         status: "draft",
       });
     }
-    
+
     // Update faculty acknowledgement
     if (facultyAcknowledgement) {
       report.facultyAcknowledgement = facultyAcknowledgement;
@@ -82,7 +82,7 @@ router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
     if (facultyFinalSignature) {
       report.facultyFinalSignature = facultyFinalSignature;
     }
-    
+
     await report.save();
     res.json(report);
   } catch (err) {
@@ -115,8 +115,6 @@ router.post(
 
 router.patch("/:reportId/update-full", updateFull);
 
-
-// Upload attachments for self-assessment (faculty only)
 router.post(
   "/:reportId/self-assessment/attachments",
   restrictTo("faculty"),
@@ -129,37 +127,24 @@ router.post(
         return res.status(404).json({ message: "Report not found" });
       }
 
-      // Parse all JSON fields from form-data
-      const parsedSelfAssessment = {
-        examResults: req.body.examResults || "",
-        contributions: req.body.contributions || "",
-        facultySignature: req.user.name.toUpperCase(),
-        researchCounts: JSON.parse(req.body.researchCounts || "{}"),
-        subjectsTaught: JSON.parse(req.body.subjectsTaught || "[]"),
-        memberships: JSON.parse(req.body.memberships || "[]"),
-        booksOrGuides: JSON.parse(req.body.booksOrGuides || "[]"),
-        consultingWork: JSON.parse(req.body.consultingWork || "[]"),
-        papersPublished: JSON.parse(req.body.papersPublished || "[]"),
-        researchInstruments: JSON.parse(req.body.researchInstruments || "[]"),
-        additionalQualifications: JSON.parse(
-          req.body.additionalQualifications || "[]"
-        ),
-        pastoralFunctions: JSON.parse(req.body.pastoralFunctions || "[]"),
-        otherContributions: JSON.parse(req.body.otherContributions || "[]"),
-        attachments: req.files.map((f) => ({
+      if (!report.selfAssessment) {
+        report.selfAssessment = { attachments: [] };
+      } else if (!Array.isArray(report.selfAssessment.attachments)) {
+        report.selfAssessment.attachments = [];
+      }
+
+      // Safely append new attachments
+      report.selfAssessment.attachments = [
+        ...(report.selfAssessment.attachments || []),
+        ...req.files.map((f) => ({
           filename: f.filename,
           url: `/uploads/${f.filename}`,
         })),
-      };
+      ];
 
-      // Assign data and update metadata
-      report.selfAssessment = parsedSelfAssessment;
-      report.facultySignature = req.user.name.toUpperCase();
-      report.facultySignDate = new Date();
-      report.status = "faculty-filled"; // Make sure this is allowed in schema
       await report.save();
 
-      res.json(report);
+      res.json({ selfAssessment: report.selfAssessment });
     } catch (err) {
       console.error("Self-assessment upload error:", err);
       res.status(500).json({ message: err.message });
