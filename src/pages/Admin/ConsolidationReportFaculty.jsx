@@ -630,13 +630,6 @@ export default function ConsolidationReportFaculty() {
           ))}
         </select>
         <button
-          className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold disabled:opacity-50"
-          onClick={handleExportFacultyPDF}
-          disabled={!selectedFacultyId}
-        >
-          Export PDF
-        </button>
-        <button
           className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 transition font-semibold disabled:opacity-50"
           onClick={() => {
             const facultyObj = faculty.find(f => f._id === selectedFacultyId);
