@@ -18,6 +18,7 @@ import ProtectedRoutes from "./ui/ProtectedRoutes";
 import AllCRReports from "./Features/CR/ViewAllReports";
 import { ConsolidationReportMenu, ConsolidationReportScholars, ConsolidationReportOD } from "./pages/Admin/ConsolidationReport";
 import ConsolidationReportFaculty from "./pages/Admin/ConsolidationReportFaculty";
+import ConsolidationReportFacultyAnalytics from "./pages/Admin/ConsolidationReportFacultyAnalytics";
 
 import FullReport from "./Features/CR/FullReport";
 function App() {
@@ -54,6 +55,7 @@ function App() {
               <Route path="/admin/consolidation-report/menu" element={<ConsolidationReportMenu />} />
               <Route path="/admin/consolidation-report/scholars" element={<ConsolidationReportScholars />} />
               <Route path="/admin/consolidation-report/OD" element={<ConsolidationReportOD />} />
+              <Route path="/admin/consolidation-report/faculty/:facultyName" element={<ConsolidationReportFacultyAnalytics />} />
               <Route path="/admin/consolidation-report/faculty" element={<ConsolidationReportFaculty />} />
               <Route path="/admin/consolidation-report" element={<ConsolidationReportMenu />} />
             </Route>

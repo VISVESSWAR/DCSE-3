@@ -5,6 +5,7 @@ import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveCo
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 
 export default function ConsolidationReportFaculty() {
   const { user } = UserData();
@@ -20,6 +21,8 @@ export default function ConsolidationReportFaculty() {
   const facultyByDept = useMemo(() => groupBy(faculty, f => f.department || "Unknown"), [faculty]);
   const facultyByPosition = useMemo(() => groupBy(faculty, f => f.position || "Unknown"), [faculty]);
   const facultyByGender = useMemo(() => groupBy(faculty, f => (f.gender ? f.gender.charAt(0).toUpperCase() + f.gender.slice(1) : "Unknown")), [faculty]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchData() {
@@ -492,9 +495,9 @@ export default function ConsolidationReportFaculty() {
   // --- UI Components ---
   function StatCard({ title, value, color }) {
     return (
-      <div className={`bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center border-t-4 ${color} mb-2`}>
-        <div className="text-4xl font-bold mb-1">{value}</div>
-        <div className="text-lg font-semibold text-gray-700">{title}</div>
+      <div className={`bg-white rounded-lg shadow p-3 flex flex-col items-center justify-center border-t-4 ${color} mb-2 min-h-[80px] max-w-[170px] mx-auto aspect-[5/3]`}> 
+        <div className="text-2xl font-bold mb-0.5">{value}</div>
+        <div className="text-base font-medium text-gray-700 text-center leading-tight">{title}</div>
       </div>
     );
   }
@@ -633,8 +636,63 @@ export default function ConsolidationReportFaculty() {
         >
           Export PDF
         </button>
+        <button
+          className="bg-green-600 text-white px-6 py-2 rounded shadow hover:bg-green-700 transition font-semibold disabled:opacity-50"
+          onClick={() => {
+            const facultyObj = faculty.find(f => f._id === selectedFacultyId);
+            if (facultyObj) {
+              navigate(`/admin/consolidation-report/faculty/${encodeURIComponent(facultyObj.name)}`);
+            }
+          }}
+          disabled={!selectedFacultyId}
+        >
+          Show Analytics
+        </button>
       </div>
-      {/* <FacultyFDPSection /> */}
+      {/* Analytics for Selected Faculty */}
+      {selectedFaculty && (
+        <section className="bg-white rounded-xl shadow p-6 mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Analytics for {selectedFaculty.name}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Info */}
+            <div>
+              <h3 className="font-bold mb-2">Basic Info</h3>
+              <ul className="text-base space-y-1">
+                <li><b>Department:</b> {selectedFaculty.department || '-'}</li>
+                <li><b>Position:</b> {selectedFaculty.position || '-'}</li>
+                <li><b>Email:</b> {selectedFaculty.contactInfo?.email || '-'}</li>
+                <li><b>Phone:</b> {selectedFaculty.contactInfo?.phone || '-'}</li>
+                <li><b>Gender:</b> {selectedFaculty.gender || '-'}</li>
+                <li><b>Date of Birth:</b> {selectedFaculty.dob ? new Date(selectedFaculty.dob).toLocaleDateString('en-IN') : '-'}</li>
+                <li><b>Date of Joining:</b> {selectedFaculty.dateOfJoining ? new Date(selectedFaculty.dateOfJoining).toLocaleDateString('en-IN') : '-'}</li>
+                <li><b>Active:</b> {selectedFaculty.isActive ? "Yes" : "No"}</li>
+                <li><b>Years of Experience:</b> {selectedFaculty.dateOfJoining ? (new Date().getFullYear() - new Date(selectedFaculty.dateOfJoining).getFullYear()) : '-'}</li>
+                <li><b>Areas of Expertise:</b> {selectedFaculty.areasOfExpertise?.join(", ") || '-'}</li>
+              </ul>
+            </div>
+            {/* Publications */}
+            <div>
+              <h3 className="font-bold mb-2">Publications</h3>
+              <div>Total Publications: {publications.filter(p => (Array.isArray(p.authors) ? p.authors.includes(selectedFaculty.name) : p.authors === selectedFaculty.name)).length}</div>
+            </div>
+            {/* OD Requests */}
+            <div>
+              <h3 className="font-bold mb-2">OD Requests</h3>
+              <div>Total OD Requests: {odRequests.filter(r => r.name === selectedFaculty.name).length}</div>
+            </div>
+            {/* CR Reports */}
+            <div>
+              <h3 className="font-bold mb-2">CR Reports</h3>
+              <div>Total CR Reports: {crReports.filter(r => (r.facultyId === selectedFaculty.facultyId || r.faculty?._id === selectedFaculty._id || r.faculty?.name === selectedFaculty.name)).length}</div>
+            </div>
+            {/* Scholars Supervised */}
+            <div>
+              <h3 className="font-bold mb-2">Scholars Supervised</h3>
+              <div>{scholars.filter(s => s.supervisor?.name === selectedFaculty.name).length}</div>
+            </div>
+          </div>
+        </section>
+      )}
       <FacultyConferenceSection />
       <section className="space-y-8">
         <h2 className="text-2xl font-semibold mb-4">Demographics & Overview</h2>
@@ -642,55 +700,6 @@ export default function ConsolidationReportFaculty() {
           <StatCard title="Total Faculty" value={totalFaculty} color="border-blue-600" />
           <StatCard title="Active Faculty" value={activeFaculty} color="border-green-500" />
           <StatCard title="Inactive Faculty" value={inactiveFaculty} color="border-red-500" />
-          <StatCard title="Avg. Years Experience" value={avgExperience} color="border-purple-500" />
-          <StatCard title="Total Publications" value={totalPublications} color="border-yellow-500" />
-          {/* Faculty CR Report Statistics (from selfAssessment) */}
-          <div className="bg-white rounded-xl shadow p-6 mb-8">
-            <h3 className="text-xl font-semibold mb-4">Faculty CR Report Statistics (from Self-Assessment)</h3>
-            <ul className="text-base space-y-2">
-              {(() => {
-                // Aggregate statistics from all CR reports' selfAssessment
-                const allSelf = crReports.map(r => r.selfAssessment || {});
-                const totalCoursesTaught = allSelf.reduce((sum, s) => sum + (Array.isArray(s.coursesTaught) ? s.coursesTaught.length : 0), 0);
-                const totalSubjectsTaught = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.length : 0), 0);
-                const totalStudentsRegistered = allSelf.reduce((sum, s) => sum + (Array.isArray(s.coursesTaught) ? s.coursesTaught.reduce((acc, c) => acc + (c.studentsRegistered || 0), 0) : 0), 0);
-                const totalStudentsAppeared = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.reduce((acc, subj) => acc + (subj.studentsAppeared || 0), 0) : 0), 0);
-                const totalStudentsPassed = allSelf.reduce((sum, s) => sum + (Array.isArray(s.subjectsTaught) ? s.subjectsTaught.reduce((acc, subj) => acc + (subj.studentsPassed || 0), 0) : 0), 0);
-                const avgPassPercentage = totalStudentsAppeared ? ((totalStudentsPassed / totalStudentsAppeared) * 100).toFixed(1) : '-';
-                const totalPapersPublished = allSelf.reduce((sum, s) => sum + (Array.isArray(s.papersPublished) ? s.papersPublished.length : 0), 0);
-                const totalBooksGuides = allSelf.reduce((sum, s) => sum + (Array.isArray(s.booksOrGuides) ? s.booksOrGuides.length : 0), 0);
-                const totalMemberships = allSelf.reduce((sum, s) => sum + (Array.isArray(s.memberships) ? s.memberships.length : 0), 0);
-                const totalConferences = allSelf.reduce((sum, s) => sum + (Array.isArray(s.conferences) ? s.conferences.length : 0), 0);
-                const totalConsulting = allSelf.reduce((sum, s) => sum + (Array.isArray(s.consultingWork) ? s.consultingWork.length : 0), 0);
-                const totalAddQual = allSelf.reduce((sum, s) => sum + (Array.isArray(s.additionalQualifications) ? s.additionalQualifications.length : 0), 0);
-                const totalResearchCounts = allSelf.reduce((acc, s) => {
-                  const rc = s.researchCounts || {};
-                  acc.phd += rc.phd || 0;
-                  acc.mphil += rc.mphil || 0;
-                  acc.pg += rc.pg || 0;
-                  acc.ug += rc.ug || 0;
-                  return acc;
-                }, { phd: 0, mphil: 0, pg: 0, ug: 0 });
-                return [
-                  <li key="courses">Total Courses Taught (UG/PG): <b>{totalCoursesTaught}</b></li>,
-                  <li key="subjects">Total Subjects Taught: <b>{totalSubjectsTaught}</b></li>,
-                  <li key="students">Total Students Registered (Courses): <b>{totalStudentsRegistered}</b></li>,
-                  <li key="pass">Average Pass Percentage (Subjects): <b>{avgPassPercentage}%</b></li>,
-                  <li key="papers">Total Papers Published: <b>{totalPapersPublished}</b></li>,
-                  <li key="books">Total Books/Guides Authored: <b>{totalBooksGuides}</b></li>,
-                  <li key="memberships">Total Memberships: <b>{totalMemberships}</b></li>,
-                  <li key="conferences">Total Conferences Attended: <b>{totalConferences}</b></li>,
-                  <li key="consulting">Total Consulting Works: <b>{totalConsulting}</b></li>,
-                  <li key="addqual">Total Additional Qualifications: <b>{totalAddQual}</b></li>,
-                  <li key="research">Total Research Supervised: PhD: <b>{totalResearchCounts.phd}</b>, MPhil: <b>{totalResearchCounts.mphil}</b>, PG: <b>{totalResearchCounts.pg}</b>, UG: <b>{totalResearchCounts.ug}</b></li>,
-                ];
-              })()}
-            </ul>
-          </div>
-          {/* CR Report Statistics */}
-          <StatCard title="Total CR Reports" value={crReports.length} color="border-indigo-600" />
-          <StatCard title="Faculty with CR Reports" value={new Set(crReports.map(r => r.facultyId || r.faculty?._id || r.faculty)).size} color="border-pink-500" />
-          <StatCard title="Avg. CR Reports per Faculty" value={totalFaculty ? (crReports.length / totalFaculty).toFixed(2) : '-'} color="border-cyan-500" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {/* Active vs Inactive Pie */}
