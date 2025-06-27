@@ -146,11 +146,13 @@ export default function ConsolidationReportFacultyAnalytics() {
                 <tr>
                   <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Name</th>
                   <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Phone Number</th>
-                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Area of Research</th>
-                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Email</th>
+                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333', fontSize: '7px' }}>Area of Research</th>
+                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333', fontSize: '7px' }}>Email</th>
+                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Semester</th>
+                  <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Program</th>
                   <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Status</th>
                   <th style={{ ...cellStyle, fontWeight: 700, border: '0.5px solid #333333' }}>Joining Date</th>
-                  <th style={{ ...completionDateHeaderStyle, border: '0.5px solid #333333' }}>Completion Date</th>
+                  <th style={{ ...completionDateHeaderStyle, border: '0.5px solid #333333', fontSize: '7px' }}>Completion Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,8 +162,10 @@ export default function ConsolidationReportFacultyAnalytics() {
                     <tr key={s._id}>
                       <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.name || '-'}</td>
                       <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.contactInfo?.phone || '-'}</td>
-                      <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.areaOfResearch || '-'}</td>
-                      <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.contactInfo?.email || '-'}</td>
+                      <td style={{ ...cellStyle, border: '0.5px solid #333333', fontSize: '7px' }}>{s.areaOfResearch || '-'}</td>
+                      <td style={{ ...cellStyle, border: '0.5px solid #333333', fontSize: '7px' }}>{s.contactInfo?.email || '-'}</td>
+                      <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.semester || '-'}</td>
+                      <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.program || '-'}</td>
                       <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{isCompleted ? 'Completed' : 'Current'}</td>
                       <td style={{ ...cellStyle, border: '0.5px solid #333333' }}>{s.dateOfJoining ? new Date(s.dateOfJoining).toLocaleDateString('en-IN') : '-'}</td>
                       <td style={{ ...completionDateCellStyle, border: '0.5px solid #333333' }}>{isCompleted ? (s.dateOfCompletion ? new Date(s.dateOfCompletion).toLocaleDateString('en-IN') : '-') : '-'}</td>
@@ -293,8 +297,10 @@ export default function ConsolidationReportFacultyAnalytics() {
                 <tr>
                   <th>Name</th>
                   <th>Phone Number</th>
-                  <th>Area of Research</th>
-                  <th>Email</th>
+                  <th style={{ fontSize: '7px' }}>Area of Research</th>
+                  <th style={{ fontSize: '7px' }}>Email</th>
+                  <th>Semester</th>
+                  <th>Program</th>
                   <th>Status</th>
                   <th>Joining Date</th>
                   <th>Completion Date</th>
@@ -307,8 +313,10 @@ export default function ConsolidationReportFacultyAnalytics() {
                     <tr key={s._id}>
                       <td>{s.name || '-'}</td>
                       <td>{s.contactInfo?.phone || '-'}</td>
-                      <td>{s.areaOfResearch || '-'}</td>
-                      <td>{s.contactInfo?.email || '-'}</td>
+                      <td style={{ fontSize: '7px' }}>{s.areaOfResearch || '-'}</td>
+                      <td style={{ fontSize: '7px' }}>{s.contactInfo?.email || '-'}</td>
+                      <td>{s.semester || '-'}</td>
+                      <td>{s.program || '-'}</td>
                       <td>{isCompleted ? 'Completed' : 'Current'}</td>
                       <td>{s.dateOfJoining ? new Date(s.dateOfJoining).toLocaleDateString('en-IN') : '-'}</td>
                       <td>{isCompleted ? (s.dateOfCompletion ? new Date(s.dateOfCompletion).toLocaleDateString('en-IN') : '-') : '-'}</td>

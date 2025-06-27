@@ -50,6 +50,18 @@ const pgScholarSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+
+  semester: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  program: {
+    type: String,
+    required: true,
+    enum: ['UG', 'PG Diploma', 'M.Phil.', 'Ph.D.'],
+    trim: true,
+  },
 });
 
 module.exports = mongoose.model("PGScholar", pgScholarSchema);

@@ -122,6 +122,8 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       supervisor: user.userId,
       dateOfJoining: data.dateOfJoining,
       dateOfCompletion: data.dateOfCompletion,
+      semester: data.semester,
+      program: data.program,
     };
 
     if (isEditing) {
@@ -222,6 +224,30 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
             className="w-full p-2 rounded bg-gray-100 border border-gray-300"
             {...register("dateOfCompletion")}
           />
+        </FormRow>
+
+        <FormRow label="Semester" error={errors?.semester}>
+          <input
+            name="semester"
+            type="text"
+            placeholder="e.g., 1, 2, 3, ..."
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("semester", { required: "This is required field" })}
+          />
+        </FormRow>
+
+        <FormRow label="Program" error={errors?.program}>
+          <select
+            name="program"
+            className="w-full p-2 rounded bg-gray-100 border border-gray-300"
+            {...register("program", { required: "This is required field" })}
+          >
+            <option value="">Select Program</option>
+            <option value="UG">UG</option>
+            <option value="PG Diploma">PG Diploma</option>
+            <option value="M.Phil.">M.Phil.</option>
+            <option value="Ph.D.">Ph.D.</option>
+          </select>
         </FormRow>
 
         <button
