@@ -11,6 +11,7 @@ const {
   getAllReports,
   updateFull,
   downloadCRPDF,
+  deleteReport,
 } = require("../controllers/CRController");
 const { restrictTo } = require("../middleware/roleAccess");
 const CRReport = require("../models/CRReport");
@@ -30,67 +31,7 @@ const upload = multer({ storage });
 router.get("/", restrictTo("faculty", "admin", "hod"), getAllReports);
 // Get or create CR report for a faculty (faculty or HOD)
 router.get("/:facultyId", restrictTo("faculty"), getOrCreateCRReport);
-// Create or update CR report (faculty only)
-// router.post("/:facultyId", restrictTo("faculty"), async (req, res) => {
-//   try {
-//     const facultyId = req.params.facultyId;
-//     const { year, period, facultyAcknowledgement, facultyFinalSignature } =
-//       req.body;
 
-//     // Find existing report or create new one
-//     let report = await CRReport.findOne({
-//       "faculty.facultyId": facultyId,
-//       year,
-//     });
-//     if (!report) {
-//       // Get faculty details
-//       let faculty = await Faculty.findOne({ facultyId });
-//       if (!faculty) {
-//         try {
-//           faculty = await Faculty.findById(facultyId);
-//         } catch (e) {
-//           // Not a valid ObjectId, skip
-//         }
-//       }
-//       if (!faculty)
-//         return res.status(404).json({ message: "Faculty not found" });
-
-//       report = new CRReport({
-//         faculty: {
-//           facultyId: faculty.facultyId || faculty._id,
-//           name: faculty.name,
-//           dob: faculty.dob,
-//           qualifications: faculty.areasOfExpertise?.join(", "),
-//           designation: faculty.position,
-//           scaleOfPay: faculty.scaleOfPay,
-//           presentPay: faculty.presentPay,
-//           postHeld: faculty.natureOfAppointment,
-//           department: faculty.department,
-//           dateOfJoining: faculty.dateOfJoining,
-//         },
-//         year,
-//         period,
-//         status: "draft",
-//       });
-//     }
-
-//     // Update faculty acknowledgement
-//     if (facultyAcknowledgement) {
-//       report.facultyAcknowledgement = facultyAcknowledgement;
-//     }
-
-//     // Update faculty final signature
-//     if (facultyFinalSignature) {
-//       report.facultyFinalSignature = facultyFinalSignature;
-//     }
-
-//     await report.save();
-//     res.json(report);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-// Get individual CR report by ID (for HOD access)
 router.get(
   "/report/:reportId",
   restrictTo("faculty", "hod"),
@@ -173,4 +114,5 @@ router.get("/pending/hod", restrictTo("hod"), async (req, res) => {
   }
 });
 
+router.delete("/:reportId",restrictTo("faculty"),deleteReport);
 module.exports = router;

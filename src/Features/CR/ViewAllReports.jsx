@@ -17,7 +17,7 @@ export default function AllCRReports() {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchReports = () => {
     if (!user) return;
 
     const params = new URLSearchParams();
@@ -48,7 +48,12 @@ export default function AllCRReports() {
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchReports();
   }, [user, selectedYear, selectedPeriod, statusFilter, searchTerm, page]);
+
   const handleCreateReport = async () => {
     if (!selectedPeriod || !selectedYear) {
       toast.error("Please select both period and year");
@@ -76,6 +81,25 @@ export default function AllCRReports() {
     }
   };
 
+  const handleDelete = async (reportId) => {
+    try {
+      const res = await axios.delete(
+        `http://localhost:5000/api/crreport/${reportId}`,
+        {
+          headers: { "x-user-email": user.email },
+        }
+      );
+      // console.log(res);
+      if (res.data.deleted) {
+        toast.success(res.data.message);
+        fetchReports();
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (err) {
+      toast.error("Failed to delete the report");
+    }
+  };
   const handleActionClick = async (report) => {
     if (report.status === "finalized") {
       try {
@@ -232,6 +256,12 @@ export default function AllCRReports() {
                           className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
                         >
                           Full Report
+                        </button>
+                        <button
+                          onClick={() => handleDelete(report._id)}
+                          className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
+                        >
+                          delete
                         </button>
                       </td>
                     </tr>

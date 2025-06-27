@@ -2,7 +2,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import FormRow from "./FormRow";
 import { toast, Toaster } from "react-hot-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +13,10 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
   const navigate = useNavigate();
   const { _id: editId, contactInfo = {}, ...data } = formData;
   const { user } = UserData();
-  console.log("User data in AddScholar:", user);
+  // console.log("User data in AddScholar:", user);
   const { phone, email } = contactInfo;
+  const formatDateForInput = (isoString) =>
+    isoString ? new Date(isoString).toISOString().slice(0, 10) : "";
 
   const editData = Object.keys(formData).length
     ? {
@@ -24,8 +26,16 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
       }
     : null;
   const isEditing = Boolean(editId);
+  const formattedEditData = isEditing
+    ? {
+        ...editData,
+        dateOfJoining: formatDateForInput(editData.dateOfJoining),
+        dateOfCompletion: formatDateForInput(editData.dateOfCompletion),
+      }
+    : {};
+  console.log(formattedEditData);
   const { register, reset, formState, handleSubmit } = useForm({
-    defaultValues: isEditing ? editData : {},
+    defaultValues: formattedEditData,
   });
   const { errors } = formState;
 

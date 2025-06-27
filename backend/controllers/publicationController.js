@@ -29,6 +29,7 @@ const addPublication = async (req, res) => {
 
 const getAllPublications = async (req, res) => {
   try {
+    console.log(req.user)
     const { role, name } = req.user;
     console.log("User role:", role, "User name:", name);
 

@@ -83,7 +83,7 @@ const UserContext = createContext();
 function UserProvider({ children }) {
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const [user, setUser] = useState(storedUser ? storedUser : null);
-  console.log(user);
+  // console.log(user);
 
   async function login(form) {
   try {
@@ -128,7 +128,7 @@ function UserProvider({ children }) {
   }
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user"));
-    console.log("data:", data);
+    // console.log("data:", data);
     if (data != null) {
       setUser(data);
     }

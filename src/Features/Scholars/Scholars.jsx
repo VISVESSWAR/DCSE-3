@@ -49,6 +49,7 @@ function Scholars() {
     };
 
     fetchScholars();
+    splitScholars();
   }, []);
 
   const updateScholarInList = (id, updatedScholar) => {
@@ -75,52 +76,54 @@ function Scholars() {
     }
   };
 
-  const filteredScholars = scholarsList.filter((scholar) => {
-    const searchValue = searchTerm.toLowerCase();
-    switch (filterType) {
-      case "name":
-        return scholar.name.toLowerCase().includes(searchValue);
-      case "registrationNumber":
-        return scholar.registrationNumber.toLowerCase().includes(searchValue);
-      case "areaOfResearch":
-        return scholar.areaOfResearch.toLowerCase().includes(searchValue);
-      case "supervisor":
-        return scholar.supervisor?.name.toLowerCase().includes(searchValue);
-      default:
-        return true;
-    }
-  }).sort((a, b) => {
-    let valA, valB;
-    switch (sortType) {
-      case "name":
-        valA = a.name.toLowerCase();
-        valB = b.name.toLowerCase();
-        break;
-      case "registrationNumber":
-        valA = a.registrationNumber.toLowerCase();
-        valB = b.registrationNumber.toLowerCase();
-        break;
-      case "areaOfResearch":
-        valA = a.areaOfResearch.toLowerCase();
-        valB = b.areaOfResearch.toLowerCase();
-        break;
-      case "supervisor":
-        valA = a.supervisor?.name.toLowerCase() || '';
-        valB = b.supervisor?.name.toLowerCase() || '';
-        break;
-      default:
-        valA = a.name.toLowerCase();
-        valB = b.name.toLowerCase();
-    }
+  const filteredScholars = scholarsList
+    .filter((scholar) => {
+      const searchValue = searchTerm.toLowerCase();
+      switch (filterType) {
+        case "name":
+          return scholar.name.toLowerCase().includes(searchValue);
+        case "registrationNumber":
+          return scholar.registrationNumber.toLowerCase().includes(searchValue);
+        case "areaOfResearch":
+          return scholar.areaOfResearch.toLowerCase().includes(searchValue);
+        case "supervisor":
+          return scholar.supervisor?.name.toLowerCase().includes(searchValue);
+        default:
+          return true;
+      }
+    })
+    .sort((a, b) => {
+      let valA, valB;
+      switch (sortType) {
+        case "name":
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+          break;
+        case "registrationNumber":
+          valA = a.registrationNumber.toLowerCase();
+          valB = b.registrationNumber.toLowerCase();
+          break;
+        case "areaOfResearch":
+          valA = a.areaOfResearch.toLowerCase();
+          valB = b.areaOfResearch.toLowerCase();
+          break;
+        case "supervisor":
+          valA = a.supervisor?.name.toLowerCase() || "";
+          valB = b.supervisor?.name.toLowerCase() || "";
+          break;
+        default:
+          valA = a.name.toLowerCase();
+          valB = b.name.toLowerCase();
+      }
 
-    if (valA < valB) {
-      return sortOrder === "asc" ? -1 : 1;
-    }
-    if (valA > valB) {
-      return sortOrder === "asc" ? 1 : -1;
-    }
-    return 0;
-  });
+      if (valA < valB) {
+        return sortOrder === "asc" ? -1 : 1;
+      }
+      if (valA > valB) {
+        return sortOrder === "asc" ? 1 : -1;
+      }
+      return 0;
+    });
 
   const handleClearFilters = () => {
     setFilterType("name");
@@ -149,18 +152,20 @@ function Scholars() {
 
     // Build rows
     const rows = filteredScholars.map((scholar) => {
-      return visibleColumns.map((key) => {
-        switch (key) {
-          case "email":
-            return `"${scholar.contactInfo?.email || ""}"`;
-          case "phone":
-            return `"${scholar.contactInfo?.phone || ""}"`;
-          case "supervisor":
-            return `"${scholar.supervisor?.name || ""}"`;
-          default:
-            return `"${scholar[key] || ""}"`;
-        }
-      }).join(",");
+      return visibleColumns
+        .map((key) => {
+          switch (key) {
+            case "email":
+              return `"${scholar.contactInfo?.email || ""}"`;
+            case "phone":
+              return `"${scholar.contactInfo?.phone || ""}"`;
+            case "supervisor":
+              return `"${scholar.supervisor?.name || ""}"`;
+            default:
+              return `"${scholar[key] || ""}"`;
+          }
+        })
+        .join(",");
     });
 
     const csvContent = [headers.join(","), ...rows].join("\n");
@@ -170,12 +175,24 @@ function Scholars() {
     link.download = "scholars.csv";
     link.click();
     toast.success("Scholars data exported successfully!");
-};
+  };
 
   // Split scholars into current and completed based on dateOfCompletion
   const today = new Date();
-  const currentScholars = filteredScholars.filter(s => !s.dateOfCompletion || new Date(s.dateOfCompletion) >= today);
-  const completedScholars = filteredScholars.filter(s => s.dateOfCompletion && new Date(s.dateOfCompletion) < today);
+  let currentScholars = filteredScholars.filter(
+    (s) => !s.dateOfCompletion || new Date(s.dateOfCompletion) >= today
+  );
+  let completedScholars = filteredScholars.filter(
+    (s) => s.dateOfCompletion && new Date(s.dateOfCompletion) < today
+  );
+  function splitScholars() {
+    currentScholars = filteredScholars.filter(
+      (s) => !s.dateOfCompletion || new Date(s.dateOfCompletion) >= today
+    );
+    completedScholars = filteredScholars.filter(
+      (s) => s.dateOfCompletion && new Date(s.dateOfCompletion) < today
+    );
+  }
 
   if (isLoading) return <Spinner />;
 
@@ -197,7 +214,9 @@ function Scholars() {
             Filter by Registration Number
           </option>
           <option value="areaOfResearch">Filter by Area of Research</option>
-          {!isFaculty && <option value="supervisor">Filter by Supervisor</option>}
+          {!isFaculty && (
+            <option value="supervisor">Filter by Supervisor</option>
+          )}
         </select>
         <input
           type="text"
@@ -221,7 +240,9 @@ function Scholars() {
           className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="name">Sort by Name</option>
-          <option value="registrationNumber">Sort by Registration Number</option>
+          <option value="registrationNumber">
+            Sort by Registration Number
+          </option>
           <option value="areaOfResearch">Sort by Area of Research</option>
           {!isFaculty && <option value="supervisor">Sort by Supervisor</option>}
         </select>
@@ -274,7 +295,9 @@ function Scholars() {
                     }
                     className="mr-2"
                   />
-                  {columnKey.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
+                  {columnKey
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())}
                 </label>
               ))}
             </div>
@@ -282,29 +305,50 @@ function Scholars() {
         </div>
       </div>
 
-      <h3 className="font-bold text-2xl text-blue-900 mt-8 mb-4">Current Working Scholars</h3>
+      <h3 className="font-bold text-2xl text-blue-900 mt-8 mb-4">
+        Current Working Scholars
+      </h3>
       <div className="overflow-x-auto overflow-y-auto max-h-[40vh] flex justify-center mb-8">
         <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
           <thead>
             <tr className="bg-blue-100 text-black sticky top-0 z-0">
-              {columnVisibility.name && <th className="py-3 px-4 text-center">Name</th>}
-              {columnVisibility.registrationNumber && <th className="py-3 px-4 text-center">Registration Number</th>}
-              {columnVisibility.email && <th className="py-3 px-4 text-center">Email</th>}
-              {columnVisibility.phone && <th className="py-3 px-4 text-center">Phone</th>}
-              {columnVisibility.areaOfResearch && <th className="py-3 px-4 text-center">Area of Research</th>}
+              {columnVisibility.name && (
+                <th className="py-3 px-4 text-center">Name</th>
+              )}
+              {columnVisibility.registrationNumber && (
+                <th className="py-3 px-4 text-center">Registration Number</th>
+              )}
+              {columnVisibility.email && (
+                <th className="py-3 px-4 text-center">Email</th>
+              )}
+              {columnVisibility.phone && (
+                <th className="py-3 px-4 text-center">Phone</th>
+              )}
+              {columnVisibility.areaOfResearch && (
+                <th className="py-3 px-4 text-center">Area of Research</th>
+              )}
               <th className="py-3 px-4 text-center">Date of Joining</th>
               <th className="py-3 px-4 text-center">Date of Completion</th>
               {!isFaculty && columnVisibility.supervisor && (
                 <th className="py-3 px-4 text-center">Supervisor</th>
               )}
-              {columnVisibility.actions && isFaculty && <th className="py-3 px-4 text-center">Actions</th>}
-              {columnVisibility.actions && !isFaculty && <th className="py-3 px-4 text-center">Actions</th>}
+              {columnVisibility.actions && isFaculty && (
+                <th className="py-3 px-4 text-center">Actions</th>
+              )}
+              {columnVisibility.actions && !isFaculty && (
+                <th className="py-3 px-4 text-center">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody>
             {currentScholars.length === 0 ? (
               <tr>
-                <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 2} className="text-center py-8 text-gray-500">
+                <td
+                  colSpan={
+                    Object.values(columnVisibility).filter(Boolean).length + 2
+                  }
+                  className="text-center py-8 text-gray-500"
+                >
                   No current working scholars found.
                 </td>
               </tr>
@@ -314,15 +358,43 @@ function Scholars() {
                   key={scholar._id}
                   className="border-t border-gray-200 hover:bg-blue-50 transition"
                 >
-                  {columnVisibility.name && <td className="py-2 px-4 text-center">{scholar.name}</td>}
-                  {columnVisibility.registrationNumber && <td className="py-2 px-4 text-center">{scholar.registrationNumber}</td>}
-                  {columnVisibility.email && <td className="py-2 px-4 text-center">{scholar.contactInfo?.email}</td>}
-                  {columnVisibility.phone && <td className="py-2 px-4 text-center">{scholar.contactInfo?.phone}</td>}
-                  {columnVisibility.areaOfResearch && <td className="py-2 px-4 text-center">{scholar.areaOfResearch}</td>}
-                  <td className="py-2 px-4 text-center">{scholar.dateOfJoining ? new Date(scholar.dateOfJoining).toLocaleDateString() : "-"}</td>
-                  <td className="py-2 px-4 text-center">{scholar.dateOfCompletion ? new Date(scholar.dateOfCompletion).toLocaleDateString() : "-"}</td>
+                  {columnVisibility.name && (
+                    <td className="py-2 px-4 text-center">{scholar.name}</td>
+                  )}
+                  {columnVisibility.registrationNumber && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.registrationNumber}
+                    </td>
+                  )}
+                  {columnVisibility.email && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.contactInfo?.email}
+                    </td>
+                  )}
+                  {columnVisibility.phone && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.contactInfo?.phone}
+                    </td>
+                  )}
+                  {columnVisibility.areaOfResearch && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.areaOfResearch}
+                    </td>
+                  )}
+                  <td className="py-2 px-4 text-center">
+                    {scholar.dateOfJoining
+                      ? new Date(scholar.dateOfJoining).toLocaleDateString("en-GB")
+                      : "-"}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.dateOfCompletion
+                      ? new Date(scholar.dateOfCompletion).toLocaleDateString("en-GB")
+                      : "-"}
+                  </td>
                   {!isFaculty && columnVisibility.supervisor && (
-                    <td className="py-2 px-4 text-center">{scholar?.supervisor?.name}</td>
+                    <td className="py-2 px-4 text-center">
+                      {scholar?.supervisor?.name}
+                    </td>
                   )}
                   {columnVisibility.actions && (
                     <td className="py-2 px-4 flex gap-2 text-center">
@@ -361,29 +433,50 @@ function Scholars() {
         </table>
       </div>
 
-      <h3 className="font-bold text-2xl text-green-900 mt-8 mb-4">Completed Scholars</h3>
+      <h3 className="font-bold text-2xl text-green-900 mt-8 mb-4">
+        Completed Scholars
+      </h3>
       <div className="overflow-x-auto overflow-y-auto max-h-[40vh] flex justify-center mb-8">
         <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
           <thead>
             <tr className="bg-green-100 text-black sticky top-0 z-0">
-              {columnVisibility.name && <th className="py-3 px-4 text-center">Name</th>}
-              {columnVisibility.registrationNumber && <th className="py-3 px-4 text-center">Registration Number</th>}
-              {columnVisibility.email && <th className="py-3 px-4 text-center">Email</th>}
-              {columnVisibility.phone && <th className="py-3 px-4 text-center">Phone</th>}
-              {columnVisibility.areaOfResearch && <th className="py-3 px-4 text-center">Area of Research</th>}
+              {columnVisibility.name && (
+                <th className="py-3 px-4 text-center">Name</th>
+              )}
+              {columnVisibility.registrationNumber && (
+                <th className="py-3 px-4 text-center">Registration Number</th>
+              )}
+              {columnVisibility.email && (
+                <th className="py-3 px-4 text-center">Email</th>
+              )}
+              {columnVisibility.phone && (
+                <th className="py-3 px-4 text-center">Phone</th>
+              )}
+              {columnVisibility.areaOfResearch && (
+                <th className="py-3 px-4 text-center">Area of Research</th>
+              )}
               <th className="py-3 px-4 text-center">Date of Joining</th>
               <th className="py-3 px-4 text-center">Date of Completion</th>
               {!isFaculty && columnVisibility.supervisor && (
                 <th className="py-3 px-4 text-center">Supervisor</th>
               )}
-              {columnVisibility.actions && isFaculty && <th className="py-3 px-4 text-center">Actions</th>}
-              {columnVisibility.actions && !isFaculty && <th className="py-3 px-4 text-center">Actions</th>}
+              {columnVisibility.actions && isFaculty && (
+                <th className="py-3 px-4 text-center">Actions</th>
+              )}
+              {columnVisibility.actions && !isFaculty && (
+                <th className="py-3 px-4 text-center">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody>
             {completedScholars.length === 0 ? (
               <tr>
-                <td colSpan={Object.values(columnVisibility).filter(Boolean).length + 2} className="text-center py-8 text-gray-500">
+                <td
+                  colSpan={
+                    Object.values(columnVisibility).filter(Boolean).length + 2
+                  }
+                  className="text-center py-8 text-gray-500"
+                >
                   No completed scholars found.
                 </td>
               </tr>
@@ -393,15 +486,47 @@ function Scholars() {
                   key={scholar._id}
                   className="border-t border-gray-200 hover:bg-green-50 transition"
                 >
-                  {columnVisibility.name && <td className="py-2 px-4 text-center">{scholar.name}</td>}
-                  {columnVisibility.registrationNumber && <td className="py-2 px-4 text-center">{scholar.registrationNumber}</td>}
-                  {columnVisibility.email && <td className="py-2 px-4 text-center">{scholar.contactInfo?.email}</td>}
-                  {columnVisibility.phone && <td className="py-2 px-4 text-center">{scholar.contactInfo?.phone}</td>}
-                  {columnVisibility.areaOfResearch && <td className="py-2 px-4 text-center">{scholar.areaOfResearch}</td>}
-                  <td className="py-2 px-4 text-center">{scholar.dateOfJoining ? new Date(scholar.dateOfJoining).toLocaleDateString() : "-"}</td>
-                  <td className="py-2 px-4 text-center">{scholar.dateOfCompletion ? new Date(scholar.dateOfCompletion).toLocaleDateString() : "-"}</td>
+                  {columnVisibility.name && (
+                    <td className="py-2 px-4 text-center">{scholar.name}</td>
+                  )}
+                  {columnVisibility.registrationNumber && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.registrationNumber}
+                    </td>
+                  )}
+                  {columnVisibility.email && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.contactInfo?.email}
+                    </td>
+                  )}
+                  {columnVisibility.phone && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.contactInfo?.phone}
+                    </td>
+                  )}
+                  {columnVisibility.areaOfResearch && (
+                    <td className="py-2 px-4 text-center">
+                      {scholar.areaOfResearch}
+                    </td>
+                  )}
+                  <td className="py-2 px-4 text-center">
+                    {scholar.dateOfJoining
+                      ? new Date(scholar.dateOfJoining).toLocaleDateString(
+                          "en-GB"
+                        )
+                      : "-"}
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    {scholar.dateOfCompletion
+                      ? new Date(scholar.dateOfCompletion).toLocaleDateString(
+                          "en-GB"
+                        )
+                      : "-"}
+                  </td>
                   {!isFaculty && columnVisibility.supervisor && (
-                    <td className="py-2 px-4 text-center">{scholar?.supervisor?.name}</td>
+                    <td className="py-2 px-4 text-center">
+                      {scholar?.supervisor?.name}
+                    </td>
                   )}
                   {columnVisibility.actions && (
                     <td className="py-2 px-4 flex gap-2 text-center">

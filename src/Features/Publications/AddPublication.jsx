@@ -120,7 +120,7 @@ export default function AddPublication({ formData = {}, onClose, onUpdate, onFet
   async function onSubmit(data) {
     const payload = {
       title: data.title,
-      authors: [data.author],
+      authors: data.author.split(",").map((a) => a.trim()),
       publicationDate: data.publicationDate,
       journal: data.journalOrPublisher,
       doi: data.doi || undefined,
