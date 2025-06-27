@@ -228,6 +228,7 @@ export default function FullReport({ user }) {
           hodPart1: report.hodSection?.performance ?? testFacultyForm.hodPart1,
           hodPart2: report.hodSection?.potential ?? testFacultyForm.hodPart2,
           period: report.period ?? testFacultyForm.period,
+          year: report.year ?? testFacultyForm.year,
           status: report.status ?? testFacultyForm.status,
           facultySignature:
             report.facultySignature ?? testFacultyForm.facultySignature,

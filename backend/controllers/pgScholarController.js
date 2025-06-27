@@ -18,9 +18,9 @@ const getAllPGScholars = async (req, res) => {
     let scholars;
 
     if (req.user.role === "faculty") {
-      scholars = await PGScholar.find({ supervisor: req.user._id });
+      scholars = await PGScholar.find({ supervisor: req.user._id }).populate("supervisor", "email");
     } else {
-      scholars = await PGScholar.find().populate("supervisor", "name");
+      scholars = await PGScholar.find().populate("supervisor", "email");
     }
     res.json(scholars);
     console.log("Sample scholar:", scholars[0]);
