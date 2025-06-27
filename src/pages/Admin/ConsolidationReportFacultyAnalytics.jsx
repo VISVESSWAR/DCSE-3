@@ -15,6 +15,15 @@ export default function ConsolidationReportFacultyAnalytics() {
   const [loading, setLoading] = useState(true);
   const [loadingCR, setLoadingCR] = useState(true);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [selectedProgram, setSelectedProgram] = useState("");
+  const [selectedScholarStatus, setSelectedScholarStatus] = useState("");
+  const programOptions = ["UG", "PG Diploma", "M.Phil.", "Ph.D."];
+  const scholarStatusOptions = [
+    { value: "", label: "All Scholars" },
+    { value: "current", label: "Current Working" },
+    { value: "completed", label: "Completed" },
+  ];
 
   useEffect(() => {
     async function fetchData() {
@@ -63,22 +72,35 @@ export default function ConsolidationReportFacultyAnalytics() {
     return <div className="p-10 text-center text-red-600">Faculty not found: {facultyName}</div>;
   }
 
-  // Scholars supervised by this faculty
-  const supervisedScholars = scholars.filter(s => s.supervisor?.name === selectedFaculty.name);
+  // Semester options: always 1 to 8
+  const semesterOptions = Array.from({ length: 8 }, (_, i) => (i + 1).toString());
+
+  // Scholars supervised by this faculty, filtered by semester, program, and scholar status if selected
+  const supervisedScholars = scholars.filter(s => {
+    const isSupervisor = s.supervisor?.name === selectedFaculty.name;
+    const matchesSemester = !selectedSemester || s.semester === selectedSemester;
+    const matchesProgram = !selectedProgram || s.program === selectedProgram;
+    let matchesStatus = true;
+    if (selectedScholarStatus === "current") {
+      matchesStatus = !s.dateOfCompletion || new Date(s.dateOfCompletion) >= new Date();
+    } else if (selectedScholarStatus === "completed") {
+      matchesStatus = s.dateOfCompletion && new Date(s.dateOfCompletion) < new Date();
+    }
+    return isSupervisor && matchesSemester && matchesProgram && matchesStatus;
+  });
   const completedScholars = supervisedScholars.filter(s => s.dateOfCompletion && new Date(s.dateOfCompletion) < new Date());
   const presentScholars = supervisedScholars.filter(s => !s.dateOfCompletion || new Date(s.dateOfCompletion) >= new Date());
 
-  // Publications by this faculty
+  // Publications by this faculty (do not filter by semester)
   const facultyPublications = publications.filter(p => (Array.isArray(p.authors) ? p.authors.includes(selectedFaculty.name) : p.authors === selectedFaculty.name));
-
-  // OD event history for this faculty
+  // OD event history for this faculty (do not filter by semester)
   const facultyOD = odRequests.filter(r => r.name === selectedFaculty.name);
   const today = new Date();
   const eventsAttended = facultyOD.filter(ev => ev.endDate && new Date(ev.endDate) < today && (ev.status || '').toLowerCase() === 'approved');
   const ongoingEvents = facultyOD.filter(ev => ev.startDate && ev.endDate && new Date(ev.startDate) <= today && today <= new Date(ev.endDate) && (ev.status || '').toLowerCase() === 'approved');
   const upcomingEvents = facultyOD.filter(ev => ev.startDate && new Date(ev.startDate) > today);
 
-  // Export PDF handler using jsPDF's html() method
+  // PDF Export handler: include semester in title and only export filtered data
   const handleExportPDF = async () => {
     setIsExportingPDF(true);
     await new Promise((resolve) => setTimeout(resolve, 100)); // Wait for DOM update
@@ -91,7 +113,7 @@ export default function ConsolidationReportFacultyAnalytics() {
       html2canvas: { scale: 1 },
       callback: function (doc) {
         setIsExportingPDF(false);
-        doc.save(`faculty_analytics_${selectedFaculty.name.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`faculty_analytics_${selectedFaculty.name.replace(/\s+/g, '_')}${selectedSemester ? `_semester_${selectedSemester}` : ''}.pdf`);
       }
     });
   };
@@ -114,7 +136,7 @@ export default function ConsolidationReportFacultyAnalytics() {
         <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '12px', marginBottom: 8 }}>
           <div style={{ fontWeight: 700 }}>College of Engineering Guindy, Anna University</div>
           <div style={{ fontWeight: 700 }}>Department of Computer Science and Engineering</div>
-          <div style={{ fontWeight: 700 }}>Faculty Consolidation Report</div>
+          <div style={{ fontWeight: 700 }}>Faculty Consolidation Report{selectedSemester ? ` - Semester ${selectedSemester}` : ''}</div>
           <div style={{ borderTop: '0.5px solid #333333', margin: '8px 0 10px 0' }} />
         </div>
         {/* Basic Info */}
@@ -251,8 +273,39 @@ export default function ConsolidationReportFacultyAnalytics() {
 
   return (
     <div className="p-4 md:p-10 space-y-10">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">Analytics for {selectedFaculty.name}</h1>
+      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          <h1 className="text-3xl font-bold">Analytics for {selectedFaculty.name}</h1>
+          <select
+            className="border rounded px-4 py-2 min-w-[160px]"
+            value={selectedSemester}
+            onChange={e => setSelectedSemester(e.target.value)}
+          >
+            <option value="">All Semesters</option>
+            {semesterOptions.map(sem => (
+              <option key={sem} value={sem}>{sem}</option>
+            ))}
+          </select>
+          <select
+            className="border rounded px-4 py-2 min-w-[160px]"
+            value={selectedProgram}
+            onChange={e => setSelectedProgram(e.target.value)}
+          >
+            <option value="">All Programs</option>
+            {programOptions.map(prog => (
+              <option key={prog} value={prog}>{prog}</option>
+            ))}
+          </select>
+          <select
+            className="border rounded px-4 py-2 min-w-[160px]"
+            value={selectedScholarStatus}
+            onChange={e => setSelectedScholarStatus(e.target.value)}
+          >
+            {scholarStatusOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
         <button
           className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold"
           onClick={handleExportPDF}
@@ -264,7 +317,7 @@ export default function ConsolidationReportFacultyAnalytics() {
       <div className="pdf-title-section">
         <div>College of Engineering Guindy, Anna University</div>
         <div>Department of Computer Science and Engineering</div>
-        <div>Faculty Consolidation Report</div>
+        <div>Faculty Consolidation Report{selectedSemester ? ` - Semester ${selectedSemester}` : ''}</div>
         <hr className="pdf-title-divider" />
       </div>
       <div id="faculty-analytics-content" className="pdf-export pdf-sample-font pdf-export-content">
