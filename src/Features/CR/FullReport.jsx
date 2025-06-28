@@ -159,7 +159,7 @@ export default function FullReport({ user }) {
   const [fileUploads, setFileUploads] = useState([]);
   const [loading, setLoading] = useState(true);
   const isHOD = user?.role === "hod";
-  // console.log(user.role, isHOD);
+  const [odRequests, setOdRequests] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -244,6 +244,56 @@ export default function FullReport({ user }) {
 
     fetchData();
   }, [reportId, user]);
+
+  useEffect(() => {
+    async function fetchOD() {
+      try {
+        const api = `http://localhost:5000/api/odrequests/user/${user.userId}`;
+        const res = await axios.get(api, {
+          headers: { "x-user-email": user.email },
+        });
+        setOdRequests(res.data || []);
+        console.log("Fetched OD requests:", res.data);
+        res.data.forEach(r => {
+          console.log("OD request:", r._id, "startDate:", r.startDate, "eventType:", r.eventType);
+        });
+      } catch {
+        setOdRequests([]);
+        console.log("Failed to fetch OD requests");
+      }
+    }
+    if (user?.userId) fetchOD();
+  }, [user]);
+
+  // Filter OD requests by period/year if needed
+  const year = form.year || new Date().getFullYear();
+  const period = form.period || "december";
+  const start = new Date(`${year}-01-01`);
+  const end = new Date(`${year}-12-31`);
+  const periodStart = start;
+  const periodEnd = period === "june" ? new Date(`${year}-06-30`) : end;
+  console.log("periodStart", periodStart, "periodEnd", periodEnd);
+  // Robust, case-insensitive filtering
+  const filteredOD = odRequests.filter(r => {
+    if (!r.eventType) return false;
+    // Uncomment the next two lines to test without date filtering:
+    // return true;
+    const s = new Date(r.startDate);
+    return s >= periodStart && s <= periodEnd;
+  });
+  const odConferences = filteredOD.filter(
+    r => r.eventType && ["conference", "workshop"].includes(r.eventType.toLowerCase())
+  );
+  const odOther = filteredOD.filter(
+    r =>
+      r.eventType &&
+      !["conference", "workshop"].includes(
+        r.eventType.toLowerCase()
+      )
+  );
+  console.log("filteredOD", filteredOD);
+  console.log("odConferences", odConferences);
+  console.log("odOther", odOther);
 
   const handleFinalize = async () => {
     try {
@@ -462,6 +512,8 @@ export default function FullReport({ user }) {
         fileUploads={fileUploads}
         setFileUploads={setFileUploads}
         readOnly={user.role !== "faculty" || form.status !== "draft"}
+        odConferences={odConferences}
+        odOther={odOther}
       />
       {user.role === "faculty" &&  (
         <FacultyAttachments form={form} setForm={setForm} readOnly={form.status !== "draft"} />
