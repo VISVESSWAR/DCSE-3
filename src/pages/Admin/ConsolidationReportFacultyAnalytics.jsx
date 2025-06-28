@@ -3,7 +3,17 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { UserData } from "../../context/UserContext";
 import jsPDF from "jspdf";
-
+import logoPngPath from "../../assets/Anna_University_Logo.png";
+import cseLogoPath from "../../assets/CSE_logo.png";
+const universityLogoUrl = new URL(logoPngPath, import.meta.url).href;
+const cseLogoUrl = new URL(cseLogoPath, import.meta.url).href;
+function groupBy(arr, keyFn) {
+  return arr.reduce((acc, item) => {
+    const key = keyFn(item);
+    acc[key] = acc[key] ? acc[key] + 1 : 1;
+    return acc;
+  }, {});
+}
 export default function ConsolidationReportFacultyAnalytics() {
   const { user } = UserData();
   const { facultyName } = useParams();
@@ -53,6 +63,28 @@ export default function ConsolidationReportFacultyAnalytics() {
     }
     fetchCRReports();
   }, [user.email]);
+  const [cseLogo, setCseLogo] = useState("");
+const [universityLogo, setUniversityLogo] = useState("");
+
+
+useEffect(() => {
+  const fetchLogos = async () => {
+    const loadAsBase64 = async (url, setter) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => setter(reader.result);
+      reader.readAsDataURL(blob);
+    };
+
+    await Promise.all([
+      loadAsBase64(universityLogoUrl, setUniversityLogo),
+      loadAsBase64(cseLogoUrl, setCseLogo),
+    ]);
+  };
+
+  fetchLogos();
+}, []);
 
   if (loading || loadingCR) return <div className="p-10 text-center">Loading Faculty Analytics...</div>;
 
@@ -111,6 +143,10 @@ export default function ConsolidationReportFacultyAnalytics() {
     return (
       <div id="faculty-analytics-content" style={{ width: '580px', margin: '0 auto', background: '#fff', color: '#000', fontSize: '9px', padding: 12, paddingRight: 10, fontFamily: 'Times New Roman, Times, serif' }}>
         {/* Title */}
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+    <img src={universityLogo} alt="University Logo" width="100" height="100"/>
+    <img src={cseLogo} alt="Department Logo" width="100" height="100" />
+  </div>
         <div style={{ textAlign: 'center', fontWeight: 700, fontSize: '12px', marginBottom: 8 }}>
           <div style={{ fontWeight: 700 }}>College of Engineering Guindy, Anna University</div>
           <div style={{ fontWeight: 700 }}>Department of Computer Science and Engineering</div>
@@ -258,6 +294,10 @@ export default function ConsolidationReportFacultyAnalytics() {
       </div>
       {/* Report Title Section for PDF Export - always at the top */}
       <div className="pdf-title-section">
+         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
+    <img src={universityLogo} alt="University Logo" width="100" height="100"/>
+    <img src={cseLogo} alt="Department Logo" width="100" height="100" />
+  </div>
         <div>College of Engineering Guindy, Anna University</div>
         <div>Department of Computer Science and Engineering</div>
         <div>Faculty Consolidation Report</div>

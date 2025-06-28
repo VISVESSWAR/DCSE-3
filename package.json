@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "postbuild": "npx replace-in-file 'oklch\\([^)]+\\)' '#888' ./dist/assets/*.css"
+    "postbuild": "npx replace-in-file '#333333\\([^)]+\\)' '#888' ./dist/assets/*.css"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.8",

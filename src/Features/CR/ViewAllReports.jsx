@@ -257,12 +257,14 @@ export default function AllCRReports() {
                         >
                           Full Report
                         </button>
-                        <button
-                          onClick={() => handleDelete(report._id)}
-                          className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
-                        >
-                          delete
-                        </button>
+                        {user.role === "faculty" && (
+                          <button
+                            onClick={() => handleDelete(report._id)}
+                            className="bg-[#145DA0] text-white px-3 py-1 rounded hover:opacity-90 transition"
+                          >
+                            delete
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))

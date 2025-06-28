@@ -6,7 +6,10 @@ import html2canvas from "html2canvas";
 import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, CartesianGrid } from 'recharts';
-
+import logoPngPath from "../../assets/Anna_University_Logo.png";
+import cseLogoPath from "../../assets/CSE_logo.png";
+const universityLogoUrl = new URL(logoPngPath, import.meta.url).href;
+const cseLogoUrl = new URL(cseLogoPath, import.meta.url).href;
 function groupBy(arr, keyFn) {
   return arr.reduce((acc, item) => {
     const key = keyFn(item);
@@ -25,6 +28,7 @@ function getYears(arr, dateKey) {
 
 // --- Menu component ---
 export function ConsolidationReportMenu() {
+
   const navigate = useNavigate();
   return (
     <div className="flex flex-col min-h-[70vh] justify-between items-center p-10">
@@ -62,7 +66,7 @@ export function ConsolidationReportMenu() {
     </div>
   );
 }
-
+console.log("LOGO PATH", universityLogoUrl,cseLogoUrl);
 // --- Scholars section: all detailed report content ---
 export function ConsolidationReportScholars() {
   const { user } = UserData();
@@ -88,6 +92,28 @@ export function ConsolidationReportScholars() {
   const [facultyPosition, setFacultyPosition] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+const [cseLogo, setCseLogo] = useState("");
+const [universityLogo, setUniversityLogo] = useState("");
+
+
+useEffect(() => {
+  const fetchLogos = async () => {
+    const loadAsBase64 = async (url, setter) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => setter(reader.result);
+      reader.readAsDataURL(blob);
+    };
+
+    await Promise.all([
+      loadAsBase64(universityLogoUrl, setUniversityLogo),
+      loadAsBase64(cseLogoUrl, setCseLogo),
+    ]);
+  };
+
+  fetchLogos();
+}, []);
 
   // Drilldown state
   const [drilldown, setDrilldown] = useState({ open: false, title: "", data: [] });
@@ -481,12 +507,40 @@ export function ConsolidationReportScholars() {
       }
     }
   }
+// const [universityLogo, setUniversityLogo] = useState("");
 
+// useEffect(() => {
+//   fetch("/src/assets/AnnaUniversityLogo.txt")
+//     .then(res => res.text())
+//     .then(setUniversityLogo);
+// }, []);
+// const [cseLogo, setCseLogo] = useState("");
+
+// useEffect(() => {
+//   fetch("/src/assets/CSELogo.txt")
+//     .then(res => res.text())
+//     .then(setCseLogo);
+// }, []);
   // Fallback: Text-based PDF export
   function exportTextPDF() {
     const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
     let y = 40;
-    // Heading (logos removed to avoid PNG errors)
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const logoWidth = 100;
+    const logoHeight = 100;
+    const logoY = y;
+
+    console.log(universityLogo,cseLogo)
+      if (universityLogo) {
+    pdf.addImage(universityLogo, "PNG", 40, logoY, logoWidth, logoHeight);
+  }
+      if (cseLogo) {
+    pdf.addImage(cseLogo, "PNG", pageWidth - 40 - logoWidth, logoY, logoWidth, logoHeight);
+  }
+
+
+    // Title block
+    y += logoHeight + 10; 
     pdf.setFontSize(20);
     pdf.setFont(undefined, 'bold');
     pdf.text("College of Engineering Guindy, Anna University", pdf.internal.pageSize.getWidth() / 2, y + 30, { align: 'center' });
@@ -628,6 +682,7 @@ export function ConsolidationReportScholars() {
       <div id="pdf-test-div" style={{display: 'none'}}>PDF Export Test: If you see this in your PDF, export is working.</div>
       <div className="flex justify-end mb-4">
         <button
+        disabled={!universityLogo || !cseLogo}
           onClick={handleExportPDF}
           className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold"
         >
@@ -956,10 +1011,50 @@ export function ConsolidationReportOD() {
     }
   }
 
+  const [cseLogo, setCseLogo] = useState("");
+const [universityLogo, setUniversityLogo] = useState("");
+
+
+useEffect(() => {
+  const fetchLogos = async () => {
+    const loadAsBase64 = async (url, setter) => {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => setter(reader.result);
+      reader.readAsDataURL(blob);
+    };
+
+    await Promise.all([
+      loadAsBase64(universityLogoUrl, setUniversityLogo),
+      loadAsBase64(cseLogoUrl, setCseLogo),
+    ]);
+  };
+
+  fetchLogos();
+}, []);
   // Text-based PDF fallback for OD
   function exportODTextPDF() {
     const pdf = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
     let y = 40;
+
+
+ const pageWidth = pdf.internal.pageSize.getWidth();
+    const logoWidth = 100;
+    const logoHeight = 100;
+    const logoY = y;
+
+    console.log(universityLogo,cseLogo)
+      if (universityLogo) {
+    pdf.addImage(universityLogo, "PNG", 40, logoY, logoWidth, logoHeight);
+  }
+      if (cseLogo) {
+    pdf.addImage(cseLogo, "PNG", pageWidth - 40 - logoWidth, logoY, logoWidth, logoHeight);
+  }
+
+
+    // Title block
+    y += logoHeight + 10; 
     pdf.setFontSize(20);
     pdf.setFont(undefined, 'bold');
     pdf.text("College of Engineering Guindy, Anna University", pdf.internal.pageSize.getWidth() / 2, y + 30, { align: 'center' });
@@ -1098,6 +1193,7 @@ export function ConsolidationReportOD() {
     <div className="p-4 md:p-10 space-y-10">
       <div className="flex justify-end mb-4">
         <button
+        disabled={!universityLogo || !cseLogo}
           onClick={handleExportODPDF}
           className="bg-blue-600 text-white px-6 py-2 rounded shadow hover:bg-blue-700 transition font-semibold"
         >
