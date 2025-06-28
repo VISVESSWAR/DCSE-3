@@ -54,8 +54,17 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   }
 
   // Get facultyEmail and facultyId robustly
-  const facultyEmail = user.email || faculty?.email;
-  const facultyId = user.facultyId || user.userId || user._id || faculty?.facultyId || faculty?._id;
+  const facultyName = faculty?.name;
+  const facultyEmail = faculty?.email;
+  const facultyNameNorm = (facultyName || "").trim().toLowerCase();
+  const facultyEmailNorm = (facultyEmail || "").trim().toLowerCase();
+  const facultyId =
+    faculty?.facultyId ||
+    faculty?.userId ||
+    faculty?._id ||
+    user.facultyId ||
+    user.userId ||
+    user._id;
   const facultyIdStr = String(facultyId);
 
   // Helper to robustly extract supervisor ID as string
@@ -87,7 +96,7 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   const obtained = scholars.filter(s =>
     s.dateOfCompletion &&
     (
-      getSupervisorId(s) === String(facultyId) ||
+      getSupervisorId(s) === facultyIdStr ||
       s.supervisor?.email === facultyEmail
     )
   );
@@ -98,7 +107,7 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
     new Date(s.dateOfJoining) <= periodEnd &&
     (!s.dateOfCompletion || new Date(s.dateOfCompletion) > periodEnd) &&
     (
-      getSupervisorId(s) === String(facultyId) ||
+      getSupervisorId(s) === facultyIdStr ||
       s.supervisor?.email === facultyEmail
     )
   );
@@ -107,7 +116,9 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   const filteredPublications = publications.filter(pub =>
     pub.authors &&
     pub.authors.some(
-      author => author === faculty?.name || author === user.name
+      author =>
+        (facultyName && author.trim().toLowerCase() === facultyNameNorm) ||
+        (facultyEmail && author.trim().toLowerCase() === facultyEmailNorm)
     ) &&
     new Date(pub.publicationDate) >= periodStart &&
     new Date(pub.publicationDate) <= periodEnd
@@ -122,6 +133,13 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   console.log('DEBUG: obtained', obtained);
   console.log('DEBUG: registered', registered);
   console.log('DEBUG: filteredPublications', filteredPublications);
+
+  // Debug logs for publication matching
+  console.log('Faculty name for pub match:', facultyNameNorm);
+  console.log('Faculty email for pub match:', facultyEmailNorm);
+  publications.forEach(pub => {
+    console.log('Pub:', pub.title, '| Authors:', pub.authors);
+  });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -405,7 +423,7 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
                 step="1"
                 readOnly
                 className="w-full border rounded p-2 text-lg text-center bg-gray-50"
-                value={loading ? "" : obtainedCounts[d.key] || 0}
+                value={form.researchGuidance.qualified[d.key] || 0}
               />
             </div>
           ))}
@@ -427,7 +445,7 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
                 step="1"
                 readOnly
                 className="w-full border rounded p-2 text-lg text-center bg-gray-50"
-                value={loading ? "" : registeredCounts[d.key] || 0}
+                value={form.researchGuidance.registered[d.key] || 0}
               />
             </div>
           ))}
