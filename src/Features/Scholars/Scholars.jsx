@@ -10,6 +10,8 @@ function Scholars() {
   const { user } = UserData();
 
   const isFaculty = user.role === "faculty";
+  const isHod = user.role === "hod";
+  const isAdmin = user.role === "admin";
   const [scholarsList, setScholarsList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [filterType, setFilterType] = useState("name");
@@ -23,7 +25,9 @@ function Scholars() {
     phone: true,
     areaOfResearch: true,
     supervisor: true,
-    actions: true,
+    actions: !(user.role === 'admin'),
+    semester: true,
+    program: true,
   });
   const [showColumnDropdown, setShowColumnDropdown] = useState(false);
 
@@ -308,35 +312,41 @@ function Scholars() {
       <h3 className="font-bold text-2xl text-blue-900 mt-8 mb-4">
         Current Working Scholars
       </h3>
-      <div className="overflow-x-auto overflow-y-auto max-h-[40vh] flex justify-center mb-8">
-        <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
+      <div className="w-full mb-8">
+        <table className="w-full bg-white rounded-xl shadow-lg border border-gray-300 text-sm">
           <thead>
             <tr className="bg-blue-100 text-black sticky top-0 z-0">
               {columnVisibility.name && (
-                <th className="py-3 px-4 text-center">Name</th>
+                <th className="py-1 px-2 text-center">Name</th>
               )}
               {columnVisibility.registrationNumber && (
-                <th className="py-3 px-4 text-center">Registration Number</th>
+                <th className="py-1 px-2 text-center">Registration Number</th>
               )}
               {columnVisibility.email && (
-                <th className="py-3 px-4 text-center">Email</th>
+                <th className="py-1 px-2 text-center">Email</th>
               )}
               {columnVisibility.phone && (
-                <th className="py-3 px-4 text-center">Phone</th>
+                <th className="py-1 px-2 text-center">Phone</th>
               )}
               {columnVisibility.areaOfResearch && (
-                <th className="py-3 px-4 text-center">Area of Research</th>
+                <th className="py-1 px-2 text-center">Area of Research</th>
               )}
-              <th className="py-3 px-4 text-center">Date of Joining</th>
-              <th className="py-3 px-4 text-center">Date of Completion</th>
+              {columnVisibility.semester && (
+                <th className="py-1 px-2 text-center">Semester</th>
+              )}
+              {columnVisibility.program && (
+                <th className="py-1 px-2 text-center">Program</th>
+              )}
+              <th className="py-1 px-2 text-center">Date of Joining</th>
+              <th className="py-1 px-2 text-center">Date of Completion</th>
               {!isFaculty && columnVisibility.supervisor && (
-                <th className="py-3 px-4 text-center">Supervisor</th>
+                <th className="py-1 px-2 text-center">Supervisor</th>
               )}
-              {columnVisibility.actions && isFaculty && (
-                <th className="py-3 px-4 text-center">Actions</th>
+              {columnVisibility.actions && !isAdmin && isFaculty && (
+                <th className="py-1 px-2 text-center">Actions</th>
               )}
-              {columnVisibility.actions && !isFaculty && (
-                <th className="py-3 px-4 text-center">Actions</th>
+              {columnVisibility.actions && !isAdmin && !isFaculty && (
+                <th className="py-1 px-2 text-center">Actions</th>
               )}
             </tr>
           </thead>
@@ -359,45 +369,51 @@ function Scholars() {
                   className="border-t border-gray-200 hover:bg-blue-50 transition"
                 >
                   {columnVisibility.name && (
-                    <td className="py-2 px-4 text-center">{scholar.name}</td>
+                    <td className="py-1 px-2 text-center">{scholar.name}</td>
                   )}
                   {columnVisibility.registrationNumber && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.registrationNumber}
                     </td>
                   )}
                   {columnVisibility.email && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.contactInfo?.email}
                     </td>
                   )}
                   {columnVisibility.phone && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.contactInfo?.phone}
                     </td>
                   )}
                   {columnVisibility.areaOfResearch && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.areaOfResearch}
                     </td>
                   )}
-                  <td className="py-2 px-4 text-center">
+                  {columnVisibility.semester && (
+                    <td className="py-1 px-2 text-center">{scholar.semester}</td>
+                  )}
+                  {columnVisibility.program && (
+                    <td className="py-1 px-2 text-center">{scholar.program}</td>
+                  )}
+                  <td className="py-1 px-2 text-center">
                     {scholar.dateOfJoining
                       ? new Date(scholar.dateOfJoining).toLocaleDateString("en-GB")
                       : "-"}
                   </td>
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-1 px-2 text-center">
                     {scholar.dateOfCompletion
                       ? new Date(scholar.dateOfCompletion).toLocaleDateString("en-GB")
                       : "-"}
                   </td>
                   {!isFaculty && columnVisibility.supervisor && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar?.supervisor?.name}
                     </td>
                   )}
-                  {columnVisibility.actions && (
-                    <td className="py-2 px-4 flex gap-2 text-center">
+                  {columnVisibility.actions && !isAdmin && (
+                    <td className="py-1 px-2 flex gap-2 text-center">
                       {isFaculty && (
                         <>
                           <Modal>
@@ -436,35 +452,41 @@ function Scholars() {
       <h3 className="font-bold text-2xl text-green-900 mt-8 mb-4">
         Completed Scholars
       </h3>
-      <div className="overflow-x-auto overflow-y-auto max-h-[40vh] flex justify-center mb-8">
-        <table className="min-w-[800px] bg-white rounded-xl shadow-lg border border-gray-300">
+      <div className="w-full mb-8">
+        <table className="w-full bg-white rounded-xl shadow-lg border border-gray-300 text-sm">
           <thead>
             <tr className="bg-green-100 text-black sticky top-0 z-0">
               {columnVisibility.name && (
-                <th className="py-3 px-4 text-center">Name</th>
+                <th className="py-1 px-2 text-center">Name</th>
               )}
               {columnVisibility.registrationNumber && (
-                <th className="py-3 px-4 text-center">Registration Number</th>
+                <th className="py-1 px-2 text-center">Registration Number</th>
               )}
               {columnVisibility.email && (
-                <th className="py-3 px-4 text-center">Email</th>
+                <th className="py-1 px-2 text-center">Email</th>
               )}
               {columnVisibility.phone && (
-                <th className="py-3 px-4 text-center">Phone</th>
+                <th className="py-1 px-2 text-center">Phone</th>
               )}
               {columnVisibility.areaOfResearch && (
-                <th className="py-3 px-4 text-center">Area of Research</th>
+                <th className="py-1 px-2 text-center">Area of Research</th>
               )}
-              <th className="py-3 px-4 text-center">Date of Joining</th>
-              <th className="py-3 px-4 text-center">Date of Completion</th>
+              {columnVisibility.semester && (
+                <th className="py-1 px-2 text-center">Semester</th>
+              )}
+              {columnVisibility.program && (
+                <th className="py-1 px-2 text-center">Program</th>
+              )}
+              <th className="py-1 px-2 text-center">Date of Joining</th>
+              <th className="py-1 px-2 text-center">Date of Completion</th>
               {!isFaculty && columnVisibility.supervisor && (
-                <th className="py-3 px-4 text-center">Supervisor</th>
+                <th className="py-1 px-2 text-center">Supervisor</th>
               )}
-              {columnVisibility.actions && isFaculty && (
-                <th className="py-3 px-4 text-center">Actions</th>
+              {columnVisibility.actions && !isAdmin && isFaculty && (
+                <th className="py-1 px-2 text-center">Actions</th>
               )}
-              {columnVisibility.actions && !isFaculty && (
-                <th className="py-3 px-4 text-center">Actions</th>
+              {columnVisibility.actions && !isAdmin && !isFaculty && (
+                <th className="py-1 px-2 text-center">Actions</th>
               )}
             </tr>
           </thead>
@@ -487,36 +509,42 @@ function Scholars() {
                   className="border-t border-gray-200 hover:bg-green-50 transition"
                 >
                   {columnVisibility.name && (
-                    <td className="py-2 px-4 text-center">{scholar.name}</td>
+                    <td className="py-1 px-2 text-center">{scholar.name}</td>
                   )}
                   {columnVisibility.registrationNumber && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.registrationNumber}
                     </td>
                   )}
                   {columnVisibility.email && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.contactInfo?.email}
                     </td>
                   )}
                   {columnVisibility.phone && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.contactInfo?.phone}
                     </td>
                   )}
                   {columnVisibility.areaOfResearch && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar.areaOfResearch}
                     </td>
                   )}
-                  <td className="py-2 px-4 text-center">
+                  {columnVisibility.semester && (
+                    <td className="py-1 px-2 text-center">{scholar.semester}</td>
+                  )}
+                  {columnVisibility.program && (
+                    <td className="py-1 px-2 text-center">{scholar.program}</td>
+                  )}
+                  <td className="py-1 px-2 text-center">
                     {scholar.dateOfJoining
                       ? new Date(scholar.dateOfJoining).toLocaleDateString(
                           "en-GB"
                         )
                       : "-"}
                   </td>
-                  <td className="py-2 px-4 text-center">
+                  <td className="py-1 px-2 text-center">
                     {scholar.dateOfCompletion
                       ? new Date(scholar.dateOfCompletion).toLocaleDateString(
                           "en-GB"
@@ -524,12 +552,12 @@ function Scholars() {
                       : "-"}
                   </td>
                   {!isFaculty && columnVisibility.supervisor && (
-                    <td className="py-2 px-4 text-center">
+                    <td className="py-1 px-2 text-center">
                       {scholar?.supervisor?.name}
                     </td>
                   )}
-                  {columnVisibility.actions && (
-                    <td className="py-2 px-4 flex gap-2 text-center">
+                  {columnVisibility.actions && !isAdmin && (
+                    <td className="py-1 px-2 flex gap-2 text-center">
                       {isFaculty && (
                         <>
                           <Modal>

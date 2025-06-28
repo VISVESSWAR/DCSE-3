@@ -787,6 +787,8 @@ useEffect(() => {
                 <tr>
                   <th className="px-3 py-2 text-left">Name</th>
                   <th className="px-3 py-2 text-left">Area</th>
+                  <th className="px-3 py-2 text-left">Semester</th>
+                  <th className="px-3 py-2 text-left">Program</th>
                   <th className="px-3 py-2 text-left">Supervisor</th>
                   <th className="px-3 py-2 text-left">Joining Date</th>
                   <th className="px-3 py-2 text-left">Expected Completion</th>
@@ -794,12 +796,14 @@ useEffect(() => {
               </thead>
               <tbody>
                 {currentScholarsList.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-4">No current scholars found.</td></tr>
+                  <tr><td colSpan={7} className="text-center py-4">No current scholars found.</td></tr>
                 ) : (
                   currentScholarsList.map(s => (
                     <tr key={s._id} className="border-b hover:bg-blue-50">
                       <td className="px-3 py-2">{s.name}</td>
                       <td className="px-3 py-2">{s.areaOfResearch || '-'}</td>
+                      <td className="px-3 py-2">{s.semester || '-'}</td>
+                      <td className="px-3 py-2">{s.program || '-'}</td>
                       <td className="px-3 py-2">{s.supervisor?.name || '-'}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfJoining)}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfCompletion)}</td>
@@ -819,6 +823,8 @@ useEffect(() => {
                 <tr>
                   <th className="px-3 py-2 text-left">Name</th>
                   <th className="px-3 py-2 text-left">Area</th>
+                  <th className="px-3 py-2 text-left">Semester</th>
+                  <th className="px-3 py-2 text-left">Program</th>
                   <th className="px-3 py-2 text-left">Supervisor</th>
                   <th className="px-3 py-2 text-left">Joining Date</th>
                   <th className="px-3 py-2 text-left">Completion Date</th>
@@ -826,12 +832,14 @@ useEffect(() => {
               </thead>
               <tbody>
                 {completedScholarsList.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-4">No completed scholars found.</td></tr>
+                  <tr><td colSpan={7} className="text-center py-4">No completed scholars found.</td></tr>
                 ) : (
                   completedScholarsList.map(s => (
                     <tr key={s._id} className="border-b hover:bg-green-50">
                       <td className="px-3 py-2">{s.name}</td>
                       <td className="px-3 py-2">{s.areaOfResearch || '-'}</td>
+                      <td className="px-3 py-2">{s.semester || '-'}</td>
+                      <td className="px-3 py-2">{s.program || '-'}</td>
                       <td className="px-3 py-2">{s.supervisor?.name || '-'}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfJoining)}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfCompletion)}</td>
@@ -851,6 +859,8 @@ useEffect(() => {
                 <tr>
                   <th className="px-3 py-2 text-left">Name</th>
                   <th className="px-3 py-2 text-left">Area</th>
+                  <th className="px-3 py-2 text-left">Semester</th>
+                  <th className="px-3 py-2 text-left">Program</th>
                   <th className="px-3 py-2 text-left">Supervisor</th>
                   <th className="px-3 py-2 text-left">Joining Date</th>
                   <th className="px-3 py-2 text-left">Expected Completion</th>
@@ -858,12 +868,14 @@ useEffect(() => {
               </thead>
               <tbody>
                 {nearingCompletionList.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-4">No scholars nearing completion.</td></tr>
+                  <tr><td colSpan={7} className="text-center py-4">No scholars nearing completion.</td></tr>
                 ) : (
                   nearingCompletionList.map(s => (
                     <tr key={s._id} className="border-b hover:bg-yellow-50">
                       <td className="px-3 py-2">{s.name}</td>
                       <td className="px-3 py-2">{s.areaOfResearch || '-'}</td>
+                      <td className="px-3 py-2">{s.semester || '-'}</td>
+                      <td className="px-3 py-2">{s.program || '-'}</td>
                       <td className="px-3 py-2">{s.supervisor?.name || '-'}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfJoining)}</td>
                       <td className="px-3 py-2">{formatDate(s.dateOfCompletion)}</td>

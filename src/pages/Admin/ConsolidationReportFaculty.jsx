@@ -362,8 +362,15 @@ export default function ConsolidationReportFaculty() {
     if (scholarsSupervised.length > 0) {
       autoTable(pdf, {
         startY: y,
-        head: [["Name", "Area", "Joining", "Completion"]],
-        body: scholarsSupervised.map(s => [s.name, s.areaOfResearch || '-', s.dateOfJoining ? new Date(s.dateOfJoining).toLocaleDateString('en-IN') : '-', s.dateOfCompletion ? new Date(s.dateOfCompletion).toLocaleDateString('en-IN') : '-']),
+        head: [["Name", "Area", "Semester", "Program", "Joining", "Completion"]],
+        body: scholarsSupervised.map(s => [
+          s.name,
+          s.areaOfResearch || '-',
+          s.semester || '-',
+          s.program || '-',
+          s.dateOfJoining ? new Date(s.dateOfJoining).toLocaleDateString('en-IN') : '-',
+          s.dateOfCompletion ? new Date(s.dateOfCompletion).toLocaleDateString('en-IN') : '-'
+        ]),
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 4 },
         margin: { left: 40, right: 40 },
@@ -681,7 +688,32 @@ export default function ConsolidationReportFaculty() {
             {/* Scholars Supervised */}
             <div>
               <h3 className="font-bold mb-2">Scholars Supervised</h3>
-              <div>{scholars.filter(s => s.supervisor?.name === selectedFaculty.name).length}</div>
+              <div className="overflow-x-auto">
+                <table className="min-w-[600px] bg-gray-50 rounded shadow text-sm mt-2">
+                  <thead className="bg-blue-100">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Name</th>
+                      <th className="px-3 py-2 text-left">Area</th>
+                      <th className="px-3 py-2 text-left">Semester</th>
+                      <th className="px-3 py-2 text-left">Program</th>
+                      <th className="px-3 py-2 text-left">Joining</th>
+                      <th className="px-3 py-2 text-left">Completion</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {scholars.filter(s => s.supervisor?.name === selectedFaculty.name).map((s, idx) => (
+                      <tr key={s._id || idx} className="border-b">
+                        <td className="px-3 py-2">{s.name}</td>
+                        <td className="px-3 py-2">{s.areaOfResearch || '-'}</td>
+                        <td className="px-3 py-2">{s.semester || '-'}</td>
+                        <td className="px-3 py-2">{s.program || '-'}</td>
+                        <td className="px-3 py-2">{s.dateOfJoining ? new Date(s.dateOfJoining).toLocaleDateString('en-IN') : '-'}</td>
+                        <td className="px-3 py-2">{s.dateOfCompletion ? new Date(s.dateOfCompletion).toLocaleDateString('en-IN') : '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </section>
