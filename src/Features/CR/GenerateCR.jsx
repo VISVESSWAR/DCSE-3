@@ -6,65 +6,57 @@ import SignatureCanvas from 'react-signature-canvas';
 
 const API_BASE = "http://localhost:5000/api/crreport";
 
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+
+function CreateNewCRBox({ onCreate }) {
+  const [selectedPeriod, setSelectedPeriod] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const handleCreate = () => {
+    if (!selectedPeriod || !selectedYear) {
+      alert("Please select both period and year");
+      return;
+    }
+    onCreate({ period: selectedPeriod, year: selectedYear });
+  };
+  return (
+    <div className="border rounded p-6 max-w-lg mx-auto mt-8">
+      <h2 className="text-2xl font-bold text-[#145DA0] mb-2">Create New CR Report</h2>
+      <div className="mb-4 font-semibold">Report for the Year / Half-year ending:</div>
+      <div className="flex gap-4 mb-6">
+        <select
+          value={selectedPeriod}
+          onChange={e => setSelectedPeriod(e.target.value)}
+          className="border rounded px-4 py-2"
+        >
+          <option value="">Select Period</option>
+          <option value="june">June 30</option>
+          <option value="december">December 31</option>
+        </select>
+        <select
+          value={selectedYear}
+          onChange={e => setSelectedYear(e.target.value)}
+          className="border rounded px-4 py-2"
+        >
+          <option value="">Select Year</option>
+          {years.map(y => (
+            <option key={y} value={y}>{y}</option>
+          ))}
+        </select>
+      </div>
+      <button
+        className="bg-green-600 text-white px-8 py-3 rounded text-xl"
+        onClick={handleCreate}
+      >
+        Create New Report
+      </button>
+    </div>
+  );
+}
+
 export default function GenerateCR() {
   const { user } = UserData();
-  const [form, setForm] = useState({
-    year: new Date().getFullYear(),
-    period: 'december',
-    selfAssessment: {
-      examResults: "",
-      membership: "",
-      counts: "",
-      contributions: "",
-      attachments: [],
-    },
-    hodSection: {
-      performance: {
-        controlClass: "",
-        studentCounseling: "",
-        avgPassPercentage: "",
-        classRecords: "",
-        contributions: "",
-        researchAbility: "",
-        professionalStanding: "",
-        extraCurricular: "",
-        willingness: "",
-        lapses: "",
-        overallRating: "",
-      },
-      potential: {
-        physicalCapacity: "",
-        stability: "",
-        mentalCapacity: "",
-        aptitude: "",
-        abilityToManage: "",
-        getAlong: "",
-        academicLeadership: "",
-        generalAppraisal: "",
-        specialRemarks: "",
-        fitness: "",
-      },
-      performanceAssessmentSignature: {
-        signatureImage: null,
-        date: null,
-        station: "DCSE, AU, Chennai"
-      },
-      potentialAssessmentSignature: {
-        signatureImage: null,
-        date: null,
-        station: "DCSE, AU, Chennai"
-      }
-    },
-    facultyAcknowledgement: {
-        remarks: "",
-        date: null,
-        signatureImage: null,
-    },
-    facultyFinalSignature: {
-        signatureImage: null,
-        date: null,
-    }
-  });
+  const [form, setForm] = useState(null);
   const [facultyProfile, setFacultyProfile] = useState({});
   const [isHOD, setIsHOD] = useState(false);
   const [pendingCRs, setPendingCRs] = useState([]);
@@ -76,10 +68,6 @@ export default function GenerateCR() {
   const facultyFinalSignRef = useRef();
   const hodPart1SignRef = useRef(); 
   const hodPart2SignRef = useRef();
-
-  // Define years array at the top to avoid hoisting issues
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
   useEffect(() => {
     setIsHOD(user?.role === "hod");
@@ -113,6 +101,47 @@ export default function GenerateCR() {
       toast.error("Failed to fetch pending CR requests");
     }
   };
+
+  const handleCreateReport = ({ period, year }) => {
+    setForm({
+      year,
+      period,
+      selfAssessment: {
+        examResults: "",
+        membership: "",
+        counts: "",
+        contributions: "",
+        attachments: [],
+      },
+      hodSection: {
+        performance: {},
+        potential: {},
+        performanceAssessmentSignature: {
+          signatureImage: null,
+          date: null,
+          station: "DCSE, AU, Chennai"
+        },
+        potentialAssessmentSignature: {
+          signatureImage: null,
+          date: null,
+          station: "DCSE, AU, Chennai"
+        }
+      },
+      facultyAcknowledgement: {
+        remarks: "",
+        date: null,
+        signatureImage: null,
+      },
+      facultyFinalSignature: {
+        signatureImage: null,
+        date: null,
+      }
+    });
+  };
+
+  if (!form) {
+    return <CreateNewCRBox onCreate={handleCreateReport} />;
+  }
 
   const handleEditCR = async (crId) => {
     try {
@@ -734,12 +763,12 @@ export default function GenerateCR() {
     <div>
         <span className="font-semibold">Remarks of the Reviewing Officer (If he disagrees with any of the remarks of the Reporting Officer, he should give specific reasons therefor; if he agrees, he should record his opinion to that effect)</span>
         <textarea 
-            name="remarks" // Add name attribute
-            className="w-full rounded border px-2 py-1 mt-1 bg-white" // Make background white
+            name="remarks"
+            className="w-full rounded border px-2 py-1 mt-1 bg-white"
             rows="3" 
             placeholder="Enter your remarks here..."
-            value={form.facultyAcknowledgement.remarks} // Connect to state
-            onChange={handleFacultyAcknowledgementChange} // Connect to handler
+            value={form.facultyAcknowledgement.remarks}
+            onChange={handleFacultyAcknowledgementChange}
         />
     </div>
     <div className="grid grid-cols-2 gap-4 pt-4">

@@ -161,6 +161,12 @@ export default function FullReport({ user }) {
   const isHOD = user?.role === "hod";
   const [odRequests, setOdRequests] = useState([]);
 
+  const facultyEmailToUse = isHOD ? faculty.email : user.email;
+  const facultyIdToUse = isHOD ? (faculty._id || faculty.userId) : user.userId;
+
+  console.log("faculty object:", faculty);
+  console.log("facultyIdToUse:", facultyIdToUse);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -247,12 +253,37 @@ export default function FullReport({ user }) {
 
   useEffect(() => {
     async function fetchOD() {
+      const email = faculty?.email;
+      const id = faculty?._id || faculty?.userId;
+      if (!email && !id) return; // Don't fetch if not ready
+
+      let api;
+      if (email) {
+        api = `http://localhost:5000/api/odrequests/user/email/${email}`;
+      } else if (id) {
+        api = `http://localhost:5000/api/odrequests/user/${id}`;
+      } else {
+        return;
+      }
       try {
-        const api = `http://localhost:5000/api/odrequests/user/${user.userId}`;
         const res = await axios.get(api, {
           headers: { "x-user-email": user.email },
         });
         setOdRequests(res.data || []);
+        // Collect all supporting documents from OD requests
+        const odDocs = (res.data || []).flatMap(r =>
+          (r.supportingDocuments || []).map(doc => ({
+            filename: doc,
+            url: doc.startsWith('http') ? doc : (doc.startsWith('/uploads/') ? `http://localhost:5000${doc}` : `http://localhost:5000/uploads/${doc}`)
+          }))
+        );
+        // Merge with existing attachments, avoiding duplicates by filename
+        setForm(prev => {
+          const existing = prev.attachments || [];
+          const filenames = new Set(existing.map(a => a.filename));
+          const merged = [...existing, ...odDocs.filter(a => !filenames.has(a.filename))];
+          return { ...prev, attachments: merged };
+        });
         console.log("Fetched OD requests:", res.data);
         res.data.forEach(r => {
           console.log("OD request:", r._id, "startDate:", r.startDate, "eventType:", r.eventType);
@@ -262,8 +293,10 @@ export default function FullReport({ user }) {
         console.log("Failed to fetch OD requests");
       }
     }
-    if (user?.userId) fetchOD();
-  }, [user]);
+    if (faculty && (faculty.email || faculty._id || faculty.userId)) {
+      fetchOD();
+    }
+  }, [faculty, user]);
 
   // Filter OD requests by period/year if needed
   const year = form.year || new Date().getFullYear();
