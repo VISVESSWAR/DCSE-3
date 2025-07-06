@@ -34,7 +34,7 @@ router.get("/:facultyId", restrictTo("faculty"), getOrCreateCRReport);
 
 router.get(
   "/report/:reportId",
-  restrictTo("faculty", "hod"),
+  restrictTo("faculty", "hod","admin"),
   async (req, res) => {
     try {
       const report = await CRReport.findById(req.params.reportId);
@@ -101,7 +101,7 @@ router.post("/:reportId/hod-section", restrictTo("hod"), updateHODSection);
 router.post("/:reportId/finalize", restrictTo("hod"), finalizeReport);
 
 // Download final report (faculty or HOD)
-router.get("/:reportId/download", restrictTo("faculty", "hod"), downloadCRPDF);
+router.get("/:reportId/download", restrictTo("faculty", "hod","admin"), downloadCRPDF);
 
 // List all CRs    HOD review (HOD only)
 router.get("/pending/hod", restrictTo("hod"), async (req, res) => {
