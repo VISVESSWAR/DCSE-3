@@ -1,12 +1,22 @@
-import { Navigate } from "react-router-dom";
+// src/ui/ProtectedRoutes.jsx
+import { Navigate, Outlet } from "react-router-dom";
 import { UserData } from "../context/UserContext";
 
-export default function ProtectedRoutes({ children }) {
+export default function ProtectedRoutes({ roles = [] }) {
   const { user } = UserData();
-    // console.log(user);
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  if (roles.length === 0 || roles.includes("all")) {
+    return <Outlet />;
+  }
+
+  // Check if user has required role
+  if (roles.includes(user.role)) {
+    return <Outlet />;
+  }
+
+  return <Navigate to="/" replace />; 
 }

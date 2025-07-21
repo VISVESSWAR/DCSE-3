@@ -64,7 +64,7 @@ export default function Signup({ onSuccess }) {
       onSubmit={step === 1 ? handleNext : handleSubmit}
       className="max-w-sm mx-auto space-y-4 flex flex-col justify-center my-auto min-h-[100vh] w-[80%]"
     >
-      <h2 className="text-xl font-bold text-center">Signup</h2>
+      <h2 className="text-xl font-bold text-center">Add User</h2>
       {step === 1 && (
         <>
           <label htmlFor="name">Name</label>

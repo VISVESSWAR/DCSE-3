@@ -33,23 +33,21 @@ export default function Sidebar() {
     // { name: "Generate CR", path: "cr", icon: <TbReport />, roles: ["all"] },
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
     { name: "Consolidation Report", path: "/admin/consolidation-report/menu", icon: <TbReport />, roles: ["admin"] },
+    { name: "AddUser", path: "/signup", icon: <TbUserPlus />, roles: ["admin"] },
+
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [
           { name: "Login", path: "/login", icon: <TbLogin2 />, roles: ["all"] },
-          { name: "Signup", path: "/signup", icon: <TbUserPlus />, roles: ["all"] },
         ]),
   ];
 
 
-  const links = fullLinks.filter((link) => {
-    if (link.name === "Generate CR" && isAdmin) return false;
-    if (link.roles.includes("all")) return true;
-    if (link.roles.includes("faculty") && isFaculty) return true;
-    if (link.roles.includes("admin") && isAdmin) return true;
-    return false;
-  });
-
+const links = fullLinks.filter((link) => {
+  if (link.roles.includes("all")) return true;
+  if (user?.role && link.roles.includes(user.role)) return true;
+  return false;
+});
 
   function handleClose() {
     setOpen((open) => !open);

@@ -16,7 +16,11 @@ import Dashboard from "./pages/Faculty/Dashboard";
 import Signup from "./pages/Faculty/Signup";
 import ProtectedRoutes from "./ui/ProtectedRoutes";
 import AllCRReports from "./Features/CR/ViewAllReports";
-import { ConsolidationReportMenu, ConsolidationReportScholars, ConsolidationReportOD } from "./pages/Admin/ConsolidationReport";
+import {
+  ConsolidationReportMenu,
+  ConsolidationReportScholars,
+  ConsolidationReportOD,
+} from "./pages/Admin/ConsolidationReport";
 import ConsolidationReportFaculty from "./pages/Admin/ConsolidationReportFaculty";
 import ConsolidationReportFacultyAnalytics from "./pages/Admin/ConsolidationReportFacultyAnalytics";
 
@@ -29,8 +33,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />}>
             <Route path="login" element={<FacultyLogin />} />
-            <Route path="signup" element={<Signup />} />
 
+            {/* Signup visible only to admin */}
+
+            {/* Authenticated routes */}
             <Route
               element={
                 <ProtectedRoutes>
@@ -40,24 +46,50 @@ function App() {
             >
               <Route path="/" element={<Dashboard />} />
               <Route path="scholars" element={<FacultyScholars />} />
-              <Route path="scholar/add" element={<AddScholar />} />
               <Route path="OD" element={<ODHistory />} />
-              <Route path="OD/new" element={<ODRequest />} />
               <Route path="publications" element={<Publications />} />
-              <Route path="publication/add" element={<AddPublication />} />
-              <Route path="CR" element={<GenerateCR />} />
+              <Route path="CR/view" element={<AllCRReports />} />
               <Route
-                path="/CR/fullReport/:reportId"
+                path="CR/fullReport/:reportId"
                 element={<FullReport user={user} />}
               />
-                <Route path="CR/view" element={<AllCRReports />} />
 
-              <Route path="/admin/consolidation-report/menu" element={<ConsolidationReportMenu />} />
-              <Route path="/admin/consolidation-report/scholars" element={<ConsolidationReportScholars />} />
-              <Route path="/admin/consolidation-report/OD" element={<ConsolidationReportOD />} />
-              <Route path="/admin/consolidation-report/faculty/:facultyName" element={<ConsolidationReportFacultyAnalytics />} />
-              <Route path="/admin/consolidation-report/faculty" element={<ConsolidationReportFaculty />} />
-              <Route path="/admin/consolidation-report" element={<ConsolidationReportMenu />} />
+              {/* Faculty-only routes */}
+              <Route element={<ProtectedRoutes roles={["faculty"]} />}>
+                <Route path="scholar/add" element={<AddScholar />} />
+                <Route path="publication/add" element={<AddPublication />} />
+                <Route path="OD/new" element={<ODRequest />} />
+                <Route path="CR" element={<GenerateCR />} />
+              </Route>
+
+              {/* Admin-only routes */}
+              <Route element={<ProtectedRoutes roles={["admin"]} />}>
+                <Route
+                  path="/admin/consolidation-report/menu"
+                  element={<ConsolidationReportMenu />}
+                />
+                <Route path="signup" element={<Signup />} />
+                <Route
+                  path="/admin/consolidation-report/scholars"
+                  element={<ConsolidationReportScholars />}
+                />
+                <Route
+                  path="/admin/consolidation-report/OD"
+                  element={<ConsolidationReportOD />}
+                />
+                <Route
+                  path="/admin/consolidation-report/faculty/:facultyName"
+                  element={<ConsolidationReportFacultyAnalytics />}
+                />
+                <Route
+                  path="/admin/consolidation-report/faculty"
+                  element={<ConsolidationReportFaculty />}
+                />
+                <Route
+                  path="/admin/consolidation-report"
+                  element={<ConsolidationReportMenu />}
+                />
+              </Route>
             </Route>
           </Route>
         </Routes>
