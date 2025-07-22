@@ -77,7 +77,7 @@ import toast from "react-hot-toast";
 //   _id: "6845bcc003d9421f7b3a4cd0",
 //   __v: 0,
 // };
-
+import { backendUrl } from "../utils/urls";
 const UserContext = createContext();
 
 function UserProvider({ children }) {
@@ -86,30 +86,31 @@ function UserProvider({ children }) {
   // console.log(user);
 
   async function login(form) {
-  try {
-    const res = await axios.post("http://localhost:5000/api/auth/login", form);
-    const user = res.data.user;
-    if (user.role === "faculty") {
-      const facultyRes = await axios.get(`http://localhost:5000/api/faculty/${user.userId}`);
-      const faculty = facultyRes.data;
+    try {
+      const res = await axios.post(`${backendUrl}/api/auth/login`, form);
+      const user = res.data.user;
+      if (user.role === "faculty") {
+        const facultyRes = await axios.get(
+          `${backendUrl}/api/faculty/${user.userId}`
+        );
+        const faculty = facultyRes.data;
 
-      user.facultyId = faculty.facultyId || faculty._id;
-      user.facultyProfile = faculty;
+        user.facultyId = faculty.facultyId || faculty._id;
+        user.facultyProfile = faculty;
+      }
+      setUser(user);
+      localStorage.setItem("user", JSON.stringify(user));
+      toast.success("Login successful");
+      return true;
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Login failed");
+      return false;
     }
-    setUser(user);
-    localStorage.setItem("user", JSON.stringify(user));
-    toast.success("Login successful");
-    return true;
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Login failed");
-    return false;
   }
-}
-
 
   async function signup(form) {
     try {
-      await axios.post("http://localhost:5000/api/auth/register", form);
+      await axios.post(`${backendUrl}/api/auth/register`, form);
       toast.success("Signup successful");
       return true;
     } catch (err) {

@@ -5,7 +5,7 @@ import Spinner from "../../ui/Spinner";
 import Modal from "../../ui/Modal";
 import AddScholar from "./AddScholar";
 import { UserData } from "../../context/UserContext";
-
+import { backendUrl } from "../../utils/urls";
 function Scholars() {
   const { user } = UserData();
 
@@ -25,7 +25,7 @@ function Scholars() {
     phone: true,
     areaOfResearch: true,
     supervisor: true,
-    actions: !(user.role === 'admin'),
+    actions: !(user.role === "admin"),
     semester: true,
     program: true,
   });
@@ -35,14 +35,11 @@ function Scholars() {
     const fetchScholars = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/pgscholars",
-          {
-            headers: {
-              "x-user-email": user.email,
-            },
-          }
-        );
+        const response = await axios.get(`${backendUrl}/api/pgscholars`, {
+          headers: {
+            "x-user-email": user.email,
+          },
+        });
         console.log(response.data);
         setScholarsList(response.data);
       } catch (error) {
@@ -65,7 +62,7 @@ function Scholars() {
   const deleteScholar = async (id) => {
     try {
       setIsLoading(true);
-      await axios.delete(`http://localhost:5000/api/pgscholars/${id}`, {
+      await axios.delete(`${backendUrl}/api/pgscholars/${id}`, {
         headers: {
           "x-user-email": user.email,
         },
@@ -392,19 +389,25 @@ function Scholars() {
                     </td>
                   )}
                   {columnVisibility.semester && (
-                    <td className="py-1 px-2 text-center">{scholar.semester}</td>
+                    <td className="py-1 px-2 text-center">
+                      {scholar.semester}
+                    </td>
                   )}
                   {columnVisibility.program && (
                     <td className="py-1 px-2 text-center">{scholar.program}</td>
                   )}
                   <td className="py-1 px-2 text-center">
                     {scholar.dateOfJoining
-                      ? new Date(scholar.dateOfJoining).toLocaleDateString("en-GB")
+                      ? new Date(scholar.dateOfJoining).toLocaleDateString(
+                          "en-GB"
+                        )
                       : "-"}
                   </td>
                   <td className="py-1 px-2 text-center">
                     {scholar.dateOfCompletion
-                      ? new Date(scholar.dateOfCompletion).toLocaleDateString("en-GB")
+                      ? new Date(scholar.dateOfCompletion).toLocaleDateString(
+                          "en-GB"
+                        )
                       : "-"}
                   </td>
                   {!isFaculty && columnVisibility.supervisor && (
@@ -532,7 +535,9 @@ function Scholars() {
                     </td>
                   )}
                   {columnVisibility.semester && (
-                    <td className="py-1 px-2 text-center">{scholar.semester}</td>
+                    <td className="py-1 px-2 text-center">
+                      {scholar.semester}
+                    </td>
                   )}
                   {columnVisibility.program && (
                     <td className="py-1 px-2 text-center">{scholar.program}</td>

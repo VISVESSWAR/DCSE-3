@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Spinner from "../../ui/Spinner";
 import { UserData } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
-
+import { backendUrl } from "../../utils/urls";
 const phoneNoPattern = /^(?:(?:\+|0{0,2})91(\s*[\\-]\s*)?|[0]?)?[789]\d{9}$/;
 
 export default function AddScholar({ formData = {}, onClose, onUpdate }) {
@@ -48,15 +48,11 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     console.log(user.email);
     try {
       setIsLoading(true);
-      const res = await axios.post(
-        "http://localhost:5000/api/pgscholars",
-        payload,
-        {
-          headers: {
-            "x-user-email": user.email,
-          },
-        }
-      );
+      const res = await axios.post(`${backendUrl}/api/pgscholars`, payload, {
+        headers: {
+          "x-user-email": user.email,
+        },
+      });
       console.log(res.data);
       toast.success("Scholar details added successfully");
       reset();
@@ -82,7 +78,7 @@ export default function AddScholar({ formData = {}, onClose, onUpdate }) {
     try {
       setIsLoading(true);
       const response = await axios.put(
-        `http://localhost:5000/api/pgscholars/${editId}`,
+        `${backendUrl}/api/pgscholars/${editId}`,
         payload,
         {
           headers: {

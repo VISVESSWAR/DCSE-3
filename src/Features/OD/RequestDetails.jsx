@@ -20,7 +20,7 @@ import { UserData } from "../../context/UserContext";
 import { useState } from "react";
 import Spinner from "../../ui/Spinner";
 import ConfirmationModal from "../../ui/ConfirmationModal";
-
+import { backendUrl } from "../../utils/urls";
 export default function RequestDetails({
   data,
   isHod,
@@ -60,7 +60,7 @@ export default function RequestDetails({
       }
 
       const res = await axios.put(
-        `http://localhost:5000/api/odrequests/${data._id}/docs`,
+        `${backendUrl}/api/odrequests/${data._id}/docs`,
         fd,
         {
           headers: {
@@ -83,7 +83,7 @@ export default function RequestDetails({
     setIsLoading(true);
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/odrequests/update-details/${data._id}`,
+        `${backendUrl}/api/odrequests/update-details/${data._id}`,
         formData,
         {
           headers: {
@@ -105,7 +105,7 @@ export default function RequestDetails({
     setIsLoading(true);
     try {
       const res = await axios.put(
-        `http://localhost:5000/api/odrequests/${data._id}/${status}`,
+        `${backendUrl}/api/odrequests/${data._id}/${status}`,
         {},
         {
           headers: {
@@ -267,7 +267,7 @@ export default function RequestDetails({
               {data.supportingDocuments.map((f, idx) => (
                 <li key={idx}>
                   <a
-                    href={`http://localhost:5000/uploads/${f}`}
+                    href={`${backendUrl}/uploads/${f}`}
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -280,7 +280,8 @@ export default function RequestDetails({
         )}
 
         {(!isHod || edit || data.status !== "Pending") &&
-          data.status !== "Approved" && edit && (
+          data.status !== "Approved" &&
+          edit && (
             <div className="flex flex-col w-full gap-2 mt-3">
               <input
                 type="file"
@@ -344,7 +345,7 @@ export default function RequestDetails({
               ? async () => {
                   try {
                     const res = await fetch(
-                      `http://localhost:5000/api/odrequests/${data._id}/generate-letter`,
+                      `${backendUrl}/api/odrequests/${data._id}/generate-letter`,
                       {
                         method: "GET",
                         headers: {

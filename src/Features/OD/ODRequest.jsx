@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import axios from "axios";
 import { UserData } from "../../context/UserContext";
-
+import { backendUrl } from "../../utils/urls";
 export default function ODRequestForm() {
   const {
     register,
@@ -75,16 +75,12 @@ export default function ODRequestForm() {
     }
 
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/odrequests",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            "x-user-email": user.email,
-          },
-        }
-      );
+      const res = await axios.post(`${backendUrl}/api/odrequests`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-user-email": user.email,
+        },
+      });
 
       toast.success("Request submitted successfully");
       console.log("Saved ODRequest:", res.data);

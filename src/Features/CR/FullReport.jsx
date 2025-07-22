@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { backendUrl } from "../../utils/urls";
 import HODPart1Performance from "./HODPart1Performance";
 import HODPart2Assessment from "./HODPart2Assessment";
 import FacultyPart3Potential from "./FacultyPart3Potential";
@@ -162,7 +163,7 @@ export default function FullReport({ user }) {
   const [odRequests, setOdRequests] = useState([]);
 
   const facultyEmailToUse = isHOD ? faculty.email : user.email;
-  const facultyIdToUse = isHOD ? (faculty._id || faculty.userId) : user.userId;
+  const facultyIdToUse = isHOD ? faculty._id || faculty.userId : user.userId;
 
   console.log("faculty object:", faculty);
   console.log("facultyIdToUse:", facultyIdToUse);
@@ -171,7 +172,7 @@ export default function FullReport({ user }) {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/crreport/report/${reportId}`,
+          `${backendUrl}/api/crreport/report/${reportId}`,
           {
             headers: { "x-user-email": user.email },
           }
@@ -259,9 +260,9 @@ export default function FullReport({ user }) {
 
       let api;
       if (email) {
-        api = `http://localhost:5000/api/odrequests/user/email/${email}`;
+        api = `${backendUrl}/api/odrequests/user/email/${email}`;
       } else if (id) {
-        api = `http://localhost:5000/api/odrequests/user/${id}`;
+        api = `${backendUrl}/api/odrequests/user/${id}`;
       } else {
         return;
       }
@@ -271,22 +272,36 @@ export default function FullReport({ user }) {
         });
         setOdRequests(res.data || []);
         // Collect all supporting documents from OD requests
-        const odDocs = (res.data || []).flatMap(r =>
-          (r.supportingDocuments || []).map(doc => ({
+        const odDocs = (res.data || []).flatMap((r) =>
+          (r.supportingDocuments || []).map((doc) => ({
             filename: doc,
-            url: doc.startsWith('http') ? doc : (doc.startsWith('/uploads/') ? `http://localhost:5000${doc}` : `http://localhost:5000/uploads/${doc}`)
+            url: doc.startsWith("http")
+              ? doc
+              : doc.startsWith("/uploads/")
+              ? `${backendUrl}${doc}`
+              : `${backendUrl}/uploads/${doc}`,
           }))
         );
         // Merge with existing attachments, avoiding duplicates by filename
-        setForm(prev => {
+        setForm((prev) => {
           const existing = prev.attachments || [];
-          const filenames = new Set(existing.map(a => a.filename));
-          const merged = [...existing, ...odDocs.filter(a => !filenames.has(a.filename))];
+          const filenames = new Set(existing.map((a) => a.filename));
+          const merged = [
+            ...existing,
+            ...odDocs.filter((a) => !filenames.has(a.filename)),
+          ];
           return { ...prev, attachments: merged };
         });
         console.log("Fetched OD requests:", res.data);
-        res.data.forEach(r => {
-          console.log("OD request:", r._id, "startDate:", r.startDate, "eventType:", r.eventType);
+        res.data.forEach((r) => {
+          console.log(
+            "OD request:",
+            r._id,
+            "startDate:",
+            r.startDate,
+            "eventType:",
+            r.eventType
+          );
         });
       } catch {
         setOdRequests([]);
@@ -307,7 +322,7 @@ export default function FullReport({ user }) {
   const periodEnd = period === "june" ? new Date(`${year}-06-30`) : end;
   console.log("periodStart", periodStart, "periodEnd", periodEnd);
   // Robust, case-insensitive filtering
-  const filteredOD = odRequests.filter(r => {
+  const filteredOD = odRequests.filter((r) => {
     if (!r.eventType) return false;
     // Uncomment the next two lines to test without date filtering:
     // return true;
@@ -315,14 +330,14 @@ export default function FullReport({ user }) {
     return s >= periodStart && s <= periodEnd;
   });
   const odConferences = filteredOD.filter(
-    r => r.eventType && ["conference", "workshop"].includes(r.eventType.toLowerCase())
+    (r) =>
+      r.eventType &&
+      ["conference", "workshop"].includes(r.eventType.toLowerCase())
   );
   const odOther = filteredOD.filter(
-    r =>
+    (r) =>
       r.eventType &&
-      !["conference", "workshop"].includes(
-        r.eventType.toLowerCase()
-      )
+      !["conference", "workshop"].includes(r.eventType.toLowerCase())
   );
   console.log("filteredOD", filteredOD);
   console.log("odConferences", odConferences);
@@ -331,7 +346,7 @@ export default function FullReport({ user }) {
   const handleFinalize = async () => {
     try {
       await axios.post(
-        `http://localhost:5000/api/crreport/${reportId}/finalize`,
+        `${backendUrl}/api/crreport/${reportId}/finalize`,
         {},
         { headers: { "x-user-email": user.email } }
       );
@@ -341,7 +356,7 @@ export default function FullReport({ user }) {
     }
   };
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const isFaculty = user.role === "faculty";
@@ -393,7 +408,7 @@ export default function FullReport({ user }) {
           newFiles.forEach((f) => formData.append("attachments", f.file));
 
           const uploadRes = await axios.post(
-            `http://localhost:5000/api/crreport/${reportId}/self-assessment/attachments`,
+            `${backendUrl}/api/crreport/${reportId}/self-assessment/attachments`,
             formData,
             {
               headers: {
@@ -432,9 +447,9 @@ export default function FullReport({ user }) {
         otherContributions: form.otherContributions,
         // attachments: updatedAttachments,
       };
-      console.log(form,selfAssessmentOnly)
+      console.log(form, selfAssessmentOnly);
       await axios.patch(
-        `http://localhost:5000/api/crreport/${reportId}/update-full`,
+        `${backendUrl}/api/crreport/${reportId}/update-full`,
         {
           selfAssessment: selfAssessmentOnly,
           hodSection: {
@@ -548,10 +563,14 @@ export default function FullReport({ user }) {
         odConferences={odConferences}
         odOther={odOther}
       />
-      {user.role === "faculty" &&  (
-        <FacultyAttachments form={form} setForm={setForm} readOnly={form.status !== "draft"} />
+      {user.role === "faculty" && (
+        <FacultyAttachments
+          form={form}
+          setForm={setForm}
+          readOnly={form.status !== "draft"}
+        />
       )}
-      {user.role !== "faculty" &&  (
+      {user.role !== "faculty" && (
         <FacultyAttachments form={form} setForm={setForm} readOnly={true} />
       )}
       <FacultySignatures form={form} setForm={setForm} user={user} />

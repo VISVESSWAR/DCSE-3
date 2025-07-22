@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { toast } from "react-hot-toast";
-
+import { backendUrl } from "../../utils/urls"; 
 export default function FacultyAttachments({ form, setForm, readOnly }) {
   const fileInputRef = useRef();
   const MAX_SIZE_MB = 2;
@@ -85,7 +85,9 @@ export default function FacultyAttachments({ form, setForm, readOnly }) {
             const isUploaded = file.url && file.filename;
             const displayName = file.name || file.filename;
             const linkUrl = file.url
-              ? (file.url.startsWith('http') ? file.url : `http://localhost:5000${file.url}`)
+              ? file.url.startsWith("http")
+                ? file.url
+                : `${backendUrl}${file.url}`
               : null;
 
             return (

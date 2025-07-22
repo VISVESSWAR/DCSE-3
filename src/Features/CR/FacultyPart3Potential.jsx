@@ -2,8 +2,13 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { UserData } from "../../context/UserContext";
-
-export default function FacultyPart3Potential({ form, setForm, readOnly, faculty }) {
+import { backendUrl } from "../../utils/urls";
+export default function FacultyPart3Potential({
+  form,
+  setForm,
+  readOnly,
+  faculty,
+}) {
   const { user } = UserData();
   const [scholars, setScholars] = useState([]);
   const [publications, setPublications] = useState([]);
@@ -15,14 +20,14 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
       setLoading(true);
       try {
         const [scholarsRes, pubsRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/pgscholars", {
+          axios.get(`${backendUrl}/api/pgscholars`, {
             headers: { "x-user-email": user.email },
           }),
-          axios.get("http://localhost:5000/api/publications", {
+          axios.get(`${backendUrl}/api/publications`, {
             headers: { "x-user-email": user.email },
           }),
         ]);
-        const scholarsData = scholarsRes.data.map(s => ({
+        const scholarsData = scholarsRes.data.map((s) => ({
           ...s,
           supervisorId: s.supervisor?._id || s.supervisor,
           supervisorEmail: s.supervisor?.email || null,
@@ -71,74 +76,89 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   function getSupervisorId(s) {
     if (!s.supervisor) return "";
     if (typeof s.supervisor === "string") return s.supervisor;
-    if (typeof s.supervisor === "object" && s.supervisor._id) return s.supervisor._id;
-    if (typeof s.supervisor === "object" && s.supervisor.toString) return s.supervisor.toString();
+    if (typeof s.supervisor === "object" && s.supervisor._id)
+      return s.supervisor._id;
+    if (typeof s.supervisor === "object" && s.supervisor.toString)
+      return s.supervisor.toString();
     return String(s.supervisor);
   }
 
   // Detailed debug logs for scholar matching
-  console.log("facultyId:", facultyId, "| String(facultyId):", String(facultyId));
-  scholars.forEach(s => {
+  console.log(
+    "facultyId:",
+    facultyId,
+    "| String(facultyId):",
+    String(facultyId)
+  );
+  scholars.forEach((s) => {
     console.log(
-      'Scholar:', s.name,
-      '| supervisor:', s.supervisor,
-      '| getSupervisorId:', getSupervisorId(s),
-      '| facultyId:', facultyId,
-      '| match:', getSupervisorId(s) === String(facultyId),
-      '| dateOfCompletion:', s.dateOfCompletion,
-      '| dateOfJoining:', s.dateOfJoining,
-      '| program:', s.program,
-      '| normalized:', getScholarDegreeType(s)
+      "Scholar:",
+      s.name,
+      "| supervisor:",
+      s.supervisor,
+      "| getSupervisorId:",
+      getSupervisorId(s),
+      "| facultyId:",
+      facultyId,
+      "| match:",
+      getSupervisorId(s) === String(facultyId),
+      "| dateOfCompletion:",
+      s.dateOfCompletion,
+      "| dateOfJoining:",
+      s.dateOfJoining,
+      "| program:",
+      s.program,
+      "| normalized:",
+      getScholarDegreeType(s)
     );
   });
 
   // 7(a): Scholars who have ever completed under this staff member (no date filter)
-  const obtained = scholars.filter(s =>
-    s.dateOfCompletion &&
-    (
-      getSupervisorId(s) === facultyIdStr ||
-      s.supervisor?.email === facultyEmail
-    )
+  const obtained = scholars.filter(
+    (s) =>
+      s.dateOfCompletion &&
+      (getSupervisorId(s) === facultyIdStr ||
+        s.supervisor?.email === facultyEmail)
   );
 
   // 7(b): Scholars registered in period and not completed (keep period filter)
-  const registered = scholars.filter(s =>
-    new Date(s.dateOfJoining) >= periodStart &&
-    new Date(s.dateOfJoining) <= periodEnd &&
-    (!s.dateOfCompletion || new Date(s.dateOfCompletion) > periodEnd) &&
-    (
-      getSupervisorId(s) === facultyIdStr ||
-      s.supervisor?.email === facultyEmail
-    )
+  const registered = scholars.filter(
+    (s) =>
+      new Date(s.dateOfJoining) >= periodStart &&
+      new Date(s.dateOfJoining) <= periodEnd &&
+      (!s.dateOfCompletion || new Date(s.dateOfCompletion) > periodEnd) &&
+      (getSupervisorId(s) === facultyIdStr ||
+        s.supervisor?.email === facultyEmail)
   );
 
   // 7(c): Publications in period (list)
-  const filteredPublications = publications.filter(pub =>
-    pub.authors &&
-    pub.authors.some(
-      author =>
-        (facultyName && author.trim().toLowerCase() === facultyNameNorm) ||
-        (facultyEmail && author.trim().toLowerCase() === facultyEmailNorm)
-    ) &&
-    new Date(pub.publicationDate) >= periodStart &&
-    new Date(pub.publicationDate) <= periodEnd
+  const filteredPublications = publications.filter(
+    (pub) =>
+      pub.authors &&
+      pub.authors.some(
+        (author) =>
+          (facultyName && author.trim().toLowerCase() === facultyNameNorm) ||
+          (facultyEmail && author.trim().toLowerCase() === facultyEmailNorm)
+      ) &&
+      new Date(pub.publicationDate) >= periodStart &&
+      new Date(pub.publicationDate) <= periodEnd
   );
 
   // Debug logs to diagnose why counts are 0
-  console.log('DEBUG: user', user);
-  console.log('DEBUG: faculty', faculty);
-  console.log('DEBUG: form.period', form.period, 'form.year', form.year);
-  console.log('DEBUG: scholars', scholars);
-  console.log('DEBUG: publications', publications);
-  console.log('DEBUG: obtained', obtained);
-  console.log('DEBUG: registered', registered);
-  console.log('DEBUG: filteredPublications', filteredPublications);
+  console.log("DEBUG: user", user);
+  console.log("DEBUG: faculty", faculty);
+  console.log("DEBUG: form.period", form.period, "form.year", form.year);
+  console.log("DEBUG: scholars", scholars);
+  console.log("DEBUG: publications", publications);
+  console.log("DEBUG: obtained", obtained);
+  console.log("DEBUG: registered", registered);
+  console.log("DEBUG: filteredPublications", filteredPublications);
 
   // Debug logs for publication matching
-  console.log('Faculty name for pub match:', facultyNameNorm);
-  console.log('Faculty email for pub match:', facultyEmailNorm);
-  publications.forEach(pub => {
-    console.log('Pub:', pub.title, '| Authors:', pub.authors);
+  console.log("Faculty name for pub match:", facultyNameNorm);
+  console.log("Faculty email for pub match:", facultyEmailNorm);
+  publications.forEach((pub) => {
+    console.log("Pub:", pub.title, "| Authors:", pub.authors);
   });
 
   const handleChange = (e) => {
@@ -240,19 +260,36 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
   }
 
   // Debug: print each scholar's relevant fields
-  scholars.forEach(s => {
-    console.log('Scholar:', s.name, 'program:', s.program, 'normalized:', getScholarDegreeType(s), 'dateOfJoining:', s.dateOfJoining, 'dateOfCompletion:', s.dateOfCompletion, 'supervisor:', s.supervisor);
+  scholars.forEach((s) => {
+    console.log(
+      "Scholar:",
+      s.name,
+      "program:",
+      s.program,
+      "normalized:",
+      getScholarDegreeType(s),
+      "dateOfJoining:",
+      s.dateOfJoining,
+      "dateOfCompletion:",
+      s.dateOfCompletion,
+      "supervisor:",
+      s.supervisor
+    );
   });
 
   // 7(a): Scholars who completed in period, by degree type
   const obtainedCounts = degreeTypesA.reduce((acc, d) => {
-    acc[d.key] = obtained.filter(s => getScholarDegreeType(s) === d.key).length;
+    acc[d.key] = obtained.filter(
+      (s) => getScholarDegreeType(s) === d.key
+    ).length;
     return acc;
   }, {});
 
   // 7(b): Scholars registered in period and not completed, by degree type
   const registeredCounts = degreeTypesB.reduce((acc, d) => {
-    acc[d.key] = registered.filter(s => getScholarDegreeType(s) === d.key).length;
+    acc[d.key] = registered.filter(
+      (s) => getScholarDegreeType(s) === d.key
+    ).length;
     return acc;
   }, {});
 
@@ -460,9 +497,10 @@ export default function FacultyPart3Potential({ form, setForm, readOnly, faculty
         ) : (
           <div>
             <ul className="list-disc ml-6">
-              {filteredPublications.map(pub => (
+              {filteredPublications.map((pub) => (
                 <li key={pub._id}>
-                  {pub.title} ({new Date(pub.publicationDate).toLocaleDateString()})
+                  {pub.title} (
+                  {new Date(pub.publicationDate).toLocaleDateString()})
                 </li>
               ))}
             </ul>

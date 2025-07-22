@@ -4,7 +4,7 @@ import { UserData } from "../../context/UserContext";
 import toast from "react-hot-toast";
 import RequestDetails from "./RequestDetails";
 import Modal from "../../ui/Modal";
-
+import { backendUrl } from "../../utils/urls";
 export default function RequestList() {
   const [requests, setRequests] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -17,8 +17,8 @@ export default function RequestList() {
     async function fetchReqs() {
       let api =
         user.role !== "faculty"
-          ? "http://localhost:5000/api/odrequests"
-          : `http://localhost:5000/api/odrequests/user/${user.userId}`;
+          ? `${backendUrl}/api/odrequests`
+          : `${backendUrl}/api/odrequests/user/${user.userId}`;
       try {
         const res = await axios.get(api, {
           headers: {
@@ -51,8 +51,8 @@ export default function RequestList() {
   let sortedRequests = filteredRequests;
   if (user.role === "hod") {
     sortedRequests = [
-      ...filteredRequests.filter(r => r.status === "Pending"),
-      ...filteredRequests.filter(r => r.status !== "Pending")
+      ...filteredRequests.filter((r) => r.status === "Pending"),
+      ...filteredRequests.filter((r) => r.status !== "Pending"),
     ];
   }
 
@@ -62,11 +62,17 @@ export default function RequestList() {
   let approvedFilterType = "name";
   let pendingSearchTerm = "";
   let approvedSearchTerm = "";
-  const [pendingFilter, setPendingFilter] = useState({ type: "name", term: "" });
-  const [approvedFilter, setApprovedFilter] = useState({ type: "name", term: "" });
+  const [pendingFilter, setPendingFilter] = useState({
+    type: "name",
+    term: "",
+  });
+  const [approvedFilter, setApprovedFilter] = useState({
+    type: "name",
+    term: "",
+  });
   if (user.role === "hod") {
-    const allPending = filteredRequests.filter(r => r.status === "Pending");
-    const allApproved = filteredRequests.filter(r => r.status === "Approved");
+    const allPending = filteredRequests.filter((r) => r.status === "Pending");
+    const allApproved = filteredRequests.filter((r) => r.status === "Approved");
     // Pending filter
     pendingRequests = allPending.filter((request) => {
       const searchValue = pendingFilter.term.toLowerCase();
@@ -100,14 +106,14 @@ export default function RequestList() {
   const handleDownload = async (id) => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/odrequests/${id}/generate-letter`,
+        `${backendUrl}/api/odrequests/${id}/generate-letter`,
         {
           responseType: "blob",
           headers: {
             "Content-Type": "multipart/form-data",
             "x-user-email": user.email,
           },
-        },
+        }
       );
       const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
@@ -144,8 +150,12 @@ export default function RequestList() {
             }}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {user.role !== "faculty" && <option value="name">Filter by Name</option>}
-            {user.role === "faculty" && <option value="name">Filter by Name</option>}
+            {user.role !== "faculty" && (
+              <option value="name">Filter by Name</option>
+            )}
+            {user.role === "faculty" && (
+              <option value="name">Filter by Name</option>
+            )}
             <option value="type">Filter by Type</option>
             <option value="eventName">Filter by Event Name</option>
             <option value="status">Filter by Status</option>
@@ -174,7 +184,9 @@ export default function RequestList() {
           <div className="flex justify-center gap-4 mb-6">
             <select
               value={pendingFilter.type}
-              onChange={e => setPendingFilter(f => ({ ...f, type: e.target.value }))}
+              onChange={(e) =>
+                setPendingFilter((f) => ({ ...f, type: e.target.value }))
+              }
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="name">Filter by Name</option>
@@ -183,13 +195,23 @@ export default function RequestList() {
             </select>
             <input
               type="text"
-              placeholder={`Search by ${pendingFilter.type === "name" ? "name" : pendingFilter.type === "type" ? "type" : "event name"}...`}
+              placeholder={`Search by ${
+                pendingFilter.type === "name"
+                  ? "name"
+                  : pendingFilter.type === "type"
+                  ? "type"
+                  : "event name"
+              }...`}
               value={pendingFilter.term}
-              onChange={e => setPendingFilter(f => ({ ...f, term: e.target.value }))}
+              onChange={(e) =>
+                setPendingFilter((f) => ({ ...f, term: e.target.value }))
+              }
               className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <h2 className="text-2xl font-extrabold font-serif text-blue-900 mt-12 mb-6">Pending Requests</h2>
+          <h2 className="text-2xl font-extrabold font-serif text-blue-900 mt-12 mb-6">
+            Pending Requests
+          </h2>
           <table className="w-full table-auto bg-white shadow rounded mb-12">
             <thead>
               <tr>
@@ -216,7 +238,10 @@ export default function RequestList() {
                     <td className="p-2 text-center w-[20%]">{r.status}</td>
                     <td className="p-2 text-center flex lg:flex-row flex-col justify-center">
                       <Modal>
-                        <Modal.Body close={() => setSelected(null)} opens={"view"}>
+                        <Modal.Body
+                          close={() => setSelected(null)}
+                          opens={"view"}
+                        >
                           <button
                             onClick={() => setSelected(r)}
                             className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-1 my-1"
@@ -251,7 +276,9 @@ export default function RequestList() {
           <div className="flex justify-center gap-4 mb-6">
             <select
               value={approvedFilter.type}
-              onChange={e => setApprovedFilter(f => ({ ...f, type: e.target.value }))}
+              onChange={(e) =>
+                setApprovedFilter((f) => ({ ...f, type: e.target.value }))
+              }
               className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="name">Filter by Name</option>
@@ -260,13 +287,23 @@ export default function RequestList() {
             </select>
             <input
               type="text"
-              placeholder={`Search by ${approvedFilter.type === "name" ? "name" : approvedFilter.type === "type" ? "type" : "event name"}...`}
+              placeholder={`Search by ${
+                approvedFilter.type === "name"
+                  ? "name"
+                  : approvedFilter.type === "type"
+                  ? "type"
+                  : "event name"
+              }...`}
               value={approvedFilter.term}
-              onChange={e => setApprovedFilter(f => ({ ...f, term: e.target.value }))}
+              onChange={(e) =>
+                setApprovedFilter((f) => ({ ...f, term: e.target.value }))
+              }
               className="px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
-          <h2 className="text-2xl font-extrabold font-serif text-green-900 mt-12 mb-6">Approved Requests</h2>
+          <h2 className="text-2xl font-extrabold font-serif text-green-900 mt-12 mb-6">
+            Approved Requests
+          </h2>
           <table className="w-full table-auto bg-white shadow rounded mb-12">
             <thead>
               <tr>
@@ -293,7 +330,10 @@ export default function RequestList() {
                     <td className="p-2 text-center w-[20%]">{r.status}</td>
                     <td className="p-2 text-center flex lg:flex-row flex-col justify-center">
                       <Modal>
-                        <Modal.Body close={() => setSelected(null)} opens={"view"}>
+                        <Modal.Body
+                          close={() => setSelected(null)}
+                          opens={"view"}
+                        >
                           <button
                             onClick={() => setSelected(r)}
                             className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-1 my-1"
@@ -339,20 +379,28 @@ export default function RequestList() {
           <tbody>
             {sortedRequests.length === 0 ? (
               <tr>
-                <td colSpan={user.role !== "faculty" ? 4 : 3} className="text-center py-8 text-gray-500">
+                <td
+                  colSpan={user.role !== "faculty" ? 4 : 3}
+                  className="text-center py-8 text-gray-500"
+                >
                   No requests found matching your search criteria.
                 </td>
               </tr>
             ) : (
               sortedRequests.map((r) => (
                 <tr key={r._id} className="border-t">
-                  {user.role !== "faculty" && <td className="p-2 text-center w-[20%]">{r.name}</td>}
+                  {user.role !== "faculty" && (
+                    <td className="p-2 text-center w-[20%]">{r.name}</td>
+                  )}
                   <td className="p-2 text-center w-[10%]">{r.requestType}</td>
                   <td className="p-2 text-center w-[30%]">{r.topic}</td>
                   <td className="p-2 text-center w-[20%]">{r.status}</td>
                   <td className="p-2 text-center flex lg:flex-row flex-col justify-center">
                     <Modal>
-                      <Modal.Body close={() => setSelected(null)} opens={"view"}>
+                      <Modal.Body
+                        close={() => setSelected(null)}
+                        opens={"view"}
+                      >
                         <button
                           onClick={() => setSelected(r)}
                           className="bg-[#145DA0] text-white px-3 py-1 rounded hover:bg-[#2E8BC0] mx-1 my-1"
@@ -382,7 +430,7 @@ export default function RequestList() {
                           onClick={async () => {
                             try {
                               const res = await fetch(
-                                `http://localhost:5000/api/odrequests/${r._id}/generate-letter`,
+                                `${backendUrl}/api/odrequests/${r._id}/generate-letter`,
                                 {
                                   method: "GET",
                                   headers: {

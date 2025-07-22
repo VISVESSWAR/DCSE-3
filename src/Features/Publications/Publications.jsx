@@ -5,7 +5,7 @@ import Spinner from "../../ui/Spinner";
 import Modal from "../../ui/Modal";
 import AddPublication from "./AddPublication";
 import { UserData } from "../../context/UserContext";
-
+import { backendUrl } from "../../utils/urls";
 function Publications() {
   const { user } = UserData();
   const isAdmin = user.position === "Admin";
@@ -20,14 +20,11 @@ function Publications() {
     const fetchPublications = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/publications",
-          {
-            headers: {
-              "x-user-email": user.email,
-            },
-          }
-        );
+        const response = await axios.get(`${backendUrl}/api/publications`, {
+          headers: {
+            "x-user-email": user.email,
+          },
+        });
         setPublicationsList(response.data);
       } catch (error) {
         console.error("Error fetching publications:", error);
@@ -51,7 +48,7 @@ function Publications() {
   const deletePublication = async (id) => {
     try {
       setIsLoading(true);
-      await axios.delete(`http://localhost:5000/api/publications/${id}`, {
+      await axios.delete(`${backendUrl}/api/publications/${id}`, {
         headers: {
           "x-user-email": user.email,
         },

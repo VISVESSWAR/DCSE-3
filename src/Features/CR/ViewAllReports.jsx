@@ -3,7 +3,7 @@ import axios from "axios";
 import { UserData } from "../../context/UserContext";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-
+import {backendUrl} from "../../utils/urls";
 export default function AllCRReports() {
   const { user } = UserData();
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function AllCRReports() {
 
     setLoading(true);
     axios
-      .get(`http://localhost:5000/api/crreport?${params.toString()}`, {
+      .get(`${backendUrl}/api/crreport?${params.toString()}`, {
         headers: { "x-user-email": user.email },
       })
       .then((res) => {
@@ -62,7 +62,7 @@ export default function AllCRReports() {
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/crreport/${
+        `${backendUrl}/api/crreport/${
           user.facultyId || user.userId || user._id
         }?year=${selectedYear}&period=${selectedPeriod}`,
         {
@@ -83,12 +83,9 @@ export default function AllCRReports() {
 
   const handleDelete = async (reportId) => {
     try {
-      const res = await axios.delete(
-        `http://localhost:5000/api/crreport/${reportId}`,
-        {
-          headers: { "x-user-email": user.email },
-        }
-      );
+      const res = await axios.delete(`${backendUrl}/api/crreport/${reportId}`, {
+        headers: { "x-user-email": user.email },
+      });
       // console.log(res);
       if (res.data.deleted) {
         toast.success(res.data.message);
@@ -104,7 +101,7 @@ export default function AllCRReports() {
     if (report.status === "finalized") {
       try {
         const res = await axios.get(
-          `http://localhost:5000/api/crreport/${report._id}/download`,
+          `${backendUrl}/api/crreport/${report._id}/download`,
           {
             headers: { "x-user-email": user.email },
             responseType: "blob",

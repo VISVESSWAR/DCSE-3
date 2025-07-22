@@ -1,4 +1,5 @@
 import React from "react";
+import { backendUrl } from "../../utils/urls";
 export default function FacultyPart4Research({
   form,
   setForm,
@@ -8,8 +9,8 @@ export default function FacultyPart4Research({
   odConferences = [],
   odOther = [],
 }) {
-  console.log('odConferences:', odConferences);
-  console.log('odOther:', odOther);
+  console.log("odConferences:", odConferences);
+  console.log("odOther:", odOther);
   console.log(form);
   const handleListChange = (field, index, value) => {
     const updated = [...form[field]];
@@ -48,8 +49,12 @@ export default function FacultyPart4Research({
         let mergedEntries = [];
         if (field === "conferences") {
           mergedEntries = [
-            ...odConferences.map(r => ({
-              value: `${r.topic} (${new Date(r.startDate).toLocaleDateString()} - ${new Date(r.endDate).toLocaleDateString()})`,
+            ...odConferences.map((r) => ({
+              value: `${r.topic} (${new Date(
+                r.startDate
+              ).toLocaleDateString()} - ${new Date(
+                r.endDate
+              ).toLocaleDateString()})`,
               isOD: true,
               _id: r._id,
               supportingDocuments: r.supportingDocuments,
@@ -62,8 +67,12 @@ export default function FacultyPart4Research({
           ];
         } else if (field === "otherContributions") {
           mergedEntries = [
-            ...odOther.map(r => ({
-              value: `${r.eventType}: ${r.topic} (${new Date(r.startDate).toLocaleDateString()} - ${new Date(r.endDate).toLocaleDateString()})`,
+            ...odOther.map((r) => ({
+              value: `${r.eventType}: ${r.topic} (${new Date(
+                r.startDate
+              ).toLocaleDateString()} - ${new Date(
+                r.endDate
+              ).toLocaleDateString()})`,
               isOD: true,
               _id: r._id,
               supportingDocuments: r.supportingDocuments,
@@ -87,14 +96,18 @@ export default function FacultyPart4Research({
               {field.replace(/([A-Z])/g, " $1")}
             </label>
             {mergedEntries.map((entry, idx) => (
-              <div key={entry.isOD ? entry._id : idx} className="flex flex-col gap-1 mt-1">
+              <div
+                key={entry.isOD ? entry._id : idx}
+                className="flex flex-col gap-1 mt-1"
+              >
                 <div className="flex gap-2">
                   <input
                     type="text"
                     disabled={readOnly || entry.isOD}
                     value={entry.value}
-                    onChange={e => {
-                      if (!entry.isOD) handleListChange(field, entry.idx, e.target.value);
+                    onChange={(e) => {
+                      if (!entry.isOD)
+                        handleListChange(field, entry.idx, e.target.value);
                     }}
                     className="w-full border p-1 rounded"
                   />
@@ -109,27 +122,34 @@ export default function FacultyPart4Research({
                   )}
                 </div>
                 {/* Render supporting docs for OD entries */}
-                {entry.isOD && entry.supportingDocuments && entry.supportingDocuments.length > 0 && (
-                  <ul className="ml-4 mt-1 text-xs text-gray-700">
-                    {entry.supportingDocuments.map((doc, i) => {
-                      let fileUrl = doc;
-                      if (!doc.startsWith('http')) {
-                        if (!doc.startsWith('/uploads/')) {
-                          fileUrl = `http://localhost:5000/uploads/${doc}`;
-                        } else {
-                          fileUrl = `http://localhost:5000${doc}`;
+                {entry.isOD &&
+                  entry.supportingDocuments &&
+                  entry.supportingDocuments.length > 0 && (
+                    <ul className="ml-4 mt-1 text-xs text-gray-700">
+                      {entry.supportingDocuments.map((doc, i) => {
+                        let fileUrl = doc;
+                        if (!doc.startsWith("http")) {
+                          if (!doc.startsWith("/uploads/")) {
+                            fileUrl = `${backendUrl}/uploads/${doc}`;
+                          } else {
+                            fileUrl = `${backendUrl}${doc}`;
+                          }
                         }
-                      }
-                      return (
-                        <li key={i}>
-                          <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="underline text-blue-600">
-                            Supporting Document {i + 1}
-                          </a>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
+                        return (
+                          <li key={i}>
+                            <a
+                              href={fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline text-blue-600"
+                            >
+                              Supporting Document {i + 1}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
               </div>
             ))}
             {!readOnly && (

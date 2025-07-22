@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Spinner from "../../ui/Spinner";
-
+import { backendUrl } from "../../utils/urls";
 function Scholars() {
   const [scholarsList, setScholarsList] = useState([]);
   const [currentScholar, setCurrentScholar] = useState(null);
@@ -20,10 +20,8 @@ function Scholars() {
     const fetchScholars = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/pgscholars"
-        );
-        console.log(response.data)
+        const response = await axios.get(`${backendUrl}/api/pgscholars`);
+        console.log(response.data);
         setScholarsList(response.data);
       } catch (error) {
         console.error("Error fetching scholars:", error);
@@ -38,7 +36,7 @@ function Scholars() {
   const deleteScholar = async (id) => {
     try {
       setIsLoading(true);
-      await axios.delete(`http://localhost:5000/api/pgscholars/${id}`);
+      await axios.delete(`${backendUrl}/api/pgscholars/${id}`);
       setScholarsList((prev) => prev.filter((scholar) => scholar._id !== id));
       toast.success("Scholar details deleted successfully");
     } catch (error) {
@@ -82,7 +80,7 @@ function Scholars() {
     try {
       setIsLoading(true);
       const response = await axios.put(
-        `http://localhost:5000/api/pgscholars/${currentScholar._id}`,
+        `${backendUrl}/api/pgscholars/${currentScholar._id}`,
         formData
       );
 
