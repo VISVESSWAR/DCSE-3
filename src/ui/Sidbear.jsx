@@ -22,6 +22,13 @@ export default function Sidebar() {
   const isFaculty = user?.role === "faculty";
   const isAdmin = user?.role === "admin";
 
+  const tutorialLinks = {
+    faculty: "/pdfs/faculty-tutorial.pdf",
+    admin: "/pdfs/admin-tutorial.pdf",
+    hod: "/pdfs/hod-tutorial.pdf",
+  };
+
+
   const fullLinks = [
     { name: "Home", path: "/", icon: <TbHome />, roles: ["all"] },
     { name: "Scholars", path: "scholars", icon: <TbUser />, roles: ["all"] },
@@ -34,7 +41,7 @@ export default function Sidebar() {
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
     { name: "Consolidation Report", path: "/admin/consolidation-report/menu", icon: <TbReport />, roles: ["admin"] },
     { name: "AddUser", path: "/signup", icon: <TbUserPlus />, roles: ["admin"] },
-
+    { name: "Tutorial", path: tutorialLinks[user?.role] || "#", icon: <TbBook />, roles: ["all"], external: true,},
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]
       : [
@@ -77,21 +84,31 @@ const links = fullLinks.filter((link) => {
           {links.map((item, index) => (
             <li className="hover:text-[#fee199] my-1 text-xl flex" key={index}>
               <span className="p-2 self-center">{item.icon}</span>
-              <NavLink
-                to={item.path}
-                onClick={() => {
-                  if (item.name === "Logout") {
-                    logout();
-                  }
-                  setOpen(false);
-                }}
-                className="self-center mx-1 relative group text-[#F9F6F0]"
-              >
-                {item.name}
-                <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#fee199] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
-              </NavLink>
+              {item.external ? (
+                <a
+                  href={item.path}
+                  className="self-center mx-1 relative group text-[#F9F6F0]"
+                  onClick={() => setOpen(false)}
+                >
+                  {item.name}
+                  <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#fee199] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
+                </a>
+              ) : (
+                <NavLink
+                  to={item.path}
+                  onClick={() => {
+                    if (item.name === "Logout") logout();
+                    setOpen(false);
+                  }}
+                  className="self-center mx-1 relative group text-[#F9F6F0]"
+                >
+                  {item.name}
+                  <span className="absolute left-0 bottom-0 w-full h-[2px] bg-[#fee199] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></span>
+                </NavLink>
+              )}
             </li>
           ))}
+
         </ul>
       </div>
       {!open && (

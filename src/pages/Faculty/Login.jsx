@@ -72,7 +72,7 @@ export default function Login({ onLogin }) {
             {/* Card 4 */}
             <div className="flex flex-col items-center bg-white rounded-lg shadow-md p-6 w-48 min-w-[12rem] font-sans">
               <div className="w-28 h-28 mb-4 flex items-center justify-center overflow-hidden">
-                <img src="/shibani.jpeg" alt="Shibani Selvakumar" className="object-cover object-center w-28 h-28 rounded-full p-1" />
+                <img src="/shibani.jpg" alt="Shibani Selvakumar" className="object-cover object-center w-28 h-28 rounded-full p-1" />
               </div>
               <div className="text-lg font-semibold text-center mb-2 font-sans">SHIBANI SELVAKUMAR</div>
               <div className="text-sm text-gray-600 text-center font-sans">B.E. Computer Science and Engineering, 3rd Year</div>
