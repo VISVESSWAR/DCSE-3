@@ -86,6 +86,7 @@ const links = fullLinks.filter((link) => {
               <span className="p-2 self-center">{item.icon}</span>
               {item.external ? (
                 <a
+                  target="_blank"
                   href={item.path}
                   className="self-center mx-1 relative group text-[#F9F6F0]"
                   onClick={() => setOpen(false)}
