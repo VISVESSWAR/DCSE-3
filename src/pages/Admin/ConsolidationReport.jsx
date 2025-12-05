@@ -191,14 +191,19 @@ export function ConsolidationReportScholars() {
       ok = false;
     if (
       pubYear &&
-      p.publicationDate &&
-      new Date(p.publicationDate).getFullYear().toString() !== pubYear
+      p.year &&
+      p.year.toString() !== pubYear
     )
       ok = false;
     if (pubType && p.type !== pubType) ok = false;
-    if (dateFrom && new Date(p.publicationDate) < new Date(dateFrom))
-      ok = false;
-    if (dateTo && new Date(p.publicationDate) > new Date(dateTo)) ok = false;
+    if (dateFrom) {
+      const pubDate = new Date(p.year, (p.month || 1) - 1, 1);
+      if (pubDate < new Date(dateFrom)) ok = false;
+    }
+    if (dateTo) {
+      const pubDate = new Date(p.year, (p.month || 12) - 1, 1);
+      if (pubDate > new Date(dateTo)) ok = false;
+    }
     return ok;
   });
   const filteredFaculty = faculty.filter((f) => {
@@ -301,7 +306,7 @@ export function ConsolidationReportScholars() {
   // Publications summary
   const totalPublications = filteredPubs.length;
   const pubsByYear = groupBy(filteredPubs, (p) =>
-    p.publicationDate ? new Date(p.publicationDate).getFullYear() : "Unknown"
+    p.year ? p.year : "Unknown"
   );
   const pubsByFaculty = groupBy(
     filteredPubs,

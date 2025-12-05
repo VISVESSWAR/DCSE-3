@@ -687,13 +687,18 @@ export default function ConsolidationReportFaculty() {
       autoTable(pdf, {
         startY: y,
         head: [["Title", "Type", "Date"]],
-        body: facultyPubs.map((p) => [
-          p.title || "-",
-          p.type || "-",
-          p.publicationDate
-            ? new Date(p.publicationDate).toLocaleDateString("en-IN")
-            : "-",
-        ]),
+        body: facultyPubs.map((p) => {
+          const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"];
+          const dateDisplay = p.month 
+            ? `${monthNames[p.month - 1]} ${p.year}`
+            : p.year || "-";
+          return [
+            p.title || "-",
+            p.type || "-",
+            dateDisplay,
+          ];
+        }),
         theme: "grid",
         styles: { fontSize: 10, cellPadding: 4 },
         margin: { left: 40, right: 40 },

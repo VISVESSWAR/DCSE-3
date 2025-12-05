@@ -15,9 +15,22 @@ const publicationSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
-  publicationDate: {
-    type: Date,
+  year: {
+    type: Number,
     required: true,
+  },
+  month: {
+    type: Number,
+    min: 1,
+    max: 12,
+  },
+  volume: {
+    type: String,
+    trim: true,
+  },
+  issue: {
+    type: String,
+    trim: true,
   },
   journal: {
     type: String,
@@ -28,6 +41,12 @@ const publicationSchema = new mongoose.Schema({
     trim: true,
     unique: true,
     sparse: true,
+  },
+  facultyId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Faculty',
+    required: false,
+    index: true,
   },
   createdAt: {
     type: Date,

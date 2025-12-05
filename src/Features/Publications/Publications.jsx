@@ -78,6 +78,10 @@ function Publications() {
         );
       case "journal":
         return (publication.journal || "").toLowerCase().includes(searchValue);
+      case "year":
+        if (!searchTerm.trim()) return true;
+        const yearToMatch = parseInt(searchTerm.trim());
+        return publication.year && publication.year === yearToMatch;
       default:
         return true;
     }
@@ -101,21 +105,28 @@ function Publications() {
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
         <select
           value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setSearchTerm("");
+            setCurrentPage(1);
+          }}
           className="px-3 py-2 border border-gray-300 rounded-md w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="title">Filter by Title</option>
           <option value="author">Filter by Author</option>
           <option value="journal">Filter by Journal/Publisher</option>
+          <option value="year">Filter by Year</option>
         </select>
         <input
-          type="text"
+          type={filterType === "year" ? "number" : "text"}
           placeholder={`Search by ${
             filterType === "title"
               ? "title"
               : filterType === "author"
               ? "author"
-              : "journal/publisher"
+              : filterType === "journal"
+              ? "journal/publisher"
+              : "year"
           }...`}
           value={searchTerm}
           onChange={(e) => {
@@ -123,6 +134,8 @@ function Publications() {
             setCurrentPage(1);
           }}
           className="px-3 py-2 border border-gray-300 rounded-md w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          min={filterType === "year" ? "1900" : undefined}
+          max={filterType === "year" ? new Date().getFullYear() : undefined}
         />
       </div>
 
@@ -133,11 +146,11 @@ function Publications() {
               <th className="py-3 px-2 sm:px-4 text-center">Title</th>
               <th className="py-3 px-2 sm:px-4 text-center">Author</th>
               <th className="py-3 px-2 sm:px-4 text-center">
-                Publication Date
+                Journal Name
               </th>
-              <th className="py-3 px-2 sm:px-4 text-center">
-                Journal/Publisher
-              </th>
+              <th className="py-3 px-2 sm:px-4 text-center">Volume</th>
+              <th className="py-3 px-2 sm:px-4 text-center">Issue</th>
+              <th className="py-3 px-2 sm:px-4 text-center">Year</th>
               <th className="py-3 px-2 sm:px-4 text-center">DOI</th>
               {isAdmin && (
                 <th className="py-3 px-2 sm:px-4 text-center">Actions</th>
@@ -147,12 +160,19 @@ function Publications() {
           <tbody>
             {currentPublications.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
+                <td colSpan={isAdmin ? 8 : 7} className="text-center py-8 text-gray-500">
                   No publications found matching your search criteria.
                 </td>
               </tr>
             ) : (
-              currentPublications.map((publication) => (
+              currentPublications.map((publication) => {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"];
+                const dateDisplay = publication.month 
+                  ? `${monthNames[publication.month - 1]} ${publication.year}`
+                  : publication.year;
+                
+                return (
                 <tr
                   key={publication._id}
                   className="border-t border-gray-200 hover:bg-blue-50"
@@ -163,11 +183,17 @@ function Publications() {
                   <td className="py-2 px-2 sm:px-4 text-center break-words max-w-xs">
                     {publication.authors?.join(", ") || "-"}
                   </td>
-                  <td className="py-2 px-2 sm:px-4 text-center">
-                    {new Date(publication.publicationDate).toLocaleDateString()}
-                  </td>
                   <td className="py-2 px-2 sm:px-4 text-center break-words max-w-xs">
                     {publication.journal || "-"}
+                  </td>
+                  <td className="py-2 px-2 sm:px-4 text-center">
+                    {publication.volume || "-"}
+                  </td>
+                  <td className="py-2 px-2 sm:px-4 text-center">
+                    {publication.issue || "-"}
+                  </td>
+                  <td className="py-2 px-2 sm:px-4 text-center">
+                    {dateDisplay}
                   </td>
                   <td className="py-2 px-2 sm:px-4 text-center break-words max-w-xs">
                     {publication.doi || "-"}
@@ -197,7 +223,8 @@ function Publications() {
                     </td>
                   )}
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

@@ -153,11 +153,18 @@ export default function ConsolidationReportFacultyAnalytics() {
   );
 
   // Publications by this faculty (do not filter by semester)
-  const facultyPublications = publications.filter((p) =>
-    Array.isArray(p.authors)
+  // Use facultyId instead of name matching
+  const facultyPublications = publications.filter((p) => {
+    // Check if publication has facultyId matching selected faculty's _id
+    if (p.facultyId) {
+      const pubFacultyId = typeof p.facultyId === 'object' ? p.facultyId._id || p.facultyId : p.facultyId;
+      return pubFacultyId.toString() === selectedFaculty._id.toString();
+    }
+    // Fallback to name matching for old publications without facultyId
+    return Array.isArray(p.authors)
       ? p.authors.includes(selectedFaculty.name)
-      : p.authors === selectedFaculty.name
-  );
+      : p.authors === selectedFaculty.name;
+  });
   // OD event history for this faculty (do not filter by semester)
   const facultyOD = odRequests.filter((r) => r.name === selectedFaculty.name);
   const today = new Date();
@@ -655,10 +662,15 @@ export default function ConsolidationReportFacultyAnalytics() {
                 <li key={p._id || p.title} style={{ marginBottom: 0.2 }}>
                   {p.title || "-"}
                   {p.type ? ` (${p.type})` : ""}
-                  {p.publicationDate
-                    ? `, ${new Date(p.publicationDate).toLocaleDateString(
-                        "en-IN"
-                      )}`
+                  {p.year
+                    ? (() => {
+                        const monthNames = ["January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"];
+                        const dateDisplay = p.month 
+                          ? `${monthNames[p.month - 1]} ${p.year}`
+                          : p.year;
+                        return `, ${dateDisplay}`;
+                      })()
                     : ""}
                 </li>
               ))}
@@ -1105,10 +1117,15 @@ export default function ConsolidationReportFacultyAnalytics() {
                 <li key={p._id || p.title}>
                   {p.title || "-"}
                   {p.type ? ` (${p.type})` : ""}
-                  {p.publicationDate
-                    ? `, ${new Date(p.publicationDate).toLocaleDateString(
-                        "en-IN"
-                      )}`
+                  {p.year
+                    ? (() => {
+                        const monthNames = ["January", "February", "March", "April", "May", "June",
+                          "July", "August", "September", "October", "November", "December"];
+                        const dateDisplay = p.month 
+                          ? `${monthNames[p.month - 1]} ${p.year}`
+                          : p.year;
+                        return `, ${dateDisplay}`;
+                      })()
                     : ""}
                 </li>
               ))}

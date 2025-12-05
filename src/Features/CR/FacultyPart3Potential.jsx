@@ -132,16 +132,18 @@ export default function FacultyPart3Potential({
   );
 
   // 7(c): Publications in period (list)
+  // Publications are already filtered by facultyId from backend, just filter by date period
   const filteredPublications = publications.filter(
-    (pub) =>
-      pub.authors &&
-      pub.authors.some(
-        (author) =>
-          (facultyName && author.trim().toLowerCase() === facultyNameNorm) ||
-          (facultyEmail && author.trim().toLowerCase() === facultyEmailNorm)
-      ) &&
-      new Date(pub.publicationDate) >= periodStart &&
-      new Date(pub.publicationDate) <= periodEnd
+    (pub) => {
+      if (!pub.year) return false;
+      
+      // Convert publication year/month to date for comparison
+      const pubYear = pub.year;
+      const pubMonth = pub.month || 1; // Default to January if month not specified
+      const pubDate = new Date(pubYear, pubMonth - 1, 1); // Month is 0-indexed in Date
+      
+      return pubDate >= periodStart && pubDate <= periodEnd;
+    }
   );
 
   // Debug logs to diagnose why counts are 0
@@ -497,12 +499,18 @@ export default function FacultyPart3Potential({
         ) : (
           <div>
             <ul className="list-disc ml-6">
-              {filteredPublications.map((pub) => (
-                <li key={pub._id}>
-                  {pub.title} (
-                  {new Date(pub.publicationDate).toLocaleDateString()})
-                </li>
-              ))}
+              {filteredPublications.map((pub) => {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"];
+                const dateDisplay = pub.month 
+                  ? `${monthNames[pub.month - 1]} ${pub.year}`
+                  : pub.year;
+                return (
+                  <li key={pub._id}>
+                    {pub.title} ({dateDisplay})
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

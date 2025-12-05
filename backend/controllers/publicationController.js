@@ -1,4 +1,5 @@
 const Publication = require('../models/Publication');
+const Faculty = require('../models/Faculty');
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 
@@ -11,9 +12,16 @@ const addPublication = async (req, res) => {
       citationId = uuidv4(); 
     }
 
+    // Get faculty ID from user
+    const faculty = await Faculty.findOne({ _id: req.user._id });
+    if (!faculty && req.user.role === 'faculty') {
+      return res.status(404).json({ message: 'Faculty profile not found' });
+    }
+
     const publication = new Publication({
       ...req.body,
-      citation_id: citationId
+      citation_id: citationId,
+      facultyId: req.user.role === 'faculty' ? req.user._id : req.body.facultyId || undefined
     });
 
     const saved = await publication.save();
@@ -30,19 +38,20 @@ const addPublication = async (req, res) => {
 const getAllPublications = async (req, res) => {
   try {
     console.log(req.user)
-    const { role, name } = req.user;
-    console.log("User role:", role, "User name:", name);
+    const { role, _id } = req.user;
+    console.log("User role:", role, "User ID:", _id);
 
-    if (!role || !name) {
-      return res.status(400).json({ message: "Missing user role or name" });
+    if (!role || !_id) {
+      return res.status(400).json({ message: "Missing user role or ID" });
     }
 
     let publications;
 
     if (role === "faculty") {
-      publications = await Publication.find({ authors: name });
+      // Map publications by facultyId instead of name
+      publications = await Publication.find({ facultyId: _id });
     } else if (role === "admin" || role === "hod") {
-      publications = await Publication.find();
+      publications = await Publication.find().populate('facultyId', 'name email');
     } else {
       return res.status(403).json({ message: "Unauthorized access" });
     }
@@ -74,6 +83,50 @@ const deletePublication = async (req, res) => {
     res.json({ message: 'Publication deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+const verifyGoogleScholarProfile = async (req, res) => {
+  const authorId = req.query.authorId;
+  const apiKey = process.env.SERP_API_KEY;
+
+  if (!authorId) return res.status(400).json({ message: 'Author ID is required' });
+  if (!apiKey) {
+    return res.status(500).json({ message: 'SERP API key is not configured' });
+  }
+
+  try {
+    const resp = await axios.get('https://serpapi.com/search.json', {
+      params: {
+        engine: 'google_scholar_author',
+        author_id: authorId,
+        api_key: apiKey,
+        num: 1, // Just fetch one to verify profile exists
+      },
+    });
+
+    const authorInfo = resp.data.author;
+    if (!authorInfo) {
+      return res.status(404).json({ message: 'Google Scholar profile not found' });
+    }
+
+    return res.json({
+      verified: true,
+      profile: {
+        name: authorInfo.name,
+        affiliation: authorInfo.affiliations,
+        email: authorInfo.email,
+        interests: authorInfo.interests,
+        thumbnail: authorInfo.thumbnail,
+        totalCitations: authorInfo.cited_by?.table?.[0]?.citations?.all || 0,
+      }
+    });
+  } catch (error) {
+    console.error('Failed to verify profile:', error?.response?.data || error.message);
+    if (error.response?.status === 404) {
+      return res.status(404).json({ message: 'Google Scholar profile not found' });
+    }
+    return res.status(500).json({ message: 'Failed to verify Google Scholar profile' });
   }
 };
 
@@ -126,8 +179,16 @@ const fetchAndStorePublications = async (req, res) => {
     console.error('SERP_API_KEY is not set in environment variables');
     return res.status(500).json({ message: 'SERP API key is not configured' });
   }
+
+  // Get faculty ID from logged-in user
+  const facultyId = req.user._id;
+  if (!facultyId) {
+    return res.status(400).json({ message: 'Faculty ID not found. Please ensure you are logged in.' });
+  }
+
   console.log('Using SERP_API_KEY (first 5 chars):', apiKey.substring(0, 5));
   console.log('Fetching publications for authorId:', authorId);
+  console.log('Mapping publications to facultyId:', facultyId);
 
   let totalFetched = [];
   let start = 0;
@@ -167,15 +228,26 @@ const fetchAndStorePublications = async (req, res) => {
       console.log('Processing article:', article);
       try {
         const existing = await Publication.findOne({ citation_id: article.citation_id });
-        if (existing) continue;
+        if (existing) {
+          // Update existing publication to include facultyId if not already set
+          if (!existing.facultyId) {
+            existing.facultyId = facultyId;
+            await existing.save();
+          }
+          continue;
+        }
 
         const newPub = new Publication({
           citation_id: article.citation_id,
           title: article.title,
           authors: article.authors.split(',').map(a => a.trim()),
-          publicationDate: article.year ? new Date(`${article.year}-01-01`) : new Date(),
+          year: article.year ? parseInt(article.year) : new Date().getFullYear(),
+          month: article.month ? parseInt(article.month) : undefined,
+          volume: article.volume || undefined,
+          issue: article.issue || undefined,
           journal: article.publication,
-          doi: article.doi || undefined // Set to undefined if DOI is not present
+          doi: article.doi || undefined, // Set to undefined if DOI is not present
+          facultyId: facultyId // Map to current logged-in faculty
         });
 
         await newPub.save();
@@ -186,7 +258,7 @@ const fetchAndStorePublications = async (req, res) => {
       }
     }
 
-    res.status(201).json({ message: `${newCount} new publications added.` });
+    res.status(201).json({ message: `${newCount} new publications added and mapped to your faculty profile.` });
   } catch (err) {
     console.error('Error details:', {
       message: err.message,
@@ -205,6 +277,7 @@ module.exports = {
   getAllPublications,
   updatePublication,
   deletePublication,
+  verifyGoogleScholarProfile,
   fetchPublications,
   fetchAndStorePublications
 };
