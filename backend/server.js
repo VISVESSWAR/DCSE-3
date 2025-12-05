@@ -10,8 +10,21 @@ const authRoutes = require("./routes/authRoutes");
 const path = require("path");
 const odRoutes = require("./routes/ODRoutes");
 const crReportRoutes = require("./routes/crRoutes");
+const dropdownRoutes = require("./routes/dropdownRoutes");
 
 dotenv.config();
+
+// Log environment variables (masked for security)
+console.log("\n=== SERVER STARTUP ===");
+console.log("NODE_ENV:", process.env.NODE_ENV || "not set");
+console.log("PORT:", process.env.PORT || 5000);
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL || "not set");
+console.log("EMAIL_SERVICE:", process.env.EMAIL_SERVICE || "not set");
+console.log("EMAIL_USER:", process.env.EMAIL_USER ? `${process.env.EMAIL_USER.substring(0, 3)}***` : "not set");
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS ? "***set***" : "not set");
+console.log("MONGO_URI:", process.env.MONGO_URI ? "***set***" : "not set");
+console.log("=====================\n");
+
 connectDB();
 const app = express();
 
@@ -38,6 +51,7 @@ app.use("/api/faculty", facultyRoutes);
 app.use("/api/pgscholars", pgScholarRoutes);
 app.use("/api/publications", publicationRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/dropdowns", dropdownRoutes);
 app.use("/uploads", express.static("uploads", {
   setHeaders: (res, path) => {
     if (path.endsWith(".pdf")) {
