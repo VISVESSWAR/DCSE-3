@@ -41,6 +41,8 @@ export default function Sidebar() {
     { name: "View CR", path: "CR/view", icon: <TbReport />, roles: ["all"] },
     { name: "Consolidation Report", path: "/admin/consolidation-report/menu", icon: <TbReport />, roles: ["admin"] },
     { name: "AddUser", path: "/signup", icon: <TbUserPlus />, roles: ["admin"] },
+    { name: "Faculty Management", path: "/admin/faculty", icon: <TbUser />, roles: ["admin"] },
+    { name: "Manage Dropdowns", path: "/admin/dropdowns", icon: <TbBook />, roles: ["admin"] },
     { name: "Tutorial", path: tutorialLinks[user?.role] || "#", icon: <TbBook />, roles: ["all"], external: true,},
     ...(user
       ? [{ name: "Logout", path: "/", icon: <TbLogout2 />, roles: ["all"] }]

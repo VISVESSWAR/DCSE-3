@@ -3,6 +3,8 @@ import "./App.css";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import FacultyLogin from "./pages/Faculty/Login";
+import ForgotPassword from "./pages/Faculty/ForgotPassword";
+import ResetPassword from "./pages/Faculty/ResetPassword";
 import ODRequest from "./Features/OD/ODRequest";
 import ODHistory from "./Features/OD/ODHistory";
 import AddPublication from "./Features/Publications/AddPublication";
@@ -23,6 +25,9 @@ import {
 } from "./pages/Admin/ConsolidationReport";
 import ConsolidationReportFaculty from "./pages/Admin/ConsolidationReportFaculty";
 import ConsolidationReportFacultyAnalytics from "./pages/Admin/ConsolidationReportFacultyAnalytics";
+import FacultyList from "./pages/Admin/FacultyList";
+import UpdateFaculty from "./pages/Admin/UpdateFaculty";
+import ManageDropdowns from "./pages/Admin/ManageDropdowns";
 
 import FullReport from "./Features/CR/FullReport";
 function App() {
@@ -33,6 +38,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />}>
             <Route path="login" element={<FacultyLogin />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />
+            <Route path="reset-password" element={<ResetPassword />} />
 
             {/* Signup visible only to admin */}
 
@@ -69,6 +76,9 @@ function App() {
                   element={<ConsolidationReportMenu />}
                 />
                 <Route path="signup" element={<Signup />} />
+                <Route path="/admin/faculty" element={<FacultyList />} />
+                <Route path="/admin/faculty/update/:id" element={<UpdateFaculty />} />
+                <Route path="/admin/dropdowns" element={<ManageDropdowns />} />
                 <Route
                   path="/admin/consolidation-report/scholars"
                   element={<ConsolidationReportScholars />}

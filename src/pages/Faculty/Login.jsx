@@ -170,6 +170,14 @@ export default function Login({ onLogin }) {
           Log In
         </button>
         <p className="text-center mt-2">
+          <Link
+            to="/forgot-password"
+            className="text-[#145DA0] font-semibold hover:underline text-sm"
+          >
+            Forgot Password?
+          </Link>
+        </p>
+        <p className="text-center mt-2">
           Don't have an account?{" "}
           <Link
             to="/signup"
